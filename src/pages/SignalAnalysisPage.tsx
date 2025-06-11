@@ -34,6 +34,15 @@ const SignalAnalysisPage: React.FC = () => {
     refetch,
   } = useSignalDataByDate(submittedDate, {
     enabled: !!submittedDate, // submittedDate가 있을 때만 쿼리 실행
+    select(data) {
+      // 필요한 데이터만 선택하여 반환
+      return {
+        date: data.date,
+        signals: data.signals.filter(
+          (signal) => signal.signal.action !== "hold"
+        ),
+      };
+    },
   });
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {

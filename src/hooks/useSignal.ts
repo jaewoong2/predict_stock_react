@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { SignalAPIResponse } from "../types/signal";
 import { signalApiService } from "@/services/signalService";
 
@@ -15,11 +15,15 @@ export const SIGNAL_KEYS = {
  */
 export const useSignalDataByDate = (
   date: string,
-  options?: { enabled?: boolean }
+  options?: Omit<
+    UseQueryOptions<SignalAPIResponse, Error>,
+    "queryKey" | "queryFn"
+  > // React Query 옵션 타입
 ) => {
   return useQuery<SignalAPIResponse, Error>({
     queryKey: SIGNAL_KEYS.listByDate(date),
     queryFn: () => signalApiService.getSignalsByDate(date),
+    ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled), // 날짜가 있고, enabled 옵션이 true일 때만 실행
   });
 };

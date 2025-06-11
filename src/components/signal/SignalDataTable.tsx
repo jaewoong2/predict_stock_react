@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"; // Shadcn UI 경로 확인
 import { SignalData } from "../../types/signal";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -201,23 +202,25 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} /{" "}
-          {table.getFilteredRowModel().rows.length} 행 선택됨.
+          {table.getFilteredRowModel().rows.length}
         </div>
         <Button
           variant="outline"
           size="sm"
+          className="cursor-pointer"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          이전
+          <ChevronLeft className="h-4 w-4 transform" />
         </Button>
         <Button
           variant="outline"
           size="sm"
+          className="cursor-pointer"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          다음
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
