@@ -35,6 +35,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
   isLoading?: boolean;
+  globalFilter: string; // 추가
+  onGlobalFilterChange: (filterValue: string) => void; // 추가
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -42,15 +44,17 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
+  globalFilter, // 추가
+  onGlobalFilterChange, // 추가
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<
     { id: string; value: unknown }[]
-  >([]); // More specific type for column filters
+  >([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  // const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
     data,
@@ -62,11 +66,16 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       rowSelection,
       globalFilter,
     },
+    initialState: {
+      pagination: {
+        pageSize: 20, // 페이지 크기를 30으로 변경
+      },
+    },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters, // 직접 설정
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    onGlobalFilterChange: setGlobalFilter,
+    // onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -105,8 +114,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       <div className="flex items-center py-4">
         <Input
           placeholder="티커로 검색..."
-          value={globalFilter ?? ""}
-          onChange={(event) => setGlobalFilter(event.target.value)}
+          value={globalFilter ?? ""} // 부모로부터 받은 globalFilter 사용
+          onChange={(event) => onGlobalFilterChange(event.target.value)} // 부모의 핸들러 호출
           className="max-w-sm"
         />
         <DropdownMenu>

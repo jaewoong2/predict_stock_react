@@ -104,6 +104,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <strong>전략:</strong> {signal.strategy ?? "N/A"}
+            </div>
+            <div>
               <strong>AI 모델:</strong> {signal.ai_model ?? "N/A"}
             </div>
             <div>
@@ -232,25 +235,13 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
         {result && (
           <section>
             <h3 className="text-lg font-semibold mb-2 border-b pb-1">
-              시그널 결과
+              실제 결과
             </h3>
             <div className="flex items-center space-x-4">
               <div>
-                <strong>예측 방향:</strong>{" "}
-                <Badge
-                  variant={
-                    result.action === "up"
-                      ? "default"
-                      : result.action === "down"
-                      ? "destructive"
-                      : "secondary"
-                  }
-                >
-                  {result.action.toUpperCase()}
-                </Badge>
+                <Badge>{result.action.toUpperCase()}</Badge>
               </div>
               <div>
-                <strong>정확도:</strong>{" "}
                 {result.is_correct ? (
                   <Badge className="bg-green-500 hover:bg-green-600 text-white">
                     성공
@@ -260,7 +251,10 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
                 )}
               </div>
               <div>
-                <strong>가격 변화:</strong> {formatCurrency(result.price_diff)}
+                <strong>가격 변화:</strong>{" "}
+                {ticker?.close_price &&
+                  ticker?.open_price &&
+                  formatCurrency(ticker.close_price - ticker.open_price)}
               </div>
             </div>
           </section>
