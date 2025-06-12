@@ -3,16 +3,16 @@ import { useSearchParams } from "react-router-dom";
 import { format as formatDate, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, X as XIcon, Search } from "lucide-react";
+import { Loader2, X as XIcon } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
 import { SignalData } from "@/types/signal";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 import { SignalDataTable } from "../components/signal/SignalDataTable";
 import { columns } from "../components/signal/columns";
 import { SignalDetailView } from "../components/signal/SignalDetailView";
+import { AiModelMultiSelect } from "../components/signal/AiModelMultiSelect";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 const getTodayDateString = () => {
@@ -66,8 +66,6 @@ const SignalAnalysisPage: React.FC = () => {
   const [aiModelFilterCondition, setAiModelFilterCondition] = useState<
     "OR" | "AND"
   >(() => (getParam(searchParams, "condition", "OR") === "AND" ? "AND" : "OR"));
-  const [aiModelInput, setAiModelInput] = useState("");
-  const [showAiModelSuggestions, setShowAiModelSuggestions] = useState(false);
 
   const {
     data: signalApiResponse,
@@ -183,20 +181,6 @@ const SignalAnalysisPage: React.FC = () => {
     setGlobalFilter(value);
   };
 
-  const handleAddAiModel = () => {
-    if (
-      aiModelInput &&
-      !selectedAiModels.includes(aiModelInput) &&
-      availableAiModels.includes(aiModelInput)
-    ) {
-      setSelectedAiModels([...selectedAiModels, aiModelInput]);
-      setAiModelInput("");
-      setShowAiModelSuggestions(false);
-    } else if (aiModelInput && !availableAiModels.includes(aiModelInput)) {
-      console.warn("Selected model is not in the available list.");
-    }
-  };
-
   const handleRemoveAiModel = (modelToRemove: string) => {
     setSelectedAiModels(
       selectedAiModels.filter((model) => model !== modelToRemove)
@@ -206,45 +190,6 @@ const SignalAnalysisPage: React.FC = () => {
   const handleAiModelFilterConditionChange = (value: "OR" | "AND") => {
     setAiModelFilterCondition(value);
   };
-
-  const handleAiModelInputFocus = () => {
-    setShowAiModelSuggestions(true);
-  };
-
-  const handleAiModelInputBlur = () => {
-    setTimeout(() => {
-      setShowAiModelSuggestions(false);
-    }, 150); // 클릭 이벤트 처리 시간 확보
-  };
-
-  const handleAiModelSuggestionClick = (model: string) => {
-    setAiModelInput(model);
-    setShowAiModelSuggestions(false);
-    // 필요시 여기서 바로 handleAddAiModel() 호출 가능
-  };
-
-  const suggestedAiModels = useMemo(() => {
-    if (!showAiModelSuggestions) return [];
-
-    const unselectedModels = availableAiModels.filter(
-      (model) => !selectedAiModels.includes(model)
-    );
-
-    if (!aiModelInput.trim()) {
-      return unselectedModels.slice(0, 10); // 입력 없으면 상위 10개 또는 전체
-    }
-
-    return unselectedModels
-      .filter((model) =>
-        model.toLowerCase().includes(aiModelInput.toLowerCase())
-      )
-      .slice(0, 5); // 입력 있으면 필터링하여 상위 5개
-  }, [
-    aiModelInput,
-    availableAiModels,
-    selectedAiModels,
-    showAiModelSuggestions,
-  ]);
 
   const filteredSignals = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
@@ -333,41 +278,12 @@ const SignalAnalysisPage: React.FC = () => {
       {availableAiModels.length > 0 && (
         <div className="mb-6 p-4 border rounded-lg shadow bg-card">
           <h3 className="text-lg font-semibold mb-2">AI 모델 필터</h3>
-          <div className="flex items-center space-x-2 mb-3 relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="AI 모델 이름 검색/입력..."
-              value={aiModelInput}
-              onChange={(e) => setAiModelInput(e.target.value)}
-              onFocus={handleAiModelInputFocus}
-              onBlur={handleAiModelInputBlur}
-              className="pl-9 flex-grow"
+          <div className="mb-3 flex items-center space-x-2">
+            <AiModelMultiSelect
+              options={availableAiModels}
+              value={selectedAiModels}
+              onChange={setSelectedAiModels}
             />
-            <Button
-              onClick={handleAddAiModel}
-              size="sm"
-              disabled={
-                !aiModelInput ||
-                !availableAiModels.includes(aiModelInput) ||
-                selectedAiModels.includes(aiModelInput)
-              }
-            >
-              추가
-            </Button>
-            {suggestedAiModels.length > 0 && (
-              <div className="absolute top-full left-0 mt-1 w-full bg-card border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-                {suggestedAiModels.map((model) => (
-                  <div
-                    key={model}
-                    className="p-2 hover:bg-muted cursor-pointer"
-                    onClick={() => handleAiModelSuggestionClick(model)}
-                  >
-                    {model}
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="mb-3 flex flex-wrap gap-2">
