@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSignalQueryParams } from "@/hooks/useSignalQueryParams";
 import { format as formatDate, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -19,53 +19,25 @@ const getTodayDateString = () => {
   return formatDate(new Date(), "yyyy-MM-dd");
 };
 
-const getParam = (
-  searchParams: URLSearchParams,
-  key: string,
-  defaultValue: string | null = null // 기본값을 null로 변경하여 명시적으로 없는 상태 표현
-) => searchParams.get(key) ?? defaultValue;
-
-const getArrayParam = (searchParams: URLSearchParams, key: string) => {
-  const param = searchParams.get(key);
-  return param ? param.split(",").filter(Boolean) : [];
-};
-
 const SignalAnalysisPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { params, updateParams } = useSignalQueryParams();
   const todayString = getTodayDateString();
 
-  const initialDate = useMemo(() => {
-    const dateFromUrl = searchParams.get("date");
-    if (dateFromUrl && /^\d{4}-\d{2}-\d{2}$/.test(dateFromUrl)) {
-      try {
-        const parsed = parseISO(dateFromUrl);
-        if (formatDate(parsed, "yyyy-MM-dd") === dateFromUrl) {
-          return dateFromUrl;
-        }
-      } catch (e) {
-        console.error("Invalid date format in URL:", dateFromUrl, e);
-      }
-    }
-    return todayString;
-  }, [searchParams, todayString]);
+  const initialDate = params.date;
 
   const [selectedDate, setSelectedDate] = useState<string>(initialDate);
   const [submittedDate, setSubmittedDate] = useState<string>(initialDate);
-  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(() =>
-    getParam(searchParams, "signalId")
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(
+    params.signalId
   );
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
-  const [globalFilter, setGlobalFilter] = useState<string>(
-    () => getParam(searchParams, "q") ?? "" // q는 빈 문자열이 기본값일 수 있음
-  );
+  const [globalFilter, setGlobalFilter] = useState<string>(params.q);
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
-  const [selectedAiModels, setSelectedAiModels] = useState<string[]>(() =>
-    getArrayParam(searchParams, "models")
+  const [selectedAiModels, setSelectedAiModels] = useState<string[]>(params.models);
+  const [aiModelFilterCondition, setAiModelFilterCondition] = useState<"OR" | "AND">(
+    params.condition
   );
-  const [aiModelFilterCondition, setAiModelFilterCondition] = useState<
-    "OR" | "AND"
-  >(() => (getParam(searchParams, "condition", "OR") === "AND" ? "AND" : "OR"));
 
   const {
     data: signalApiResponse,
@@ -84,32 +56,22 @@ const SignalAnalysisPage: React.FC = () => {
     },
   });
 
-  const updateUrlParams = useCallback(() => {
-    const params = new URLSearchParams();
-    if (submittedDate !== todayString) params.set("date", submittedDate);
-    if (selectedSignalId) params.set("signalId", selectedSignalId);
-    if (globalFilter) params.set("q", globalFilter);
-    if (selectedAiModels.length > 0)
-      params.set("models", selectedAiModels.join(","));
-    if (aiModelFilterCondition === "AND") params.set("condition", "AND");
-
-    if (params.toString() !== searchParams.toString()) {
-      setSearchParams(params, { replace: true });
-    }
+  useEffect(() => {
+    updateParams({
+      date: submittedDate,
+      signalId: selectedSignalId ?? undefined,
+      q: globalFilter,
+      models: selectedAiModels,
+      condition: aiModelFilterCondition,
+    });
   }, [
     submittedDate,
     selectedSignalId,
     globalFilter,
     selectedAiModels,
     aiModelFilterCondition,
-    setSearchParams,
-    todayString,
-    searchParams,
+    updateParams,
   ]);
-
-  useEffect(() => {
-    updateUrlParams();
-  }, [updateUrlParams]);
 
   useEffect(() => {
     if (submittedDate) {
