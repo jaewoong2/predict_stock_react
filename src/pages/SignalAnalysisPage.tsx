@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { format as formatDate } from "date-fns";
 import { SignalData } from "@/types/signal";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 import { columns } from "../components/signal/columns";
-import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { DateSelector } from "../components/signal/DateSelector";
 import { AiModelFilterPanel } from "../components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "../components/signal/SignalListWrapper";
@@ -10,22 +11,26 @@ import { SignalDetailSection } from "../components/signal/SignalDetailSection";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
-    selectedDate,
-    setSelectedDate,
-    submittedDate,
-    setSubmittedDate,
-    selectedSignalId,
-    setSelectedSignalId,
-    globalFilter,
-    setGlobalFilter,
-    selectedAiModels,
-    setSelectedAiModels,
-    aiModelFilterCondition,
-    setAiModelFilterCondition,
-  } = useDashboardFilters();
+    date,
+    signalId,
+    q,
+    models: selectedAiModels,
+    condition: aiModelFilterCondition,
+    setParams,
+  } = useSignalSearchParams();
+
+  const todayString = formatDate(new Date(), "yyyy-MM-dd");
+  const submittedDate = date ?? todayString;
+  const [selectedDate, setSelectedDate] = useState<string>(submittedDate);
+  const globalFilter = q ?? "";
+  const selectedSignalId = signalId;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
+
+  useEffect(() => {
+    setSelectedDate(submittedDate);
+  }, [submittedDate]);
 
   const {
     data: signalApiResponse,
@@ -58,12 +63,12 @@ const SignalAnalysisPage: React.FC = () => {
         setSelectedSignal(found);
       } else if (!isLoading) {
         setSelectedSignal(null);
-        setSelectedSignalId(null);
+        setParams({ signalId: null });
       }
     } else {
       setSelectedSignal(null);
     }
-  }, [selectedSignalId, signalApiResponse, isLoading, setSelectedSignalId]);
+  }, [selectedSignalId, signalApiResponse, isLoading]);
 
   useEffect(() => {
     if (signalApiResponse?.signals) {
@@ -80,14 +85,13 @@ const SignalAnalysisPage: React.FC = () => {
 
   const handleSubmitDate = () => {
     if (selectedDate) {
-      setSubmittedDate(selectedDate);
-      setSelectedSignalId(null);
+      setParams({ date: selectedDate, signalId: null });
     }
   };
 
   const handleRowClick = (signal: SignalData) => {
     const id = `${signal.signal.ticker}_${signal.signal.ai_model}`;
-    setSelectedSignalId(id);
+    setParams({ signalId: id });
   };
 
   const filteredSignals = useMemo(() => {
@@ -158,8 +162,8 @@ const SignalAnalysisPage: React.FC = () => {
       <AiModelFilterPanel
         availableModels={availableAiModels}
         selectedModels={selectedAiModels}
-        onModelsChange={setSelectedAiModels}
-        onConditionChange={setAiModelFilterCondition}
+        onModelsChange={(models) => setParams({ models })}
+        onConditionChange={(value) => setParams({ condition: value })}
         condition={aiModelFilterCondition}
       />
 
@@ -170,7 +174,7 @@ const SignalAnalysisPage: React.FC = () => {
         onRowClick={handleRowClick}
         isLoading={isLoading}
         globalFilter={globalFilter}
-        onGlobalFilterChange={setGlobalFilter}
+        onGlobalFilterChange={(v) => setParams({ q: v })}
       />
 
       <SignalDetailSection
