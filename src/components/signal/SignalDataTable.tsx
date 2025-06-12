@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table"; // Shadcn UI 경로 확인
 import { Button } from "@/components/ui/button"; // Shadcn UI 경로 확인
-import { Input } from "@/components/ui/input"; // Shadcn UI 경로 확인
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -28,15 +27,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"; // Shadcn UI 경로 확인
 import { SignalData } from "../../types/signal";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
   isLoading?: boolean;
-  globalFilter: string; // 추가
-  onGlobalFilterChange: (filterValue: string) => void; // 추가
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -44,8 +41,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
-  globalFilter, // 추가
-  onGlobalFilterChange, // 추가
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<
@@ -55,7 +50,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   // const [globalFilter, setGlobalFilter] = React.useState("");
-
   const table = useReactTable({
     data,
     columns,
@@ -64,7 +58,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
-      globalFilter,
     },
     initialState: {
       pagination: {
@@ -75,6 +68,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     onColumnFiltersChange: setColumnFilters, // 직접 설정
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+
     // onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -111,43 +105,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="티커로 검색..."
-            value={globalFilter ?? ""} // 부모로부터 받은 globalFilter 사용
-            onChange={(event) => onGlobalFilterChange(event.target.value)} // 부모의 핸들러 호출
-            className="pl-7"
-          />
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              컬럼 표시/숨김
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -183,10 +140,14 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() =>
-                    onRowClick && onRowClick(row.original as TData)
-                  }
-                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => {
+                    if (onRowClick) {
+                      onRowClick(row.original as TData);
+                      table.resetRowSelection();
+                      row.toggleSelected();
+                    }
+                  }}
+                  className="cursor-pointer hover:bg-muted/50 data-[state=selected]:bg-muted"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -211,10 +172,35 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} /{" "}
-          {table.getFilteredRowModel().rows.length}
+      <div className="flex items-center justify-end space-x-2">
+        <div className="flex justify-start w-full items-center gap-4 text-sm text-muted-foreground">
+          <span>
+            {table.getFilteredSelectedRowModel().rows.length} /{" "}
+            {table.getFilteredRowModel().rows.length}
+          </span>
+          <div className="flex items-center py-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="ml-auto">
+                  {table.getState().pagination.pageSize}줄
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {[10, 20, 30, 50].map((size) => (
+                  <DropdownMenuCheckboxItem
+                    key={size}
+                    className="capitalize"
+                    checked={table.getState().pagination.pageSize === size}
+                    onCheckedChange={() => {
+                      table.setPageSize(size);
+                    }}
+                  >
+                    {size}줄
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         <Button
           variant="outline"

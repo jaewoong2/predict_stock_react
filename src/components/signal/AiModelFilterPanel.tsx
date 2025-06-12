@@ -1,9 +1,10 @@
+import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { X as XIcon } from "lucide-react";
-import { AiModelMultiSelect } from "./AiModelMultiSelect";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label"; // Label 추가
+import { cn } from "@/lib/utils";
 
 interface AiModelFilterPanelProps {
   availableModels: string[];
@@ -24,82 +25,69 @@ export function AiModelFilterPanel({
     onModelsChange(selectedModels.filter((m) => m !== model));
   };
 
+  const handleModelToggle = (model: string) => {
+    const currentIndex = selectedModels.indexOf(model);
+    const newSelectedModels = [...selectedModels];
+
+    if (currentIndex === -1) {
+      newSelectedModels.push(model);
+    } else {
+      newSelectedModels.splice(currentIndex, 1);
+    }
+    onModelsChange(newSelectedModels);
+  };
+
   return (
     <>
-      {availableModels.length > 0 && (
-        <div className="mb-6 p-4 border rounded-lg shadow bg-card">
-          <h3 className="text-lg font-semibold mb-2">AI 모델 필터</h3>
-          <div className="mb-3 flex items-center space-x-2">
-            <AiModelMultiSelect
-              options={availableModels}
-              value={selectedModels}
-              onChange={onModelsChange}
-            />
-          </div>
-
-          <div className="mb-3 flex flex-wrap gap-2">
-            {selectedModels.map((model) => (
+      <div className="flex flex-wrap items-center py-2">
+        {/* {selectedModels?.map((model, index) => (
+              <React.Fragment key={model}>
+                {index > 0 && (
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() =>
+                      onConditionChange(condition === "OR" ? "AND" : "OR")
+                    }
+                    className="text-xs text-muted-foreground hover:text-foreground m-0 p-0 px-2"
+                  >
+                    {condition}
+                  </Button>
+                )}
+              </React.Fragment>
+            ))} */}
+        <div className="flex items-center gap-2">
+          {availableModels.map((model, index) => (
+            <React.Fragment key={model}>
               <Badge
                 key={model}
                 variant="secondary"
-                className="flex items-center gap-1"
+                className={cn(
+                  "flex items-center gap-1",
+                  selectedModels.includes(model)
+                    ? "bg-blue-500 text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
+                )}
+                onClick={() => handleModelToggle(model)}
               >
                 {model}
-                <button
-                  onClick={() => handleRemove(model)}
-                  className="rounded-full hover:bg-destructive/20 p-0.5"
-                >
-                  <XIcon className="h-3 w-3" />
-                </button>
               </Badge>
-            ))}
-          </div>
-
-          <RadioGroup
-            value={condition}
-            onValueChange={onConditionChange}
-            className="flex items-center space-x-4 mb-3"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="OR" id="ai-filter-or" />
-              <Label htmlFor="ai-filter-or">OR (하나라도 일치)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="AND" id="ai-filter-and" />
-              <Label htmlFor="ai-filter-and">AND (모두 일치)</Label>
-            </div>
-          </RadioGroup>
-
-          {selectedModels.length > 0 && (
-            <div className="mt-3 flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const modelsToAdd = availableModels.filter(
-                    (m) => !selectedModels.includes(m)
-                  );
-                  onModelsChange([...selectedModels, ...modelsToAdd]);
-                }}
-                disabled={
-                  selectedModels.length === availableModels.length ||
-                  availableModels.length === 0
-                }
-              >
-                모두 추가
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onModelsChange([])}
-                disabled={selectedModels.length === 0}
-              >
-                모두 해제
-              </Button>
-            </div>
-          )}
+              {index + 1 < availableModels.length && (
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() =>
+                    onConditionChange(condition === "OR" ? "AND" : "OR")
+                  }
+                  className="text-xs text-muted-foreground hover:text-foreground m-0 p-0 px-2"
+                >
+                  {condition}
+                </Button>
+              )}
+            </React.Fragment>
+          ))}
         </div>
-      )}
+      </div>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export interface SignalQueryParams {
@@ -64,6 +64,36 @@ export function useSignalSearchParams() {
     },
     [searchParams, setSearchParams]
   );
+
+  useEffect(() => {
+    // 초기 로드 시 쿼리 파라미터가 없으면 기본값 설정
+    if (!params.date) {
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0]; // YYYY-MM-DD 형식
+      setParams({
+        date: formattedDate,
+      });
+    }
+    if (!params.signalId) {
+      setParams({ signalId: null });
+    }
+    if (!params.q) {
+      setParams({ q: null });
+    }
+    if (params.models.length === 0) {
+      setParams({ models: [], condition: "OR" });
+    }
+    if (!params.condition) {
+      setParams({ condition: "OR" });
+    }
+  }, [
+    params.condition,
+    params.date,
+    params.models.length,
+    params.q,
+    params.signalId,
+    setParams,
+  ]);
 
   return { ...params, setParams };
 }
