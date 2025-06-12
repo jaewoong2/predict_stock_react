@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"; // Shadcn UI 경로 확인
 import { SignalData } from "../../types/signal";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -112,12 +112,15 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <Input
-          placeholder="티커로 검색..."
-          value={globalFilter ?? ""} // 부모로부터 받은 globalFilter 사용
-          onChange={(event) => onGlobalFilterChange(event.target.value)} // 부모의 핸들러 호출
-          className="max-w-sm"
-        />
+        <div className="relative max-w-sm">
+          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="티커로 검색..."
+            value={globalFilter ?? ""} // 부모로부터 받은 globalFilter 사용
+            onChange={(event) => onGlobalFilterChange(event.target.value)} // 부모의 핸들러 호출
+            className="pl-7"
+          />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
