@@ -1,0 +1,91 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { format as formatDate, parseISO } from "date-fns";
+
+const getParam = (
+  searchParams: URLSearchParams,
+  key: string,
+  defaultValue: string | null = null
+) => searchParams.get(key) ?? defaultValue;
+
+const getArrayParam = (searchParams: URLSearchParams, key: string) => {
+  const param = searchParams.get(key);
+  return param ? param.split(",").filter(Boolean) : [];
+};
+
+export function useDashboardFilters() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const todayString = formatDate(new Date(), "yyyy-MM-dd");
+
+  const initialDate = useMemo(() => {
+    const dateFromUrl = searchParams.get("date");
+    if (dateFromUrl && /^\d{4}-\d{2}-\d{2}$/.test(dateFromUrl)) {
+      try {
+        const parsed = parseISO(dateFromUrl);
+        if (formatDate(parsed, "yyyy-MM-dd") === dateFromUrl) {
+          return dateFromUrl;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    return todayString;
+  }, [searchParams, todayString]);
+
+  const [selectedDate, setSelectedDate] = useState<string>(initialDate);
+  const [submittedDate, setSubmittedDate] = useState<string>(initialDate);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(() =>
+    getParam(searchParams, "signalId")
+  );
+  const [globalFilter, setGlobalFilter] = useState<string>(
+    () => getParam(searchParams, "q") ?? ""
+  );
+  const [selectedAiModels, setSelectedAiModels] = useState<string[]>(() =>
+    getArrayParam(searchParams, "models")
+  );
+  const [aiModelFilterCondition, setAiModelFilterCondition] = useState<
+    "OR" | "AND"
+  >(() => (getParam(searchParams, "condition", "OR") === "AND" ? "AND" : "OR"));
+
+  const updateUrlParams = useCallback(() => {
+    const params = new URLSearchParams();
+    if (submittedDate !== todayString) params.set("date", submittedDate);
+    if (selectedSignalId) params.set("signalId", selectedSignalId);
+    if (globalFilter) params.set("q", globalFilter);
+    if (selectedAiModels.length > 0)
+      params.set("models", selectedAiModels.join(","));
+    if (aiModelFilterCondition === "AND") params.set("condition", "AND");
+
+    if (params.toString() !== searchParams.toString()) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [
+    submittedDate,
+    selectedSignalId,
+    globalFilter,
+    selectedAiModels,
+    aiModelFilterCondition,
+    setSearchParams,
+    todayString,
+    searchParams,
+  ]);
+
+  useEffect(() => {
+    updateUrlParams();
+  }, [updateUrlParams]);
+
+  return {
+    selectedDate,
+    setSelectedDate,
+    submittedDate,
+    setSubmittedDate,
+    selectedSignalId,
+    setSelectedSignalId,
+    globalFilter,
+    setGlobalFilter,
+    selectedAiModels,
+    setSelectedAiModels,
+    aiModelFilterCondition,
+    setAiModelFilterCondition,
+  };
+}
