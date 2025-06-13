@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react"; // useMemo 추가
 import { Search, Check } from "lucide-react"; // Check 아이콘 추가
-import { Input } from "../ui/input";
 import {
   Command,
   CommandEmpty,
@@ -15,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils"; // cn 유틸리티 추가
+import { Button } from "../ui/button";
 
 type Props = {
   selectedTickers: string[]; // 선택된 티커 배열
@@ -51,10 +51,15 @@ const SignalSearchInput = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="w-full">
         <div className="relative w-full">
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder={placeholder} className="pl-7" />
+          <Button
+            variant={"outline"}
+            className="pl-7 w-[240px] flex justify-start cursor-pointer max-sm:w-full"
+          >
+            {placeholder}
+          </Button>
         </div>
       </PopoverTrigger>
       <PopoverContent

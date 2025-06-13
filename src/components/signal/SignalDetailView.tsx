@@ -57,10 +57,10 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
     return (
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>시그널 상세 정보</CardTitle>
+          <CardTitle>상세 정보</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>테이블에서 시그널을 선택하여 상세 정보를 확인하세요.</p>
+          <p>테이블에서 선택하여 상세 정보를 확인하세요.</p>
         </CardContent>
       </Card>
     );
@@ -69,15 +69,13 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
   const { signal, ticker, result } = data;
 
   return (
-    <Card className="mt-6 shadow-lg">
+    <Card className="mt-6 shadow-none">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-2xl">
-              시그널 상세: {signal.ticker} ({signal.strategy ?? "N/A"})
-            </CardTitle>
+            <CardTitle className="text-2xl">{signal.ticker}</CardTitle>
             <CardDescription>
-              발생 시간: {formatDate(signal.timestamp, true)}
+              {formatDate(signal.timestamp, true)}
             </CardDescription>
           </div>
           {signal.action && (
@@ -100,7 +98,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
         {/* 시그널 정보 */}
         <section>
           <h3 className="text-lg font-semibold mb-2 border-b pb-1">
-            시그널 정보
+            예측 정보
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -188,7 +186,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>현재가 (시그널 시점)</TableCell>
+                  <TableCell>현재가</TableCell>
                   <TableCell>{formatCurrency(ticker.price)}</TableCell>
                 </TableRow>
                 <TableRow>
@@ -261,12 +259,8 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({ data }) => {
         )}
         {!result && (
           <section>
-            <h3 className="text-lg font-semibold mb-2 border-b pb-1">
-              시그널 결과
-            </h3>
-            <p className="text-muted-foreground">
-              시그널 결과 정보가 없습니다.
-            </p>
+            <h3 className="text-lg font-semibold mb-2 border-b pb-1">결과</h3>
+            <p className="text-muted-foreground">결과 정보가 없습니다.</p>
           </section>
         )}
       </CardContent>

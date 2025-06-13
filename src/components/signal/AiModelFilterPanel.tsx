@@ -1,9 +1,6 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X as XIcon } from "lucide-react";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label"; // Label 추가
 import { cn } from "@/lib/utils";
 
 interface AiModelFilterPanelProps {
@@ -21,10 +18,6 @@ export function AiModelFilterPanel({
   onConditionChange,
   condition,
 }: AiModelFilterPanelProps) {
-  const handleRemove = (model: string) => {
-    onModelsChange(selectedModels.filter((m) => m !== model));
-  };
-
   const handleModelToggle = (model: string) => {
     const currentIndex = selectedModels.indexOf(model);
     const newSelectedModels = [...selectedModels];
@@ -39,23 +32,7 @@ export function AiModelFilterPanel({
 
   return (
     <>
-      <div className="flex flex-wrap items-center py-2">
-        {/* {selectedModels?.map((model, index) => (
-              <React.Fragment key={model}>
-                {index > 0 && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={() =>
-                      onConditionChange(condition === "OR" ? "AND" : "OR")
-                    }
-                    className="text-xs text-muted-foreground hover:text-foreground m-0 p-0 px-2"
-                  >
-                    {condition}
-                  </Button>
-                )}
-              </React.Fragment>
-            ))} */}
+      <div className="flex flex-wrap items-center">
         <div className="flex items-center gap-2">
           {availableModels.map((model, index) => (
             <React.Fragment key={model}>
@@ -63,7 +40,7 @@ export function AiModelFilterPanel({
                 key={model}
                 variant="secondary"
                 className={cn(
-                  "flex items-center gap-1",
+                  "flex items-center gap-1 cursor-pointer",
                   selectedModels.includes(model)
                     ? "bg-blue-500 text-primary-foreground"
                     : "bg-secondary text-secondary-foreground"
@@ -79,7 +56,7 @@ export function AiModelFilterPanel({
                   onClick={() =>
                     onConditionChange(condition === "OR" ? "AND" : "OR")
                   }
-                  className="text-xs text-muted-foreground hover:text-foreground m-0 p-0 px-2"
+                  className="text-xs text-muted-foreground hover:text-foreground m-0 p-0 px-2 cursor-pointer"
                 >
                   {condition}
                 </Button>

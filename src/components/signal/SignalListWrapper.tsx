@@ -9,6 +9,8 @@ interface SignalListWrapperProps {
   data: SignalData[];
   onRowClick: (signal: SignalData) => void;
   isLoading: boolean;
+  pageIndex?: number; // 외부에서 제어할 페이지 인덱스 (0-based)
+  onPageIndexChange?: (pageIndex: number) => void; // 페이지 인덱스 변경 시 호출될 콜백
 }
 
 export function SignalListWrapper({
@@ -17,6 +19,8 @@ export function SignalListWrapper({
   onRowClick,
   isLoading,
   children,
+  pageIndex,
+  onPageIndexChange,
 }: PropsWithChildren<SignalListWrapperProps>) {
   return (
     <div className="mb-8">
@@ -26,6 +30,8 @@ export function SignalListWrapper({
         data={data}
         onRowClick={onRowClick}
         isLoading={isLoading}
+        pageIndex={pageIndex} // 외부에서 제어할 페이지 인덱스
+        onPageIndexChange={onPageIndexChange} // 페이지 인덱스 변경 시 호출될 콜백
       />
     </div>
   );

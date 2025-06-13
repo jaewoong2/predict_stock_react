@@ -68,8 +68,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     onColumnFiltersChange: setColumnFilters, // 직접 설정
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-
-    // onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

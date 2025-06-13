@@ -18,11 +18,11 @@ interface DatePickerProps {
 export function DatePicker({ date, onDateChange }: DatePickerProps) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="w-full">
         <Button
           variant="outline"
           data-empty={!date}
-          className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+          className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal shadow-none cursor-pointer max-sm:w-full"
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
