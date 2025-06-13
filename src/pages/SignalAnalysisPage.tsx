@@ -10,8 +10,12 @@ import { SignalListWrapper } from "../components/signal/SignalListWrapper";
 import { SignalDetailSection } from "../components/signal/SignalDetailSection";
 import SignalSearchInput from "@/components/signal/SignalSearchInput";
 import { Badge } from "@/components/ui/badge";
-import { XIcon } from "lucide-react";
-// import { Button } from "@/components/ui/button"; // Button이 더 이상 필요 없다면 제거
+import { InfoIcon, XIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -211,22 +215,14 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">AI 시그널 분석</h1>
-        <p className="text-muted-foreground">
-          날짜별 투자 시그널을 확인하고 분석합니다. URL을 통해 현재 필터 및 선택
-          상태를 공유할 수 있습니다.
-        </p>
-      </header>
-
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="flex flex-grow items-end gap-2 sm:flex-nowrap">
-          <div className="">
+      <div className="flex flex-wrap items-start justify-between gap-2 w-full">
+        <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
+          <div className="w-full">
             <SignalSearchInput
               selectedTickers={currentSelectedTickersArray}
               onSelectedTickersChange={handleSelectedTickersChange}
               availableTickers={allAvailableTickersForSearch}
-              placeholder="티커 선택 (다중 가능)"
+              placeholder="티커 선택"
             />
             {currentSelectedTickersArray.length > 0 && (
               <div className="flex gap-1 py-2 max-w-[400px] flex-wrap">
@@ -252,31 +248,46 @@ const SignalAnalysisPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full flex flex-wrap items-start justify-between gap-2">
-        <AiModelFilterPanel
-          availableModels={availableAiModels}
-          selectedModels={selectedAiModels}
-          onModelsChange={(models) =>
-            setParams({
-              models,
-              q: q,
-              date: submittedDate,
-              condition: aiModelFilterCondition,
-              signalId: signalId, // 모델 변경 시 signalId 유지 또는 초기화 결정
-            })
-          }
-          onConditionChange={(value) =>
-            setParams({
-              condition: value,
-              q: q,
-              date: submittedDate,
-              models: selectedAiModels,
-              signalId: signalId, // 조건 변경 시 signalId 유지 또는 초기화 결정
-            })
-          }
-          condition={aiModelFilterCondition}
-        />
-
+      <div className="w-full flex flex-wrap items-start justify-between gap-2 pb-4">
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoIcon className="w-4 h-4 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="ml-2">
+              <p>
+                LLM 모델 필터링 방식을 선택합니다. <br />
+                <strong>OR:</strong> 선택된 모델 중 하나라도 포함된 시그널을
+                표시합니다. <br />
+                <strong>AND:</strong> 선택된 모든 모델을 포함하는 시그널을
+                표시합니다.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+          <AiModelFilterPanel
+            availableModels={availableAiModels}
+            selectedModels={selectedAiModels}
+            onModelsChange={(models) =>
+              setParams({
+                models,
+                q: q,
+                date: submittedDate,
+                condition: aiModelFilterCondition,
+                signalId: signalId, // 모델 변경 시 signalId 유지 또는 초기화 결정
+              })
+            }
+            onConditionChange={(value) =>
+              setParams({
+                condition: value,
+                q: q,
+                date: submittedDate,
+                models: selectedAiModels,
+                signalId: signalId, // 조건 변경 시 signalId 유지 또는 초기화 결정
+              })
+            }
+            condition={aiModelFilterCondition}
+          />
+        </div>
         <DateSelector
           selectedDate={selectedDate}
           onDateChange={(date) => {
