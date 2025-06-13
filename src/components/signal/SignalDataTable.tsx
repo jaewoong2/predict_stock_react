@@ -34,6 +34,13 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
   isLoading?: boolean;
+  // 페이지네이션 상태를 외부에서 주입받기 위한 props
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  // 페이지네이션 변경 이벤트 핸들러
+  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -41,6 +48,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
+  pagination,
+  onPaginationChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<
@@ -49,7 +58,16 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  // const [globalFilter, setGlobalFilter] = React.useState("");
+
+  // 내부 페이지네이션 상태 (외부에서 제어되지 않을 때 사용)
+  const [internalPagination, setInternalPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+
+  // 실제 사용할 페이지네이션 상태 (외부 또는 내부)
+  const activePagination = pagination || internalPagination;
+
   const table = useReactTable({
     data,
     columns,
@@ -58,16 +76,33 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
       pagination: {
-        pageSize: 20, // 페이지 크기를 30으로 변경
+        pageIndex: activePagination.pageIndex,
+        pageSize: activePagination.pageSize,
       },
     },
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters, // 직접 설정
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: (updater) => {
+      // 현재 페이지네이션 상태를 기반으로 새로운 상태 계산
+      const newPagination =
+        typeof updater === "function"
+          ? updater({
+              pageIndex: activePagination.pageIndex,
+              pageSize: activePagination.pageSize,
+            })
+          : updater;
+
+      // 내부 상태 업데이트
+      setInternalPagination(newPagination);
+
+      // 외부 핸들러가 존재하면 호출
+      if (onPaginationChange) {
+        onPaginationChange(newPagination.pageIndex, newPagination.pageSize);
+      }
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

@@ -24,6 +24,8 @@ const SignalAnalysisPage: React.FC = () => {
     q,
     models: selectedAiModels,
     condition: aiModelFilterCondition,
+    page, // 페이지 인덱스 추가
+    pageSize, // 페이지 크기 추가
     setParams,
   } = useSignalSearchParams();
 
@@ -213,6 +215,24 @@ const SignalAnalysisPage: React.FC = () => {
     aiModelFilterCondition,
   ]);
 
+  const currentPage = page ? parseInt(page) : 0;
+  const currentPageSize = pageSize ? parseInt(pageSize) : 20;
+
+  const handlePaginationChange = (
+    newPageIndex: number,
+    newPageSize: number
+  ) => {
+    setParams({
+      page: newPageIndex.toString(),
+      pageSize: newPageSize.toString(),
+      date: submittedDate,
+      q,
+      models: selectedAiModels,
+      condition: aiModelFilterCondition,
+      signalId,
+    });
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-2 w-full">
@@ -303,6 +323,11 @@ const SignalAnalysisPage: React.FC = () => {
         data={filteredSignals}
         onRowClick={handleRowClick}
         isLoading={isLoading}
+        pagination={{
+          pageIndex: currentPage,
+          pageSize: currentPageSize,
+        }}
+        onPaginationChange={handlePaginationChange}
       />
 
       <SignalDetailSection
