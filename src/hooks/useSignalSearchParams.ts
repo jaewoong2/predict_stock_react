@@ -7,6 +7,8 @@ export interface SignalQueryParams {
   q: string | null;
   models: string[];
   condition: "OR" | "AND";
+  page: string | null; // 페이지 번호
+  pageSize: string | null; // 페이지 크기
 }
 
 export function useSignalSearchParams() {
@@ -20,6 +22,8 @@ export function useSignalSearchParams() {
       q: searchParams.get("q"),
       models: modelsParam ? modelsParam.split(",").filter(Boolean) : [],
       condition: searchParams.get("condition") === "AND" ? "AND" : "OR",
+      page: searchParams.get("page"),
+      pageSize: searchParams.get("pageSize"),
     };
   }, [searchParams]);
 
@@ -57,6 +61,12 @@ export function useSignalSearchParams() {
       if (Object.prototype.hasOwnProperty.call(updates, "condition")) {
         apply("condition", updates.condition);
       }
+      if (Object.prototype.hasOwnProperty.call(updates, "page")) {
+        apply("page", updates.page);
+      }
+      if (Object.prototype.hasOwnProperty.call(updates, "pageSize")) {
+        apply("pageSize", updates.pageSize);
+      }
 
       if (newParams.toString() !== searchParams.toString()) {
         setSearchParams(newParams, { replace: true });
@@ -86,12 +96,21 @@ export function useSignalSearchParams() {
     if (!params.condition) {
       setParams({ condition: "OR" });
     }
+    // 페이지네이션 기본값 설정
+    if (params.page === null) {
+      setParams({ page: "0" }); // 기본 페이지 인덱스는 0
+    }
+    if (params.pageSize === null) {
+      setParams({ pageSize: "20" }); // 기본 페이지 크기는 20
+    }
   }, [
     params.condition,
     params.date,
     params.models.length,
     params.q,
     params.signalId,
+    params.page,
+    params.pageSize,
     setParams,
   ]);
 

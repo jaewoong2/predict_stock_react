@@ -8,9 +8,14 @@ interface SignalListWrapperProps {
   columns: ColumnDef<SignalData, unknown>[];
   data: SignalData[];
   onRowClick: (signal: SignalData) => void;
-  isLoading: boolean;
-  pageIndex?: number; // 외부에서 제어할 페이지 인덱스 (0-based)
-  onPageIndexChange?: (pageIndex: number) => void; // 페이지 인덱스 변경 시 호출될 콜백
+  isLoading?: boolean;
+  // 페이지네이션 상태 추가
+  pagination?: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  // 페이지네이션 변경 이벤트 핸들러 추가
+  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
 
 export function SignalListWrapper({
@@ -19,8 +24,8 @@ export function SignalListWrapper({
   onRowClick,
   isLoading,
   children,
-  pageIndex,
-  onPageIndexChange,
+  pagination,
+  onPaginationChange,
 }: PropsWithChildren<SignalListWrapperProps>) {
   return (
     <div className="mb-8">
@@ -30,8 +35,8 @@ export function SignalListWrapper({
         data={data}
         onRowClick={onRowClick}
         isLoading={isLoading}
-        pageIndex={pageIndex} // 외부에서 제어할 페이지 인덱스
-        onPageIndexChange={onPageIndexChange} // 페이지 인덱스 변경 시 호출될 콜백
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
       />
     </div>
   );
