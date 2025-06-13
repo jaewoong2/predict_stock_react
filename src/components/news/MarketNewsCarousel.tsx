@@ -15,7 +15,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     if (!container) return;
     const scrollAmount = container.clientWidth;
     container.scrollBy({
-      left: dir === "left" ? -scrollAmount : scrollAmount,
+      left: dir === "left" ? -(scrollAmount / 2) : scrollAmount / 2,
       behavior: "smooth",
     });
   };
@@ -31,7 +31,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
         {items.map((item) => (
           <div
             key={item.id}
-            className="min-w-[250px] snap-start bg-card rounded-md p-4 shadow"
+            className="min-w-[250px] snap-start bg-card rounded-md p-4 border"
           >
             <p className="text-sm font-semibold mb-1">{item.headline}</p>
             <p className="text-xs text-muted-foreground line-clamp-3">
@@ -46,7 +46,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute left-0 top-1/2 -translate-y-1/2"
+        className="absolute -left-6 top-1/2 -translate-y-1/2"
         onClick={() => scroll("left")}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -54,7 +54,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute right-0 top-1/2 -translate-y-1/2"
+        className="absolute -right-6 top-1/2 -translate-y-1/2"
         onClick={() => scroll("right")}
       >
         <ChevronRight className="h-4 w-4" />

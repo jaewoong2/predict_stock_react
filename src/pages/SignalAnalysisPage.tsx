@@ -38,7 +38,7 @@ const SignalAnalysisPage: React.FC = () => {
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
-  const { data: marketNews } = useMarketNewsSummary();
+  const { data: marketNews } = useMarketNewsSummary({ news_type: "market" });
   // const [searchTerm, setSearchTerm] = useState<string>(q ?? ""); // 삭제: SignalSearchInput이 내부적으로 inputValue 관리
 
   // SignalSearchInput에 전달할 선택된 티커 배열 상태
@@ -238,7 +238,7 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      {marketNews?.result && (
+      {marketNews && (
         <div className="mb-4">
           <MarketNewsCarousel items={marketNews.result} />
         </div>

@@ -12,3 +12,8 @@ export type MarketNewsItem = {
 export interface MarketNewsResponse {
   result: MarketNewsItem[];
 }
+
+export type GetMarketNewsSummaryRequestParams = {
+  ticker?: string;
+  news_type?: "market" | "ticker";
+};
