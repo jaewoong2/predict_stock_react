@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SignalData } from "@/types/signal";
 import { SignalDetailView } from "./SignalDetailView";
+import { useEffect, useState } from "react";
 
 interface SignalDetailSectionProps {
   selectedSignal: SignalData | null;
@@ -11,10 +12,18 @@ interface SignalDetailSectionProps {
 
 export function SignalDetailSection({
   selectedSignal,
-  isLoading,
-  hasSignals,
   error,
 }: SignalDetailSectionProps) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedSignal) {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [selectedSignal]);
+
   return (
     <>
       {error && (
@@ -27,15 +36,11 @@ export function SignalDetailSection({
       )}
 
       {selectedSignal && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-3">시그널 상세 정보</h2>
-          <SignalDetailView data={selectedSignal} />
-        </div>
-      )}
-      {!selectedSignal && !isLoading && hasSignals && (
-        <div className="mt-6 p-4 border rounded-lg bg-card text-muted-foreground">
-          테이블에서 시그널을 클릭하면 상세 정보를 볼 수 있습니다.
-        </div>
+        <SignalDetailView
+          open={open}
+          onOpenChange={setOpen}
+          data={selectedSignal}
+        />
       )}
     </>
   );

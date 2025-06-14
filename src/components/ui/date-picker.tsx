@@ -38,7 +38,13 @@ export function DatePicker({ date, onDateChange }: DatePickerProps) {
           mode="single"
           selected={date}
           onSelect={onDateChange}
-          initialFocus
+          disabled={(date) => {
+            // 주말(토요일: 6, 일요일: 0) 또는 미래 날짜 비활성화
+            const day = date.getDay();
+            const isWeekend = day === 0 || day === 6;
+            const isFuture = date > new Date();
+            return isWeekend || isFuture;
+          }}
         />
       </PopoverContent>
     </Popover>

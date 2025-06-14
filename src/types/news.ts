@@ -7,6 +7,7 @@ export type MarketNewsItem = {
   id: number;
   date_yyyymmdd: string;
   summary: string;
+  recommendation: "Buy" | "Sell" | "Hold" | null;
 };
 
 export interface MarketNewsResponse {
