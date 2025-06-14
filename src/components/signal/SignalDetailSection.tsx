@@ -2,6 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SignalData } from "@/types/signal";
 import { SignalDetailView } from "./SignalDetailView";
 import { useEffect, useState } from "react";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 interface SignalDetailSectionProps {
   selectedSignal: SignalData | null;
@@ -15,6 +16,7 @@ export function SignalDetailSection({
   error,
 }: SignalDetailSectionProps) {
   const [open, setOpen] = useState(false);
+  const { date, setParams } = useSignalSearchParams();
 
   useEffect(() => {
     if (selectedSignal) {
@@ -22,7 +24,14 @@ export function SignalDetailSection({
     } else {
       setOpen(false);
     }
-  }, [selectedSignal]);
+  }, [selectedSignal, setParams]);
+
+  const onOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setParams({ signalId: undefined });
+    }
+  };
 
   return (
     <>
@@ -38,7 +47,8 @@ export function SignalDetailSection({
       {selectedSignal && (
         <SignalDetailView
           open={open}
-          onOpenChange={setOpen}
+          date={date ?? undefined}
+          onOpenChange={onOpenChange}
           data={selectedSignal}
         />
       )}

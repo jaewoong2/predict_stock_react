@@ -18,11 +18,13 @@ export const newsService = {
   async getMarketNewsSummary({
     news_type,
     ticker,
+    news_date,
   }: GetMarketNewsSummaryRequestParams): Promise<MarketNewsResponse> {
     const url =
       `/market/news` +
       (news_type ? `?news_type=${news_type}` : "") +
-      (ticker ? `&ticker=${ticker}` : "");
+      (ticker ? `&ticker=${ticker}` : "") +
+      (news_date ? `&news_date=${news_date}` : "");
     const response = await api.get<MarketNewsResponse>(url);
     return response.data;
   },
