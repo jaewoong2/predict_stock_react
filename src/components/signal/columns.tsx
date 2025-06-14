@@ -70,9 +70,18 @@ export const columns: ColumnDef<SignalData>[] = [
     cell: ({ row }) => {
       return (
         <div className="font-medium">
-          {" "}
-          {/* text-right 제거 */}
           {formatCurrency(row.original.signal.entry_price)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "signal.close_price",
+    header: "종료 가격",
+    cell: ({ row }) => {
+      return (
+        <div className="font-medium">
+          {formatCurrency(row.original.signal.close_price)}
         </div>
       );
     },
@@ -199,7 +208,7 @@ export const columns: ColumnDef<SignalData>[] = [
   },
   {
     accessorKey: "result.signal.ai_model",
-    header: "AI 모델",
+    header: "LLM 모델",
     cell: ({ row }) => {
       return (
         <Badge
@@ -213,7 +222,7 @@ export const columns: ColumnDef<SignalData>[] = [
   },
   {
     accessorKey: "result.is_correct",
-    header: "실제결과",
+    header: "결과",
     cell: ({ row }) => {
       const isCorrect = row.original.result?.is_correct;
       if (isCorrect == null) return <Badge variant="outline">N/A</Badge>; // Badge는 기본적으로 내용에 따라 정렬
@@ -222,10 +231,10 @@ export const columns: ColumnDef<SignalData>[] = [
           variant="default"
           className="bg-green-500 hover:bg-green-600 text-white"
         >
-          성공
+          OK
         </Badge>
       ) : (
-        <Badge variant="destructive">실패</Badge>
+        <Badge variant="destructive">NO</Badge>
       );
     },
   },

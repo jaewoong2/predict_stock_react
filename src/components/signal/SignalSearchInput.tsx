@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react"; // useMemo 추가
+import { useState, useMemo } from "react"; // useMemo 추가
 import { Search, Check } from "lucide-react"; // Check 아이콘 추가
 import {
   Command,

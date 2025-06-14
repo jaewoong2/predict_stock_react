@@ -17,4 +17,5 @@ export interface MarketNewsResponse {
 export type GetMarketNewsSummaryRequestParams = {
   ticker?: string;
   news_type?: "market" | "ticker";
+  news_date?: string; // YYYY-MM-DD 형식
 };

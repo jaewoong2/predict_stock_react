@@ -15,11 +15,15 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { format } from "date-fns";
+import { useMarketNewsSummary } from "@/hooks/useMarketNews";
+import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 
 interface SignalDetailViewProps {
   data: SignalData | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  date?: string;
 }
 
 const formatDate = (
@@ -58,44 +62,59 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   data,
   open,
   onOpenChange,
+  date,
 }) => {
+  const { data: marketNews } = useMarketNewsSummary({
+    news_type: "ticker",
+    ticker: data?.signal.ticker,
+    news_date: date,
+  });
+
+  console.log("hello world");
+
   if (!data) {
     return null;
   }
 
-  const { signal, ticker, result } = data;
+  console.log(marketNews);
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="overflow-y-auto  mx-auto pl-4 pb-10 pt-4">
-        <div className="mx-auto w-full max-w-3xl z-50 h-fit">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="w-fit mx-auto pb-10 !select-text">
+        <div className="mx-auto w-full max-w-3xl h-full overflow-y-scroll">
           <DrawerHeader>
             <DrawerClose asChild>
               <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">
                 &times;
               </button>
             </DrawerClose>
+            {marketNews?.result && (
+              <div className="px-6">
+                <MarketNewsCarousel items={marketNews?.result} />
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <div>
                 <DrawerTitle className="text-2xl p-0 m-0 text-left">
-                  {signal.ticker}
+                  {data.signal.ticker}
                 </DrawerTitle>
-                <span className="text-muted-foreground text-sm">
-                  {formatDate(signal.timestamp, true)}
+                <span className="text-muted-foreground text-sm font-light">
+                  {data.signal.timestamp &&
+                    format(data.signal.timestamp, "yyyy년 MM월 dd일")}
                 </span>
               </div>
-              {signal.action && (
+              {data.signal.action && (
                 <Badge
                   variant={
-                    signal.action.toLowerCase() === "buy"
+                    data.signal.action.toLowerCase() === "buy"
                       ? "default"
-                      : signal.action.toLowerCase() === "sell"
+                      : data.signal.action.toLowerCase() === "sell"
                       ? "destructive"
                       : "secondary"
                   }
                   className="text-sm px-3 py-1"
                 >
-                  {signal.action.toUpperCase()}
+                  {data.signal.action.toUpperCase()}
                 </Badge>
               )}
             </div>
@@ -109,26 +128,26 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <strong>전략:</strong> {signal.strategy ?? "N/A"}
+                  <strong>전략:</strong> {data.signal.strategy ?? "N/A"}
                 </div>
                 <div>
-                  <strong>AI 모델:</strong> {signal.ai_model ?? "N/A"}
+                  <strong>AI 모델:</strong> {data.signal.ai_model ?? "N/A"}
                 </div>
                 <div>
                   <strong>확률:</strong>{" "}
-                  {signal.probability ? (
+                  {data.signal.probability ? (
                     <Badge
                       variant={
-                        signal.probability.toLowerCase() === "high"
+                        data.signal.probability.toLowerCase() === "high"
                           ? "default"
-                          : signal.probability.toLowerCase() === "medium"
+                          : data.signal.probability.toLowerCase() === "medium"
                           ? "secondary"
-                          : signal.probability.toLowerCase() === "low"
+                          : data.signal.probability.toLowerCase() === "low"
                           ? "destructive"
                           : "outline"
                       }
                     >
-                      {signal.probability}
+                      {data.signal.probability}
                     </Badge>
                   ) : (
                     "N/A"
@@ -136,56 +155,61 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 </div>
                 <div>
                   <strong>진입 가격:</strong>{" "}
-                  {formatCurrency(signal.entry_price)}
+                  {formatCurrency(data.signal.entry_price)}
                 </div>
                 <div>
-                  <strong>손절 가격:</strong> {formatCurrency(signal.stop_loss)}
+                  <strong>손절 가격:</strong>{" "}
+                  {formatCurrency(data.signal.stop_loss)}
                 </div>
                 <div>
                   <strong>익절 가격:</strong>{" "}
-                  {formatCurrency(signal.take_profit)}
+                  {formatCurrency(data.signal.take_profit)}
                 </div>
-                {signal.senario && (
+                {data.signal.senario && (
                   <div className="md:col-span-2">
-                    <strong>시나리오:</strong> {signal.senario}
+                    <strong>시나리오:</strong> {data.signal.senario}
                   </div>
                 )}
-                {signal.good_things && (
+                {data.signal.good_things && (
                   <div className="md:col-span-2">
-                    <strong>긍정적 요인:</strong> {signal.good_things}
+                    <strong>긍정적 요인:</strong> {data.signal.good_things}
                   </div>
                 )}
-                {signal.bad_things && (
+                {data.signal.bad_things && (
                   <div className="md:col-span-2">
-                    <strong>부정적 요인:</strong> {signal.bad_things}
+                    <strong>부정적 요인:</strong> {data.signal.bad_things}
                   </div>
                 )}
               </div>
-              {signal.report_summary && (
+              {data.signal.report_summary && (
                 <div className="mt-2">
                   <strong>리포트 요약:</strong>{" "}
                   <p className="text-sm text-muted-foreground">
-                    {signal.report_summary}
+                    {data.signal.report_summary}
                   </p>
                 </div>
               )}
-              {signal.result_description && (
+              {data.signal.result_description && (
                 <div className="mt-2">
                   <strong>결과 설명:</strong>{" "}
                   <p className="text-sm text-muted-foreground">
-                    {signal.result_description}
+                    {data.signal.result_description}
                   </p>
                 </div>
               )}
             </section>
 
             {/* 티커 정보 */}
-            {ticker?.name && (
+            {data.ticker?.name && (
               <section>
-                <h3 className="text-lg font-semibold mb-2 border-b pb-1">
-                  티커 정보 ({ticker.name ?? "N/A"}) -{" "}
-                  {formatDate(ticker.ticker_date)}
-                </h3>
+                <div className="flex flex-col border-b pb-1 mb-2">
+                  <h3 className="text-lg font-semibold">
+                    {data.ticker.name ?? "N/A"}
+                  </h3>
+                  <span className="text-sm text-muted-foreground font-light">
+                    Close Price [{formatDate(data.ticker.ticker_date)}]
+                  </span>
+                </div>
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
@@ -197,59 +221,58 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     <TableBody>
                       <TableRow>
                         <TableCell>현재가</TableCell>
-                        <TableCell>{formatCurrency(ticker.price)}</TableCell>
+                        <TableCell>
+                          {formatCurrency(data.ticker.price)}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>시가</TableCell>
                         <TableCell>
-                          {formatCurrency(ticker.open_price)}
+                          {formatCurrency(data.ticker.open_price)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>고가</TableCell>
                         <TableCell>
-                          {formatCurrency(ticker.high_price)}
+                          {formatCurrency(data.ticker.high_price)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>저가</TableCell>
                         <TableCell>
-                          {formatCurrency(ticker.low_price)}
+                          {formatCurrency(data.ticker.low_price)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>종가</TableCell>
                         <TableCell>
-                          {formatCurrency(ticker.close_price)}
+                          {formatCurrency(data.ticker.close_price)}
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>거래량</TableCell>
                         <TableCell>
-                          {ticker.volume?.toLocaleString() ?? "N/A"}
+                          {data.ticker.volume?.toLocaleString() ?? "N/A"}
                         </TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  티커 데이터 생성: {formatDate(ticker.created_at, true)}
-                </p>
               </section>
             )}
 
             {/* 결과 정보 */}
-            {result && (
+            {data.result && (
               <section>
                 <h3 className="text-lg font-semibold mb-2 border-b pb-1">
                   실제 결과
                 </h3>
                 <div className="flex flex-wrap items-center gap-4">
                   <div>
-                    <Badge>{result.action.toUpperCase()}</Badge>
+                    <Badge>{data.result.action.toUpperCase()}</Badge>
                   </div>
                   <div>
-                    {result.is_correct ? (
+                    {data.result.is_correct ? (
                       <Badge className="bg-green-500 hover:bg-green-600 text-white">
                         성공
                       </Badge>
@@ -259,9 +282,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   </div>
                   <div>
                     <strong>가격 변화:</strong>{" "}
-                    {ticker?.close_price &&
-                      ticker?.open_price &&
-                      formatCurrency(ticker.close_price - ticker.open_price)}
+                    {data.ticker?.close_price &&
+                      data.ticker?.open_price &&
+                      formatCurrency(
+                        data.ticker.close_price - data.ticker.open_price
+                      )}
                   </div>
                 </div>
               </section>

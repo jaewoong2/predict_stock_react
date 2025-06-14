@@ -4,6 +4,7 @@ export interface Signal {
   entry_price?: number | null;
   stop_loss?: number | null;
   take_profit?: number | null;
+  close_price?: number | null;
   action?: string | null;
   timestamp?: string | null;
   probability?: string | null;

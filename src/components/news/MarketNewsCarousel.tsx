@@ -94,7 +94,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
 
       {/* News Detail Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="w-fit mx-auto pb-10">
+        <DrawerContent className="w-fit mx-auto pb-10 !select-text">
           <div className="mx-auto w-full max-w-3xl">
             <DrawerHeader>
               <DrawerClose asChild>
