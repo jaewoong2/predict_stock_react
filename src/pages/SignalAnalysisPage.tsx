@@ -238,6 +238,14 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
+      <SignalDetailSection
+        selectedSignal={selectedSignal}
+        isLoading={isLoading}
+        hasSignals={
+          !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
+        }
+        error={error}
+      />
       {marketNews && (
         <div className="mb-4">
           <MarketNewsCarousel items={marketNews.result} />
@@ -336,15 +344,6 @@ const SignalAnalysisPage: React.FC = () => {
           pageSize: currentPageSize,
         }}
         onPaginationChange={handlePaginationChange}
-      />
-
-      <SignalDetailSection
-        selectedSignal={selectedSignal}
-        isLoading={isLoading}
-        hasSignals={
-          !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
-        }
-        error={error}
       />
     </div>
   );
