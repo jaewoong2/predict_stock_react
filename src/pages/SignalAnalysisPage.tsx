@@ -233,7 +233,7 @@ const SignalAnalysisPage: React.FC = () => {
     <div className="container mx-auto p-4 md:p-8">
       <div className="my-4 flex gap-4 items-center">
         {marketNews && (
-          <div className="w-full h-full grid items-end grid-cols-[1fr_auto] gap-4 max-w-full">
+          <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
             <DateSelectorWrapper popover={false} />
             <div className="w-full grid grid-cols-1 h-full">
               <MarketNewsCarousel items={marketNews.result} />

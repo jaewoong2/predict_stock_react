@@ -28,7 +28,12 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
-        <nav className="flex items-center gap-4 text-sm lg:gap-6"></nav>
+        <nav className="flex items-center w-full">
+          <img src="/favicon.png" className="w-12 h-12" />
+          <span className="text-base font-light">
+            SPAM | Stock Predict AI LLM
+          </span>
+        </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <Button
             variant="ghost"

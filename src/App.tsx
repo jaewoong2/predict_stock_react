@@ -6,6 +6,7 @@ import TickerDates from "./pages/TickerDates";
 import SignalAnalysisPage from "./pages/SignalAnalysisPage";
 
 import "@/styles/globals.css";
+import "@/styles/fonts.css"; // 폰트 파일 가져오기
 
 function App() {
   return (
