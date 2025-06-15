@@ -4,7 +4,6 @@ import { SignalData } from "@/types/signal";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 import { columns } from "../components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
-import { DateSelector } from "../components/signal/DateSelector";
 import { AiModelFilterPanel } from "../components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "../components/signal/SignalListWrapper";
 import { SignalDetailSection } from "../components/signal/SignalDetailSection";
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
+import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -33,15 +33,12 @@ const SignalAnalysisPage: React.FC = () => {
 
   const todayString = formatDate(new Date(), "yyyy-MM-dd");
   const submittedDate = date ?? todayString;
-  const [selectedDate, setSelectedDate] = useState<string>(submittedDate);
   const selectedSignalId = signalId;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
   const { data: marketNews } = useMarketNewsSummary({ news_type: "market" });
-  // const [searchTerm, setSearchTerm] = useState<string>(q ?? ""); // 삭제: SignalSearchInput이 내부적으로 inputValue 관리
 
-  // SignalSearchInput에 전달할 선택된 티커 배열 상태
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
 
@@ -148,10 +145,6 @@ const SignalAnalysisPage: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    setSelectedDate(submittedDate);
-  }, [submittedDate]);
-
   const filteredSignals = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
     let signalsToFilter = signalApiResponse.signals;
@@ -238,11 +231,16 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      {marketNews && (
-        <div className="mb-4">
-          <MarketNewsCarousel items={marketNews.result} />
-        </div>
-      )}
+      <div className="my-4 flex gap-4 items-center">
+        {marketNews && (
+          <div className="w-full h-full grid items-end grid-cols-[1fr_auto] gap-4 max-w-full">
+            <DateSelectorWrapper popover={false} />
+            <div className="w-full grid grid-cols-1 h-full">
+              <MarketNewsCarousel items={marketNews.result} />
+            </div>
+          </div>
+        )}
+      </div>
       <div className="flex flex-wrap items-start justify-between gap-2 w-full">
         <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
           <div className="w-full">
@@ -316,13 +314,6 @@ const SignalAnalysisPage: React.FC = () => {
             condition={aiModelFilterCondition}
           />
         </div>
-        <DateSelector
-          selectedDate={selectedDate}
-          onDateChange={(date) => {
-            setSelectedDate(date);
-            setParams({ date });
-          }}
-        />
       </div>
 
       <SignalListWrapper

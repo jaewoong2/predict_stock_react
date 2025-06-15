@@ -27,3 +27,22 @@ export const useSignalDataByDate = (
     enabled: !!date && (options?.enabled === undefined || options.enabled), // 날짜가 있고, enabled 옵션이 true일 때만 실행
   });
 };
+
+export const useSignalDataByNameAndDate = (
+  symbols: string[],
+  date: string,
+  options?: Omit<
+    UseQueryOptions<SignalAPIResponse, Error>,
+    "queryKey" | "queryFn"
+  > // React Query 옵션 타입
+) => {
+  return useQuery<SignalAPIResponse, Error>({
+    queryKey: [...SIGNAL_KEYS.all, "byNameAndDate", symbols.join(","), date],
+    queryFn: () => signalApiService.getSignalByNameAndDate(symbols, date),
+    ...options,
+    enabled:
+      !!symbols.length &&
+      !!date &&
+      (options?.enabled === undefined || options.enabled), // 심볼과 날짜가 모두 있고, enabled 옵션이 true일 때만 실행
+  });
+};
