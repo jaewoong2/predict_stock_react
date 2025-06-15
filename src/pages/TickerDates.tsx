@@ -200,7 +200,7 @@ const TickerDates = () => {
                         formattedDates.filter((d) => d !== dateStr)
                       );
                       setSelectedDates(
-                        selectedDates.filter((d, i) => i !== index)
+                        selectedDates.filter((_, i) => i !== index)
                       );
                     }}
                   >
