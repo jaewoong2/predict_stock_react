@@ -80,8 +80,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="w-fit mx-auto pb-10 !select-text">
-        <div className="mx-auto w-full max-w-3xl h-full overflow-y-scroll">
+      <DrawerContent
+        className="w-full max-w-4xl mx-auto pb-10 !select-text max-h-[80vh] max-sm:w-[calc(100%-14px)]"
+        data-vaul-drawer-direction={"center"}
+      >
+        <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
           <DrawerHeader>
             <DrawerClose asChild>
               <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">

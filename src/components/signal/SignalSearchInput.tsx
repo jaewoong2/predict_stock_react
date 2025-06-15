@@ -51,12 +51,12 @@ const SignalSearchInput = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild className="w-full">
-        <div className="relative w-full">
+      <PopoverTrigger asChild className="">
+        <div className="relative w-fit max-sm:w-full">
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Button
             variant={"outline"}
-            className="pl-7 w-[240px] flex justify-start cursor-pointer max-sm:w-full"
+            className="pl-7 w-[250px] flex justify-start cursor-pointer max-sm:w-full"
           >
             {placeholder}
           </Button>

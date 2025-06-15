@@ -12,10 +12,31 @@ import {
 
 interface DatePickerProps {
   date?: Date;
+  popover?: boolean; // Popover 사용 여부
   onDateChange?: (date: Date | undefined) => void;
 }
 
-export function DatePicker({ date, onDateChange }: DatePickerProps) {
+export function DatePicker({ date, onDateChange, popover }: DatePickerProps) {
+  if (!popover) {
+    // Popover가 필요 없는 경우 Calendar 컴포넌트만 렌더링
+    return (
+      <Calendar
+        locale={ko} // Calendar에도 한국어 로케일 적용
+        mode="single"
+        className="border rounded-md bg-background"
+        selected={date}
+        onSelect={onDateChange}
+        disabled={(date) => {
+          // 주말(토요일: 6, 일요일: 0) 또는 미래 날짜 비활성화
+          const day = date.getDay();
+          const isWeekend = day === 0 || day === 6;
+          const isFuture = date > new Date();
+          return isWeekend || isFuture;
+        }}
+      />
+    );
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild className="w-full">

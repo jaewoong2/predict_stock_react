@@ -4,11 +4,13 @@ import { DatePicker } from "@/components/ui/date-picker";
 interface DateSelectorProps {
   selectedDate: string;
   onDateChange: (dateStr: string) => void;
+  popover?: boolean; // Popover 사용 여부
 }
 
 export function DateSelector({
   selectedDate,
   onDateChange,
+  popover = true,
 }: DateSelectorProps) {
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
@@ -21,6 +23,7 @@ export function DateSelector({
       <DatePicker
         date={selectedDate ? parseISO(selectedDate) : undefined}
         onDateChange={handleDateSelect}
+        popover={popover}
       />
     </div>
   );

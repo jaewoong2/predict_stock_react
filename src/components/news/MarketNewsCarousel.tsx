@@ -43,7 +43,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="flex overflow-x-auto space-x-4 pb-4 snap-x"
+        className="flex overflow-x-auto space-x-4 snap-x h-full"
       >
         {items.map((item) => (
           <div
@@ -53,17 +53,17 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
             )}
             onClick={() => handleItemClick(item)}
           >
-            <Badge
-              className={cn(
-                item.recommendation === "Buy" && "bg-green-500 text-white",
-                item.recommendation === "Sell" && "bg-red-500 text-white",
-                item.recommendation === "Hold" && "bg-yellow-500 text-white",
-                "mb-2"
-              )}
-            >
-              {item.recommendation}
-            </Badge>
             <div>
+              <Badge
+                className={cn(
+                  item.recommendation === "Buy" && "bg-green-500 text-white",
+                  item.recommendation === "Sell" && "bg-red-500 text-white",
+                  item.recommendation === "Hold" && "bg-yellow-500 text-white",
+                  "mb-2"
+                )}
+              >
+                {item.recommendation}
+              </Badge>
               <p className="text-sm font-semibold mb-1">{item.headline}</p>
               <p className="text-xs text-muted-foreground line-clamp-3">
                 {item.summary}
@@ -78,7 +78,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -left-6 top-1/2 -translate-y-1/2 max-sm:hidden"
+        className="absolute -left-6 top-1/2 -translate-y-1/2 max-sm:hidden hidden"
         onClick={() => scroll("left")}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -86,7 +86,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-6 top-1/2 -translate-y-1/2 max-sm:hidden"
+        className="absolute -right-6 top-1/2 -translate-y-1/2 max-sm:hidden hidden"
         onClick={() => scroll("right")}
       >
         <ChevronRight className="h-4 w-4" />
@@ -94,8 +94,11 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
 
       {/* News Detail Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-        <DrawerContent className="w-fit mx-auto pb-10 !select-text">
-          <div className="mx-auto w-full max-w-3xl">
+        <DrawerContent
+          className="w-fit mx-auto pb-10 !select-text h-fit max-h-[80vh] max-sm:w-[calc(100%-14px)]"
+          data-vaul-drawer-direction={"center"}
+        >
+          <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
             <DrawerHeader>
               <DrawerClose asChild>
                 <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">
