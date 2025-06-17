@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNewsRecommendations } from "@/hooks/useMarketNews";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 const RecommendationCard: FC<{
   title: string;
@@ -15,7 +15,7 @@ const RecommendationCard: FC<{
   const today = format(new Date(), "yyyy-MM-dd");
   const { data, isLoading, error } = useNewsRecommendations({
     recommendation,
-    limit: 3,
+    limit: 5,
     date: today,
   });
 
@@ -23,6 +23,10 @@ const RecommendationCard: FC<{
     data?.results.map((item) => item.ticker) || [],
     today
   );
+  const { setParams } = useSignalSearchParams();
+  const onClickTicker = (ticker: string) => {
+    setParams({ signalId: `${ticker}_OPENAI` });
+  };
 
   if (isLoading) {
     return (
@@ -57,7 +61,7 @@ const RecommendationCard: FC<{
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full shadow-none">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{title}</span>
@@ -72,7 +76,11 @@ const RecommendationCard: FC<{
         ) : (
           <div className="space-y-4">
             {data.results.map((item) => (
-              <div key={item.ticker} className="border rounded-md p-3">
+              <div
+                key={item.ticker}
+                className="border rounded-md p-3 cursor-pointer"
+                onClick={() => onClickTicker(item.ticker)}
+              >
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold">{item.ticker}</h3>
                   {signalData.isLoading ? (
@@ -99,28 +107,6 @@ const RecommendationCard: FC<{
                     )
                   )}
                 </div>
-                <Tabs defaultValue="뉴스" className="mt-2">
-                  <TabsList className="grid grid-cols-2">
-                    <TabsTrigger value="뉴스">뉴스</TabsTrigger>
-                    <TabsTrigger value="요약">요약</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="뉴스">
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {item.news.map((news, idx) => (
-                        <p key={idx} className="text-sm">
-                          {news.headline}
-                        </p>
-                      ))}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="요약">
-                    <div className="max-h-32 overflow-y-auto">
-                      <p className="text-sm">
-                        {item.news[0]?.summary || "요약 정보가 없습니다."}
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
               </div>
             ))}
           </div>
