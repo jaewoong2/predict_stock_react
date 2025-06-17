@@ -19,7 +19,7 @@ export function DateSelector({
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 max-sm:w-full">
       <DatePicker
         date={selectedDate ? parseISO(selectedDate) : undefined}
         onDateChange={handleDateSelect}

@@ -19,3 +19,26 @@ export type GetMarketNewsSummaryRequestParams = {
   news_type?: "market" | "ticker";
   news_date?: string; // YYYY-MM-DD 형식
 };
+
+export type NewsRecommendationItem = {
+  date: string;
+  headline: string;
+  summary: string;
+  detail_description: string;
+  recommendation: "Buy" | "Sell" | "Hold" | null;
+};
+
+export type TickerNewsRecommendation = {
+  ticker: string;
+  news: NewsRecommendationItem[];
+};
+
+export interface NewsRecommendationsResponse {
+  results: TickerNewsRecommendation[];
+}
+
+export type GetNewsRecommendationsParams = {
+  recommendation: "Buy" | "Hold" | "Sell";
+  limit?: number;
+  date?: string; // YYYY-MM-DD 형식
+};
