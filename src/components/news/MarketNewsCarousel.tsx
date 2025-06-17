@@ -37,15 +37,13 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     setIsDrawerOpen(true);
   };
 
-  if (!items || items.length === 0) return null;
-
   return (
     <div className="relative">
       <div
         ref={containerRef}
         className="flex overflow-x-auto space-x-4 snap-x h-full"
       >
-        {items.map((item) => (
+        {items?.map((item) => (
           <div
             key={item.id}
             className={cn(
@@ -95,8 +93,8 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       {/* News Detail Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent
-          className="w-fit mx-auto pb-10 !select-text h-fit max-h-[80vh] max-sm:w-[calc(100%-14px)]"
-          data-vaul-drawer-direction={"center"}
+          className="w-fit mx-auto pb-10 !select-text h-full max-h-[80vh] max-sm:w-[calc(100%-14px)] max-sm:max-h-[70vh]"
+          data-vaul-drawer-direction={"bottom"}
         >
           <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
             <DrawerHeader>
