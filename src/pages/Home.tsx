@@ -1,11 +1,12 @@
 // filepath: src/pages/Home.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useTickers,
   useTickerBySymbol,
   useTickerByDate,
 } from "../hooks/useTicker";
 import { Ticker } from "../types/ticker";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [selectedSymbol, setSelectedSymbol] = useState<string>("");
@@ -21,6 +22,14 @@ function Home() {
   // 특정 날짜의 티커 조회
   const { data: dateTickerData, isLoading: isLoadingDateData } =
     useTickerByDate(selectedSymbol, selectedDate);
+
+  const router = useNavigate();
+
+  useEffect(() => {
+    const today = new Date();
+    const formattedDate = today.toISOString().split("T")[0]; // YYYY-MM-DD 형식
+    router(`/dashboard?date=${formattedDate}`);
+  }, [router]);
 
   if (isLoading) return <div>티커 목록을 로딩 중입니다...</div>;
   if (error) return <div>에러 발생: {(error as Error).message}</div>;
