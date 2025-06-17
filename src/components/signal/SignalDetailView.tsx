@@ -70,20 +70,13 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     news_date: date,
   });
 
-  console.log("hello world");
-
   if (!data) {
     return null;
   }
 
-  console.log(marketNews);
-
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent
-        className="w-full max-w-4xl mx-auto pb-10 !select-text max-h-[80vh] max-sm:w-[calc(100%-14px)]"
-        data-vaul-drawer-direction={"center"}
-      >
+      <DrawerContent className="w-full max-w-4xl mx-auto pb-10 !select-text sm:max-h-[80vh] max-sm:w-[calc(100%-14px)] max-sm:max-h-[70vh]">
         <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
           <DrawerHeader>
             <DrawerClose asChild>

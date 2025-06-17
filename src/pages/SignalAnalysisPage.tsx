@@ -18,6 +18,7 @@ import {
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
+import { RecommendationsDashboard } from "@/components/signal/RecommendationCard";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -231,6 +232,9 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
+      <div>
+        <RecommendationsDashboard />
+      </div>
       <div className="my-4 flex gap-4 items-center">
         {marketNews && (
           <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">

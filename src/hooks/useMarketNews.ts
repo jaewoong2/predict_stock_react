@@ -2,7 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { newsService } from "@/services/newsService";
 import {
   GetMarketNewsSummaryRequestParams,
+  GetNewsRecommendationsParams,
   MarketNewsResponse,
+  NewsRecommendationsResponse,
 } from "@/types/news";
 
 export const MARKET_NEWS_KEYS = {
@@ -23,6 +25,28 @@ export const useMarketNewsSummary = ({
         news_type,
         ticker,
         news_date,
+      }),
+  });
+};
+
+export const NEWS_RECOMMENDATION_KEYS = {
+  all: ["newsRecommendations"] as const,
+  by: (recommendation: string) =>
+    [...NEWS_RECOMMENDATION_KEYS.all, recommendation] as const,
+};
+
+export const useNewsRecommendations = ({
+  recommendation,
+  limit = 5,
+  date,
+}: GetNewsRecommendationsParams) => {
+  return useQuery<NewsRecommendationsResponse, Error>({
+    queryKey: NEWS_RECOMMENDATION_KEYS.by(recommendation),
+    queryFn: () =>
+      newsService.getNewsRecommendations({
+        recommendation,
+        limit,
+        date,
       }),
   });
 };
