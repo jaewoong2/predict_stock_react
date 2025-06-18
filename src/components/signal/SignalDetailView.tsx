@@ -123,7 +123,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 예측 정보
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <div className="w-full">
                   <strong>전략:</strong> {data.signal.strategy ?? "N/A"}
                 </div>
                 <div>

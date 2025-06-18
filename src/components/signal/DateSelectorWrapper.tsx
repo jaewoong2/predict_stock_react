@@ -24,7 +24,7 @@ const DateSelectorWrapper = ({ popover }: Props) => {
       selectedDate={selectedDate}
       onDateChange={(date) => {
         setSelectedDate(date);
-        setParams({ date });
+        setParams({ date, page: "0" });
       }}
     />
   );
