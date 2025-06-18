@@ -25,12 +25,13 @@ export const newsService = {
     ticker,
     news_date,
   }: GetMarketNewsSummaryRequestParams): Promise<MarketNewsResponse> {
-    const url =
-      `/news` +
-      (news_type ? `?news_type=${news_type}` : "") +
-      (ticker ? `&ticker=${ticker}` : "") +
-      (news_date ? `&news_date=${news_date}` : "");
-    const response = await api.get<MarketNewsResponse>(url);
+    const url = "/news/";
+    const params = {
+      news_type,
+      ticker,
+      news_date,
+    };
+    const response = await api.get<MarketNewsResponse>(url, { params });
     return response.data;
   },
 
