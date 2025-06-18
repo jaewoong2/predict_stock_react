@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  type ReactNode,
+} from "react";
 import { useSearchParams } from "react-router-dom";
 
 export interface SignalQueryParams {
@@ -11,7 +18,19 @@ export interface SignalQueryParams {
   pageSize: string | null; // 페이지 크기
 }
 
-export function useSignalSearchParams() {
+interface SignalSearchParamsContextValue extends SignalQueryParams {
+  setParams: (updates: Partial<SignalQueryParams>) => void;
+}
+
+const SignalSearchParamsContext = createContext<
+  SignalSearchParamsContextValue | undefined
+>(undefined);
+
+export function SignalSearchParamsProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const params: SignalQueryParams = useMemo(() => {
@@ -75,10 +94,9 @@ export function useSignalSearchParams() {
   );
 
   useEffect(() => {
-    // 초기 로드 시 쿼리 파라미터가 없으면 기본값 설정
     if (!params.date) {
       const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0]; // YYYY-MM-DD 형식
+      const formattedDate = today.toISOString().split("T")[0];
       setParams({
         date: formattedDate,
       });
@@ -95,12 +113,11 @@ export function useSignalSearchParams() {
     if (!params.condition) {
       setParams({ condition: "OR" });
     }
-    // 페이지네이션 기본값 설정
     if (params.page === null) {
-      setParams({ page: "0" }); // 기본 페이지 인덱스는 0
+      setParams({ page: "0" });
     }
     if (params.pageSize === null) {
-      setParams({ pageSize: "20" }); // 기본 페이지 크기는 20
+      setParams({ pageSize: "20" });
     }
   }, [
     params.condition,
@@ -113,5 +130,24 @@ export function useSignalSearchParams() {
     setParams,
   ]);
 
-  return { ...params, setParams };
+  const value = useMemo(
+    () => ({ ...params, setParams }),
+    [params, setParams]
+  );
+
+  return (
+    <SignalSearchParamsContext.Provider value={value}>
+      {children}
+    </SignalSearchParamsContext.Provider>
+  );
+}
+
+export function useSignalSearchParams() {
+  const ctx = useContext(SignalSearchParamsContext);
+  if (!ctx) {
+    throw new Error(
+      "useSignalSearchParams must be used within SignalSearchParamsProvider"
+    );
+  }
+  return ctx;
 }
