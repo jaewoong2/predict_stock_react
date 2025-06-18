@@ -10,7 +10,7 @@ interface SignalListWrapperProps {
   onRowClick: (signal: SignalData) => void;
   isLoading?: boolean;
   // 페이지네이션 상태 추가
-  pagination?: {
+  pagination: {
     pageIndex: number;
     pageSize: number;
   };

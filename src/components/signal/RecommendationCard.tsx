@@ -13,17 +13,17 @@ const RecommendationCard: FC<{
   badgeColor: string;
 }> = ({ title, recommendation, badgeColor }) => {
   const today = format(new Date(), "yyyy-MM-dd");
+  const { setParams, date } = useSignalSearchParams();
   const { data, isLoading, error } = useNewsRecommendations({
     recommendation,
     limit: 5,
-    date: today,
+    date: format(new Date(date ?? new Date()), "yyyy-MM-dd"),
   });
 
   const signalData = useSignalDataByNameAndDate(
     data?.results.map((item) => item.ticker) || [],
     today
   );
-  const { setParams } = useSignalSearchParams();
   const onClickTicker = (ticker: string) => {
     setParams({ signalId: `${ticker}_OPENAI` });
   };

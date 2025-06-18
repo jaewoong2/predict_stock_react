@@ -35,7 +35,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
   isLoading?: boolean;
   // 페이지네이션 상태를 외부에서 주입받기 위한 props
-  pagination?: {
+  pagination: {
     pageIndex: number;
     pageSize: number;
   };
@@ -59,14 +59,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // 내부 페이지네이션 상태 (외부에서 제어되지 않을 때 사용)
-  const [internalPagination, setInternalPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 20,
-  });
-
   // 실제 사용할 페이지네이션 상태 (외부 또는 내부)
-  const activePagination = pagination || internalPagination;
+  const activePagination = pagination;
 
   const table = useReactTable({
     data,
@@ -85,24 +79,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: (updater) => {
-      // 현재 페이지네이션 상태를 기반으로 새로운 상태 계산
-      const newPagination =
-        typeof updater === "function"
-          ? updater({
-              pageIndex: activePagination.pageIndex,
-              pageSize: activePagination.pageSize,
-            })
-          : updater;
 
-      // 내부 상태 업데이트
-      setInternalPagination(newPagination);
-
-      // 외부 핸들러가 존재하면 호출
-      if (onPaginationChange) {
-        onPaginationChange(newPagination.pageIndex, newPagination.pageSize);
-      }
-    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -226,6 +203,9 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                     checked={table.getState().pagination.pageSize === size}
                     onCheckedChange={() => {
                       table.setPageSize(size);
+                      if (onPaginationChange) {
+                        onPaginationChange(0, size);
+                      }
                     }}
                   >
                     {size}줄
@@ -239,7 +219,13 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() => table.previousPage()}
+          onClick={() =>
+            onPaginationChange &&
+            onPaginationChange(
+              table.getState().pagination.pageIndex - 1,
+              table.getState().pagination.pageSize
+            )
+          }
           disabled={!table.getCanPreviousPage()}
         >
           <ChevronLeft className="h-4 w-4 transform" />
@@ -248,7 +234,13 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() => table.nextPage()}
+          onClick={() =>
+            onPaginationChange &&
+            onPaginationChange(
+              table.getState().pagination.pageIndex + 1,
+              table.getState().pagination.pageSize
+            )
+          }
           disabled={!table.getCanNextPage()}
         >
           <ChevronRight className="h-4 w-4" />

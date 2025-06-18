@@ -117,18 +117,10 @@ const SignalAnalysisPage: React.FC = () => {
     }
   }, [signalApiResponse?.signals]);
 
-  // useEffect(() => { // 삭제: q가 변경되면 currentSelectedTickersArray가 업데이트되고, 이는 SignalSearchInput에 반영됨
-  //   setSearchTerm(q ?? "");
-  // }, [q]);
-
   const handleRowClick = (signal: SignalData) => {
     const id = `${signal.signal.ticker}_${signal.signal.ai_model}`;
     setParams({
       signalId: id, // 행 클릭 시 해당 시그널 ID 설정
-      date: submittedDate,
-      q: q,
-      models: selectedAiModels,
-      condition: aiModelFilterCondition,
     });
   };
 
@@ -140,9 +132,7 @@ const SignalAnalysisPage: React.FC = () => {
     setParams({
       q: newQ, // 새로운 티커 문자열로 q 업데이트
       signalId: null, // 티커 검색 변경 시 특정 시그널 선택은 초기화
-      date: submittedDate,
-      models: selectedAiModels,
-      condition: aiModelFilterCondition,
+      page: "0",
     });
   };
 
@@ -212,9 +202,6 @@ const SignalAnalysisPage: React.FC = () => {
     aiModelFilterCondition,
   ]);
 
-  const currentPage = page ? parseInt(page) : 0;
-  const currentPageSize = pageSize ? parseInt(pageSize) : 20;
-
   const handlePaginationChange = (
     newPageIndex: number,
     newPageSize: number
@@ -222,11 +209,6 @@ const SignalAnalysisPage: React.FC = () => {
     setParams({
       page: newPageIndex.toString(),
       pageSize: newPageSize.toString(),
-      date: submittedDate,
-      q,
-      models: selectedAiModels,
-      condition: aiModelFilterCondition,
-      signalId,
     });
   };
 
@@ -300,19 +282,13 @@ const SignalAnalysisPage: React.FC = () => {
             onModelsChange={(models) =>
               setParams({
                 models,
-                q: q,
-                date: submittedDate,
-                condition: aiModelFilterCondition,
-                signalId: signalId, // 모델 변경 시 signalId 유지 또는 초기화 결정
+                page: "0",
               })
             }
             onConditionChange={(value) =>
               setParams({
                 condition: value,
-                q: q,
-                date: submittedDate,
-                models: selectedAiModels,
-                signalId: signalId, // 조건 변경 시 signalId 유지 또는 초기화 결정
+                page: "0",
               })
             }
             condition={aiModelFilterCondition}
@@ -327,8 +303,8 @@ const SignalAnalysisPage: React.FC = () => {
         onRowClick={handleRowClick}
         isLoading={isLoading}
         pagination={{
-          pageIndex: currentPage,
-          pageSize: currentPageSize,
+          pageIndex: +`${page}`,
+          pageSize: +`${pageSize}`,
         }}
         onPaginationChange={handlePaginationChange}
       />
