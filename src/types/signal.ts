@@ -45,3 +45,19 @@ export interface SignalAPIResponse {
   date: string;
   signals: SignalData[];
 }
+
+// 주간 액션 카운트 타입
+export interface WeeklyActionCount {
+  ticker: string;
+  count: number;
+}
+
+export interface WeeklyActionCountResponse {
+  signals: WeeklyActionCount[];
+}
+
+export interface GetWeeklyActionCountParams {
+  tickers?: string;
+  reference_date?: string;
+  action: "Buy" | "Sell";
+}

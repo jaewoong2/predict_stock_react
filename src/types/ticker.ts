@@ -27,3 +27,18 @@ export interface TickerChangeResponse {
   change_percentage: number;
   // 추가 필요한 정보들
 }
+
+export interface WeeklyPriceMovement {
+  ticker: string;
+  count: number;
+}
+
+export interface WeeklyPriceMovementResponse {
+  tickers: WeeklyPriceMovement[];
+}
+
+export interface GetWeeklyPriceMovementParams {
+  tickers?: string;
+  reference_date?: string;
+  direction: "up" | "down";
+}

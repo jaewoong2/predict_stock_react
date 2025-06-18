@@ -19,6 +19,8 @@ import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import RecommendationCard from "@/components/signal/RecommendationCard";
+import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
+import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -214,6 +216,22 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <WeeklyActionCountCard
+          title="주간 Buy 시그널"
+          params={{
+            action: "Buy",
+            reference_date: date ?? undefined,
+          }}
+        />
+        <WeeklyPriceMovementCard
+          title="주간 가격 상승"
+          params={{
+            direction: "up",
+            reference_date: date ?? undefined,
+          }}
+        />
+      </div>
       <div>
         <RecommendationCard
           title="Buy News Recommendation"

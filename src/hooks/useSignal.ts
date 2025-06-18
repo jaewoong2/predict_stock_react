@@ -1,11 +1,17 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { SignalAPIResponse } from "../types/signal";
+import {
+  GetWeeklyActionCountParams,
+  SignalAPIResponse,
+  WeeklyActionCountResponse,
+} from "../types/signal";
 import { signalApiService } from "@/services/signalService";
 
 export const SIGNAL_KEYS = {
   all: ["signals"] as const,
   lists: () => [...SIGNAL_KEYS.all, "list"] as const,
   listByDate: (date: string) => [...SIGNAL_KEYS.lists(), { date }] as const,
+  weeklyActionCount: (params: GetWeeklyActionCountParams) =>
+    [...SIGNAL_KEYS.all, "weeklyActionCount", params] as const,
 };
 
 /**
@@ -44,5 +50,21 @@ export const useSignalDataByNameAndDate = (
       !!symbols.length &&
       !!date &&
       (options?.enabled === undefined || options.enabled), // 심볼과 날짜가 모두 있고, enabled 옵션이 true일 때만 실행
+  });
+};
+
+export const useWeeklyActionCount = (
+  params: GetWeeklyActionCountParams,
+  options?: Omit<
+    UseQueryOptions<WeeklyActionCountResponse, Error>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  return useQuery<WeeklyActionCountResponse, Error>({
+    queryKey: SIGNAL_KEYS.weeklyActionCount(params),
+    queryFn: () => signalApiService.getWeeklyActionCount(params),
+    ...options,
+    enabled:
+      !!params.action && (options?.enabled === undefined || options.enabled),
   });
 };
