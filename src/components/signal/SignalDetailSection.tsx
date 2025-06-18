@@ -49,7 +49,6 @@ export function SignalDetailSection({
           open={open}
           date={date ?? undefined}
           onOpenChange={onOpenChange}
-          data={selectedSignal}
         />
       )}
     </>
