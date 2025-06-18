@@ -11,37 +11,28 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
-interface AiModelMultiSelectProps {
+interface AiModelSelectProps {
   options: string[];
-  value: string[];
-  onChange: (models: string[]) => void;
+  value: string;
+  onChange: (models: string) => void;
 }
 
-export function AiModelMultiSelect({
+export function AiModelSelect({
   options,
   value,
   onChange,
-}: AiModelMultiSelectProps) {
+}: AiModelSelectProps) {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
 
   const toggle = (model: string) => {
-    if (value.includes(model)) {
-      onChange(value.filter((m) => m !== model));
-    } else {
-      onChange([...value, model]);
-    }
+    onChange(model);
+    setOpen(false);
   };
-
-  const filtered = options.filter((m) =>
-    m.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,21 +43,16 @@ export function AiModelMultiSelect({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value.length > 0 ? `${value.length}개 선택됨` : "모델 선택"}
+          {value}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput
-            placeholder="모델 검색..."
-            value={search}
-            onValueChange={setSearch}
-          />
           <CommandList>
-            <CommandEmpty>해당 모델이 없습니다.</CommandEmpty>
+            <CommandEmpty>모델이 없습니다.</CommandEmpty>
             <CommandGroup>
-              {filtered.map((model) => (
+              {options.map((model) => (
                 <CommandItem
                   key={model}
                   onSelect={() => toggle(model)}

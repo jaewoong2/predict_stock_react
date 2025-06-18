@@ -64,7 +64,7 @@ const SignalAnalysisPage: React.FC = () => {
     select(data) {
       return {
         date: data.date,
-        signals: data.signals.filter((s) => s.signal.action !== "hold"),
+        signals: data.signals,
       };
     },
   });
@@ -216,7 +216,7 @@ const SignalAnalysisPage: React.FC = () => {
     <div className="container mx-auto p-4 md:p-8">
       <div>
         <RecommendationCard
-          title="호재가 많은 종목"
+          title="Buy News Recommendation"
           recommendation="Buy"
           badgeColor="bg-green-100 text-green-800"
         />

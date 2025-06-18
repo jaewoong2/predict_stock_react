@@ -15,7 +15,7 @@ const RecommendationCard: FC<{
   const { data, isLoading, error } = useNewsRecommendations({
     recommendation,
     limit: 5,
-    date: format(new Date(date ?? new Date()), "yyyy-MM-dd"),
+    date: date ? date : format(new Date(), "yyyy-MM-dd"),
   });
 
   const onClickTicker = (ticker: string) => {
