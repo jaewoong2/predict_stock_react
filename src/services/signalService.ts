@@ -1,5 +1,9 @@
 import axios from "axios";
-import { SignalAPIResponse } from "../types/signal";
+import {
+  GetWeeklyActionCountParams,
+  SignalAPIResponse,
+  WeeklyActionCountResponse,
+} from "../types/signal";
 
 // API 기본 URL 설정 (기존 tickerService.ts와 동일하게 환경 변수 사용)
 const API_BASE_URL = import.meta.env.DEV
@@ -41,6 +45,20 @@ export const signalApiService = {
       params: { symbols: symbols.join(","), date },
     });
 
+    return response.data;
+  },
+
+  getWeeklyActionCount: async ({
+    tickers,
+    reference_date,
+    action,
+  }: GetWeeklyActionCountParams): Promise<WeeklyActionCountResponse> => {
+    const response = await api.get<WeeklyActionCountResponse>(
+      "/signals/weekly/action-count",
+      {
+        params: { tickers, reference_date, action },
+      }
+    );
     return response.data;
   },
 };

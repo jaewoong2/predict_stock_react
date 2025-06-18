@@ -1,8 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import {
   TickerCreate,
   TickerUpdate,
   TickerMultiDateQuery,
+  GetWeeklyPriceMovementParams,
+  WeeklyPriceMovementResponse,
 } from "../types/ticker";
 import { tickerService } from "../services/tickerService";
 
@@ -17,6 +24,8 @@ export const TICKER_KEYS = {
     [...TICKER_KEYS.details(), "symbol", symbol] as const,
   byDate: (symbol: string, date: string) =>
     [...TICKER_KEYS.details(), "date", symbol, date] as const,
+  weeklyPriceMovement: (params: GetWeeklyPriceMovementParams) =>
+    [...TICKER_KEYS.all, "weeklyPriceMovement", params] as const,
 };
 
 // Custom Hooks
@@ -109,5 +118,21 @@ export const useDeleteTicker = () => {
       queryClient.invalidateQueries({ queryKey: TICKER_KEYS.detail(tickerId) });
       queryClient.invalidateQueries({ queryKey: TICKER_KEYS.lists() });
     },
+  });
+};
+
+export const useWeeklyPriceMovement = (
+  params: GetWeeklyPriceMovementParams,
+  options?: Omit<
+    UseQueryOptions<WeeklyPriceMovementResponse, Error>,
+    "queryKey" | "queryFn"
+  >
+) => {
+  return useQuery<WeeklyPriceMovementResponse, Error>({
+    queryKey: TICKER_KEYS.weeklyPriceMovement(params),
+    queryFn: () => tickerService.getWeeklyPriceMovement(params),
+    ...options,
+    enabled:
+      !!params.direction && (options?.enabled === undefined || options.enabled),
   });
 };

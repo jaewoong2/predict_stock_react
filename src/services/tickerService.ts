@@ -5,6 +5,8 @@ import {
   TickerUpdate,
   TickerMultiDateQuery,
   TickerChangeResponse,
+  GetWeeklyPriceMovementParams,
+  WeeklyPriceMovementResponse,
 } from "../types/ticker";
 
 // API 기본 URL 설정
@@ -77,6 +79,20 @@ export const tickerService = {
     const response = await api.post<TickerChangeResponse[]>(
       "/tickers/changes",
       query
+    );
+    return response.data;
+  },
+
+  getWeeklyPriceMovement: async ({
+    tickers,
+    reference_date,
+    direction,
+  }: GetWeeklyPriceMovementParams): Promise<WeeklyPriceMovementResponse> => {
+    const response = await api.get<WeeklyPriceMovementResponse>(
+      "/tickers/weekly/price-movement",
+      {
+        params: { tickers, reference_date, direction },
+      }
     );
     return response.data;
   },
