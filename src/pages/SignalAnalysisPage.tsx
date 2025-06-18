@@ -18,7 +18,7 @@ import {
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
-import { RecommendationsDashboard } from "@/components/signal/RecommendationCard";
+import RecommendationCard from "@/components/signal/RecommendationCard";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -215,7 +215,11 @@ const SignalAnalysisPage: React.FC = () => {
   return (
     <div className="container mx-auto p-4 md:p-8">
       <div>
-        <RecommendationsDashboard />
+        <RecommendationCard
+          title="호재가 많은 종목"
+          recommendation="Buy"
+          badgeColor="bg-green-100 text-green-800"
+        />
       </div>
       <div className="my-4 flex gap-4 items-center">
         {marketNews && (

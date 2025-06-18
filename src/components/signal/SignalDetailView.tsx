@@ -1,4 +1,3 @@
-import { SignalData } from "../../types/signal";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -18,9 +17,12 @@ import {
 import { format } from "date-fns";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
+import { cn } from "@/lib/utils";
+import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useMemo } from "react";
 
 interface SignalDetailViewProps {
-  data: SignalData | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   date?: string;
@@ -50,7 +52,6 @@ const formatDate = (
 };
 
 const formatCurrency = (amount: number | undefined | null) => {
-  // null 처리 추가
   if (amount == null) return "N/A"; // undefined와 null 모두 체크
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -59,11 +60,25 @@ const formatCurrency = (amount: number | undefined | null) => {
 };
 
 export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
-  data,
   open,
   onOpenChange,
   date,
 }) => {
+  const { signalId } = useSignalSearchParams();
+  const [symbol, aiModel] = signalId?.split("_") ?? [];
+
+  const signals = useSignalDataByNameAndDate(
+    [symbol],
+    date ?? new Date().toISOString().split("T")[0]
+  );
+
+  const data = useMemo(() => {
+    return signals.data?.signals.find(
+      (value) =>
+        value.signal.ai_model === aiModel && value.signal.ticker === symbol
+    );
+  }, [aiModel, signals.data?.signals, symbol]);
+
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
     ticker: data?.signal.ticker,
@@ -85,7 +100,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </button>
             </DrawerClose>
             {marketNews?.result && (
-              <div className="px-6">
+              <div className="px-1 pb-4">
                 <MarketNewsCarousel items={marketNews?.result} />
               </div>
             )}
@@ -101,14 +116,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </div>
               {data.signal.action && (
                 <Badge
-                  variant={
+                  className={cn(
+                    "text-xs px-3 py-1",
                     data.signal.action.toLowerCase() === "buy"
-                      ? "default"
+                      ? "bg-green-500 text-white"
                       : data.signal.action.toLowerCase() === "sell"
-                      ? "destructive"
-                      : "secondary"
-                  }
-                  className="text-sm px-3 py-1"
+                      ? "bg-red-500 text-white"
+                      : "bg-yellow-500 text-white"
+                  )}
                 >
                   {data.signal.action.toUpperCase()}
                 </Badge>
@@ -123,8 +138,15 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 예측 정보
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="w-full">
-                  <strong>전략:</strong> {data.signal.strategy ?? "N/A"}
+                <div className="w-full flex flex-col">
+                  <strong>전략:</strong>{" "}
+                  <div className="flex flex-wrap gap-1">
+                    {data.signal.strategy
+                      ?.split(",")
+                      .map((strategy) => (
+                        <Badge key={strategy}>{strategy}</Badge>
+                      )) ?? "N/A"}
+                  </div>
                 </div>
                 <div>
                   <strong>AI 모델:</strong> {data.signal.ai_model ?? "N/A"}
