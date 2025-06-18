@@ -31,8 +31,8 @@ export const useMarketNewsSummary = ({
 
 export const NEWS_RECOMMENDATION_KEYS = {
   all: ["newsRecommendations"] as const,
-  by: (recommendation: string) =>
-    [...NEWS_RECOMMENDATION_KEYS.all, recommendation] as const,
+  by: (recommendation: string, limit: number, date?: string) =>
+    [...NEWS_RECOMMENDATION_KEYS.all, recommendation, limit, date] as const,
 };
 
 export const useNewsRecommendations = ({
@@ -41,7 +41,7 @@ export const useNewsRecommendations = ({
   date,
 }: GetNewsRecommendationsParams) => {
   return useQuery<NewsRecommendationsResponse, Error>({
-    queryKey: NEWS_RECOMMENDATION_KEYS.by(recommendation),
+    queryKey: NEWS_RECOMMENDATION_KEYS.by(recommendation, limit, date),
     queryFn: () =>
       newsService.getNewsRecommendations({
         recommendation,

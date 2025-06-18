@@ -185,14 +185,15 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       <div className="flex items-center justify-end space-x-2">
         <div className="flex justify-start w-full items-center gap-4 text-sm text-muted-foreground">
           <span>
-            {table.getFilteredSelectedRowModel().rows.length} /{" "}
-            {table.getFilteredRowModel().rows.length}
+            {table.getState().pagination.pageSize *
+              table.getState().pagination.pageIndex}{" "}
+            / {table.getFilteredRowModel().rows.length}
           </span>
           <div className="flex items-center py-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  {table.getState().pagination.pageSize}줄
+                  {table.getState().pagination.pageSize}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

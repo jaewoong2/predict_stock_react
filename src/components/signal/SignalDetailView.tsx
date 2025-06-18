@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useMemo } from "react";
+import { AiModelSelect } from "./AiModelSelect";
 
 interface SignalDetailViewProps {
   open: boolean;
@@ -64,7 +65,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   onOpenChange,
   date,
 }) => {
-  const { signalId } = useSignalSearchParams();
+  const { signalId, setParams } = useSignalSearchParams();
   const [symbol, aiModel] = signalId?.split("_") ?? [];
 
   const signals = useSignalDataByNameAndDate(
@@ -148,8 +149,22 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                       )) ?? "N/A"}
                   </div>
                 </div>
-                <div>
-                  <strong>AI 모델:</strong> {data.signal.ai_model ?? "N/A"}
+                <div className="flex gap-2 items-center">
+                  <strong>LLM 모델:</strong>
+                  <AiModelSelect
+                    options={[
+                      ...new Set(
+                        signals.data?.signals.map(
+                          (signal) => signal.signal.ai_model ?? ""
+                        )
+                      ),
+                    ]}
+                    value={aiModel}
+                    onChange={(value) => {
+                      const newSignalId = `${data.signal.ticker}_${value}`;
+                      setParams({ signalId: newSignalId });
+                    }}
+                  />
                 </div>
                 <div>
                   <strong>확률:</strong>{" "}

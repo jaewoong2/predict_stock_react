@@ -22,9 +22,8 @@ interface SignalSearchParamsContextValue extends SignalQueryParams {
   setParams: (updates: Partial<SignalQueryParams>) => void;
 }
 
-const SignalSearchParamsContext = createContext<
-  SignalSearchParamsContextValue | undefined
->(undefined);
+const SignalSearchParamsContext =
+  createContext<SignalSearchParamsContextValue | null>(null);
 
 export function SignalSearchParamsProvider({
   children,
@@ -130,10 +129,7 @@ export function SignalSearchParamsProvider({
     setParams,
   ]);
 
-  const value = useMemo(
-    () => ({ ...params, setParams }),
-    [params, setParams]
-  );
+  const value = useMemo(() => ({ ...params, setParams }), [params, setParams]);
 
   return (
     <SignalSearchParamsContext.Provider value={value}>

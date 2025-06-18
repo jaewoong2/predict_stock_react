@@ -54,9 +54,9 @@ export const columns: ColumnDef<SignalData>[] = [
       return (
         <Badge
           className={cn(
-            action.toLowerCase() === "buy"
-              ? "bg-green-500 text-white"
-              : "bg-red-500 text-white"
+            action.toLowerCase() === "buy" && "bg-green-500 text-white",
+            action.toLowerCase() === "sell" && "bg-red-500 text-white",
+            action.toLowerCase() === "hold" && "bg-yellow-500 text-white"
           )}
         >
           {action.toUpperCase()}
