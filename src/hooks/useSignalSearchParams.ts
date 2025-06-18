@@ -30,7 +30,6 @@ export function useSignalSearchParams() {
   const setParams = useCallback(
     (updates: Partial<SignalQueryParams>) => {
       const newParams = new URLSearchParams(searchParams.toString());
-
       const apply = (key: string, value: unknown) => {
         if (
           value === undefined ||
