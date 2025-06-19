@@ -5,6 +5,7 @@ import { GetWeeklyPriceMovementParams } from "@/types/ticker";
 import { Loader2 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 interface WeeklyPriceMovementCardProps {
   title: string;
@@ -15,20 +16,26 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   title,
   params,
 }) => {
-  const { data, isLoading, error } = useWeeklyPriceMovement(params);
+  const { setParams } = useSignalSearchParams();
 
-  const badgeColor =
-    params.direction === "up"
-      ? "bg-green-500 text-white"
-      : "bg-red-500 text-white";
+  const { data, isLoading, error } = useWeeklyPriceMovement(params, {
+    select(data) {
+      return {
+        tickers: data.tickers.sort((a, b) => b.count - a.count).slice(0, 10),
+      };
+    },
+  });
+
+  const onClickTicker = (ticker: string) => {
+    setParams({ signalId: `${ticker}_OPENAI` });
+  };
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="shadow-none">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between text-sm font-medium">
+          <CardTitle className="flex items-center justify-between font-medium">
             <span>{title}</span>
-            <Badge className={badgeColor}>{params.direction}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-24">
@@ -40,9 +47,9 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
 
   if (error) {
     return (
-      <Card>
+      <Card className="shadow-none">
         <CardHeader>
-          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+          <CardTitle className="font-medium">{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-red-500">데이터 로딩 오류</p>
@@ -52,18 +59,22 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   }
 
   return (
-    <Card>
+    <Card className="shadow-none">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between text-sm font-medium">
+        <CardTitle className="flex items-center justify-between font-medium">
           <span>{title}</span>
-          <Badge className={badgeColor}>{params.direction}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {data?.tickers && data.tickers.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {data.tickers.map(({ ticker, count }) => (
-              <Badge key={ticker} variant="secondary" className="flex gap-2">
+              <Badge
+                key={ticker}
+                variant="secondary"
+                className="flex gap-2 hover:bg-green-100 cursor-pointer transition-colors"
+                onClick={() => onClickTicker(ticker)}
+              >
                 <span>{ticker}</span>
                 <span
                   className={cn(

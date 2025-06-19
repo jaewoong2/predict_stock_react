@@ -218,23 +218,21 @@ const SignalAnalysisPage: React.FC = () => {
     <div className="container mx-auto p-4 md:p-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <WeeklyActionCountCard
-          title="주간 Buy 시그널"
+          title="Weekly Top Buy Signals"
           params={{
             action: "Buy",
             reference_date: date ?? undefined,
           }}
         />
         <WeeklyPriceMovementCard
-          title="주간 가격 상승"
+          title="Weekly Top Up Price Movements"
           params={{
             direction: "up",
             reference_date: date ?? undefined,
           }}
         />
-      </div>
-      <div>
         <RecommendationCard
-          title="Buy News Recommendation"
+          title="Today News Recommendation"
           recommendation="Buy"
           badgeColor="bg-green-100 text-green-800"
         />

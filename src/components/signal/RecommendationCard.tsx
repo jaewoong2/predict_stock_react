@@ -14,7 +14,7 @@ const RecommendationCard: FC<{
   const { setParams, date } = useSignalSearchParams();
   const { data, isLoading, error } = useNewsRecommendations({
     recommendation,
-    limit: 5,
+    limit: 10,
     date: date ? date : format(new Date(), "yyyy-MM-dd"),
   });
 
@@ -24,7 +24,7 @@ const RecommendationCard: FC<{
 
   if (isLoading) {
     return (
-      <Card className="h-full">
+      <Card className="h-full shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>{title}</span>
@@ -55,7 +55,7 @@ const RecommendationCard: FC<{
   }
 
   return (
-    <Card className="h-full shadow-none w-fit">
+    <Card className="h-full shadow-none w-fit max-md:w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{title}</span>
@@ -68,12 +68,12 @@ const RecommendationCard: FC<{
             해당 추천 유형의 종목이 없습니다.
           </p>
         ) : (
-          <div className="flex gap-2">
+          <div className="grid gap-2 grid-cols-5 max-md:grid-cols-9">
             {data.results.map((item) => (
               <Badge
                 key={item.ticker}
-                variant={"outline"}
-                className="border rounded-md p-3 cursor-pointer hover:bg-green-100 transition-colors"
+                variant={"secondary"}
+                className="border rounded-md px-3 cursor-pointer hover:bg-green-100 transition-colors"
                 onClick={() => onClickTicker(item.ticker)}
               >
                 <h3 className="text-xs">{item.ticker}</h3>
