@@ -21,6 +21,7 @@ import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import RecommendationCard from "@/components/signal/RecommendationCard";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
+import MarketForCastCard from "@/components/news/MarketForcastCard";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -236,6 +237,8 @@ const SignalAnalysisPage: React.FC = () => {
           recommendation="Buy"
           badgeColor="bg-green-100 text-green-800"
         />
+
+        <MarketForCastCard title="Today Market Forecast" />
       </div>
       <div className="my-4 flex gap-4 items-center">
         {marketNews && (

@@ -1,6 +1,8 @@
 import axios from "axios";
 import {
   GetMarketNewsSummaryRequestParams,
+  MarketForeCastRequestParams,
+  MarketForecastResponse,
   MarketNewsResponse,
 } from "@/types/news";
 import {
@@ -53,6 +55,18 @@ export const newsService = {
       "/news/recommendations",
       { params }
     );
+    return response.data;
+  },
+
+  async getMarketForecast({
+    date,
+    source = "Major",
+  }: MarketForeCastRequestParams): Promise<MarketForecastResponse> {
+    const response = await api.get<MarketForecastResponse>(
+      `/news/market-forecast/`,
+      { params: { forecast_date: date, source: source } }
+    );
+
     return response.data;
   },
 };
