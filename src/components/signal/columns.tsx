@@ -54,6 +54,7 @@ export const columns: ColumnDef<SignalData>[] = [
       return (
         <Badge
           className={cn(
+            "w-fit",
             action.toLowerCase() === "buy" && "bg-green-500 text-white",
             action.toLowerCase() === "sell" && "bg-red-500 text-white",
             action.toLowerCase() === "hold" && "bg-yellow-500 text-white"
@@ -64,6 +65,7 @@ export const columns: ColumnDef<SignalData>[] = [
       );
     },
   },
+
   {
     accessorKey: "signal.entry_price",
     header: "진입 가격",

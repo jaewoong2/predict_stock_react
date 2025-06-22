@@ -2,10 +2,10 @@ import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyActionCount } from "@/hooks/useSignal";
 import { GetWeeklyActionCountParams } from "@/types/signal";
-import { Loader2 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { CardSkeleton } from "../ui/skeletons";
 
 interface WeeklyActionCountCardProps {
   title: string;
@@ -32,16 +32,11 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between font-medium">
-            <span>{title}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-24">
-          <Loader2 className="animate-spin h-8 w-8" />
-        </CardContent>
-      </Card>
+      <CardSkeleton
+        titleHeight={6}
+        cardClassName="shadow-none"
+        contentHeight={24}
+      />
     );
   }
 
