@@ -66,7 +66,7 @@ export const TableSkeleton = ({
         <Table>
           <TableHeader>
             <TableRow>
-              {Array(columnCount ?? 10)
+              {Array(columnCount ?? 5)
                 ?.fill(null)
                 ?.map((_, index) => (
                   <TableHead key={`header-${index}`}>
@@ -76,13 +76,13 @@ export const TableSkeleton = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array(rowCount)
-              .fill(null)
+            {Array(rowCount ?? 5)
+              ?.fill(null)
               .map((_, rowIndex) => (
                 <TableRow key={`row-${rowIndex}`}>
-                  {Array(columnCount)
-                    .fill(null)
-                    .map((_, colIndex) => (
+                  {Array(columnCount ?? 5)
+                    ?.fill(null)
+                    ?.map((_, colIndex) => (
                       <TableCell key={`cell-${rowIndex}-${colIndex}`}>
                         <Skeleton className="h-8 w-full" />
                       </TableCell>
