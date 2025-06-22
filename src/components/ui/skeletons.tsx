@@ -61,12 +61,12 @@ export const TableSkeleton = ({
   rowCount = 5,
 }: TableSkeletonProps) => {
   return (
-    <div className="w-full">
+    <div className="w-full" key={`table-skeleton-${columnCount}-${rowCount}`}>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              {Array(columnCount ?? 5)
+              {Array(5)
                 ?.fill(null)
                 ?.map((_, index) => (
                   <TableHead key={`header-${index}`}>
@@ -76,11 +76,11 @@ export const TableSkeleton = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Array(rowCount ?? 5)
+            {Array(5)
               ?.fill(null)
               .map((_, rowIndex) => (
                 <TableRow key={`row-${rowIndex}`}>
-                  {Array(columnCount ?? 5)
+                  {Array(5)
                     ?.fill(null)
                     ?.map((_, colIndex) => (
                       <TableCell key={`cell-${rowIndex}-${colIndex}`}>
