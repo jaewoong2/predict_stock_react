@@ -66,9 +66,9 @@ export const TableSkeleton = ({
         <Table>
           <TableHeader>
             <TableRow>
-              {Array(columnCount)
-                .fill(null)
-                .map((_, index) => (
+              {Array(columnCount ?? 10)
+                ?.fill(null)
+                ?.map((_, index) => (
                   <TableHead key={`header-${index}`}>
                     <Skeleton className="h-8 w-full" />
                   </TableHead>
