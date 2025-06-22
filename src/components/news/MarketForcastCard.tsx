@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useMarketForecast } from "@/hooks/useMarketNews";
@@ -15,6 +14,7 @@ import {
 } from "../ui/drawer";
 import { useState } from "react";
 import { MarketForecastResponse } from "@/types/news";
+import { CardSkeleton } from "../ui/skeletons";
 
 type Props = {
   title?: string;
@@ -56,16 +56,11 @@ const MarketForCastCard = ({ title }: Props) => {
 
   if (isLoading) {
     return (
-      <Card className="shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between font-medium">
-            <span>{date}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-24">
-          <Loader2 className="animate-spin h-8 w-8" />
-        </CardContent>
-      </Card>
+      <CardSkeleton
+        titleHeight={6}
+        cardClassName="shadow-none"
+        contentHeight={48}
+      />
     );
   }
 

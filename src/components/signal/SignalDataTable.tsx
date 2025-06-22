@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu"; // Shadcn UI 경로 확인
 import { SignalData } from "../../types/signal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { TableSkeleton } from "../ui/skeletons";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -51,7 +52,9 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   pagination,
   onPaginationChange,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { desc: true, id: "take_profit_buy" },
+  ]); // 기본 정렬 상태 설정 (제출일 기준 내림차순)
   const [columnFilters, setColumnFilters] = React.useState<
     { id: string; value: unknown }[]
   >([]);
@@ -112,6 +115,15 @@ export function SignalDataTable<TData extends SignalData, TValue>({
         .includes(String(filterValue).toLowerCase());
     },
   });
+
+  if (isLoading) {
+    return (
+      <TableSkeleton
+        columnCount={columns.length}
+        rowCount={pagination.pageSize}
+      />
+    );
+  }
 
   return (
     <div className="w-full">

@@ -20,8 +20,9 @@ import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 import { cn } from "@/lib/utils";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AiModelSelect } from "./AiModelSelect";
+import { Progress } from "../ui/progress";
 
 interface SignalDetailViewProps {
   open: boolean;
@@ -66,6 +67,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   date,
 }) => {
   const { signalId, setParams } = useSignalSearchParams();
+
   const [symbol, aiModel] = signalId?.split("_") ?? [];
 
   const signals = useSignalDataByNameAndDate(
@@ -80,6 +82,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     );
   }, [aiModel, signals.data?.signals, symbol]);
 
+  useEffect(() => {
+    if (signals.isError) {
+      setParams({
+        signalId: undefined,
+      });
+    }
+  }, [data?.signal.ticker, setParams, signals.data?.signals, signals.isError]);
+
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
     ticker: data?.signal.ticker,
@@ -89,6 +99,12 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   if (!data) {
     return null;
   }
+
+  const confidenceLevel = data.signal.chart_pattern?.confidence_level
+    ? data.signal.chart_pattern?.confidence_level > 1
+      ? data.signal.chart_pattern.confidence_level * 0.01
+      : data.signal.chart_pattern?.confidence_level
+    : 0;
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -198,6 +214,67 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   <strong>익절 가격:</strong>{" "}
                   {formatCurrency(data.signal.take_profit)}
                 </div>
+                {data.signal.chart_pattern && (
+                  <div className="mt-4 w-full md:col-span-2">
+                    <h3 className="text-lg font-semibold mb-2 border-b pb-1">
+                      차트 패턴 분석
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2">
+                        <strong>패턴:</strong>
+                        <Badge
+                          className={cn(
+                            "capitalize",
+                            data.signal.chart_pattern.pattern_type ===
+                              "bullish" && "bg-green-500 text-white",
+                            data.signal.chart_pattern.pattern_type ===
+                              "bearish" && "bg-red-500 text-white",
+                            data.signal.chart_pattern.pattern_type ===
+                              "neutral" && "bg-yellow-500 text-white"
+                          )}
+                        >
+                          {data.signal.chart_pattern.name}
+                        </Badge>
+                      </div>
+                      <div>
+                        <strong>패턴 유형:</strong>{" "}
+                        <Badge
+                          className={cn(
+                            "capitalize",
+                            data.signal.chart_pattern.pattern_type ===
+                              "bullish" && "bg-green-500 text-white",
+                            data.signal.chart_pattern.pattern_type ===
+                              "bearish" && "bg-red-500 text-white",
+                            data.signal.chart_pattern.pattern_type ===
+                              "neutral" && "bg-yellow-500 text-white"
+                          )}
+                        >
+                          {data.signal.chart_pattern.pattern_type === "bullish"
+                            ? "상승"
+                            : data.signal.chart_pattern.pattern_type ===
+                              "bearish"
+                            ? "하락"
+                            : "중립"}
+                        </Badge>
+                      </div>
+                      <div>
+                        <strong className="flex items-center">
+                          신뢰도:
+                          <span className="text-sm ml-2">
+                            {confidenceLevel * 100}%
+                          </span>
+                        </strong>{" "}
+                        <Progress value={confidenceLevel * 100} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <strong>차트 설명:</strong>{" "}
+                        <p className="text-sm text-muted-foreground">
+                          {data.signal.chart_pattern.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {data.signal.senario && (
                   <div className="md:col-span-2">
                     <strong>시나리오:</strong> {data.signal.senario}

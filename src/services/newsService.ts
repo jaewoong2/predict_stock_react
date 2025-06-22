@@ -63,7 +63,7 @@ export const newsService = {
     source = "Major",
   }: MarketForeCastRequestParams): Promise<MarketForecastResponse> {
     const response = await api.get<MarketForecastResponse>(
-      `/news/market-forecast/`,
+      "/news/market-forecast",
       { params: { forecast_date: date, source: source } }
     );
 

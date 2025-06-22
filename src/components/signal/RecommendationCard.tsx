@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNewsRecommendations } from "@/hooks/useMarketNews";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { CardSkeleton } from "../ui/skeletons";
 
 const RecommendationCard: FC<{
   title: string;
@@ -24,17 +24,12 @@ const RecommendationCard: FC<{
 
   if (isLoading) {
     return (
-      <Card className="h-full shadow-none">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{title}</span>
-            <Badge className={badgeColor}>{recommendation.toUpperCase()}</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-48">
-          <Loader2 className="animate-spin h-8 w-8" />
-        </CardContent>
-      </Card>
+      <CardSkeleton
+        titleHeight={6}
+        cardClassName="shadow-none h-full"
+        contentHeight={24}
+        withBadge={true}
+      />
     );
   }
 
@@ -68,7 +63,7 @@ const RecommendationCard: FC<{
             해당 추천 유형의 종목이 없습니다.
           </p>
         ) : (
-          <div className="grid gap-2 grid-cols-5 max-md:grid-cols-9">
+          <div className="gap-2 flex flex-wrap">
             {data.results.map((item) => (
               <Badge
                 key={item.ticker}

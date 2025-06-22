@@ -22,11 +22,12 @@ import RecommendationCard from "@/components/signal/RecommendationCard";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
 import MarketForCastCard from "@/components/news/MarketForcastCard";
+import { withDateValidation } from "@/components/withDateValidation";
+import { CarouselSkeleton } from "@/components/ui/skeletons";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
     date,
-    signalId,
     q,
     models: selectedAiModels,
     condition: aiModelFilterCondition,
@@ -37,11 +38,10 @@ const SignalAnalysisPage: React.FC = () => {
 
   const todayString = formatDate(new Date(), "yyyy-MM-dd");
   const submittedDate = date ?? todayString;
-  const selectedSignalId = signalId;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
-  const [selectedSignal, setSelectedSignal] = useState<SignalData | null>(null);
-  const { data: marketNews } = useMarketNewsSummary({ news_type: "market" });
+  const { data: marketNews, isLoading: isMarketNewsLoading } =
+    useMarketNewsSummary({ news_type: "market" });
 
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
@@ -87,25 +87,8 @@ const SignalAnalysisPage: React.FC = () => {
   useEffect(() => {
     if (submittedDate) {
       refetch();
-      setSelectedSignal(null);
     }
   }, [submittedDate, refetch]);
-
-  useEffect(() => {
-    if (selectedSignalId && signalApiResponse?.signals) {
-      const found = signalApiResponse.signals.find(
-        (s) => `${s.signal.ticker}_${s.signal.ai_model}` === selectedSignalId
-      );
-      if (found) {
-        setSelectedSignal(found);
-      } else if (!isLoading) {
-        setSelectedSignal(null);
-        // setParams({ signalId: null }); // 해당 ID의 시그널이 없으면 URL에서도 제거 - 이 부분은 q, models 등 다른 파라미터와 함께 관리 필요
-      }
-    } else {
-      setSelectedSignal(null);
-    }
-  }, [selectedSignalId, signalApiResponse, isLoading /*, setParams */]);
 
   useEffect(() => {
     if (signalApiResponse?.signals) {
@@ -241,14 +224,16 @@ const SignalAnalysisPage: React.FC = () => {
         <MarketForCastCard title="Today Market Forecast" />
       </div>
       <div className="my-4 flex gap-4 items-center">
-        {marketNews && (
-          <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
-            <DateSelectorWrapper popover={false} />
-            <div className="w-full grid grid-cols-1 h-full">
-              <MarketNewsCarousel items={marketNews.result} />
-            </div>
+        <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
+          <DateSelectorWrapper popover={false} />
+          <div className="w-full grid grid-cols-1 h-full">
+            {!isMarketNewsLoading ? (
+              <MarketNewsCarousel items={marketNews?.result ?? []} />
+            ) : (
+              <CarouselSkeleton />
+            )}
           </div>
-        )}
+        </div>
       </div>
       <div className="flex flex-wrap items-start justify-between gap-2 w-full">
         <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
@@ -333,7 +318,6 @@ const SignalAnalysisPage: React.FC = () => {
       />
 
       <SignalDetailSection
-        selectedSignal={selectedSignal}
         isLoading={isLoading}
         hasSignals={
           !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
@@ -344,4 +328,4 @@ const SignalAnalysisPage: React.FC = () => {
   );
 };
 
-export default SignalAnalysisPage;
+export default withDateValidation(SignalAnalysisPage);

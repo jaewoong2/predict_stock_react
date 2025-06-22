@@ -23,7 +23,7 @@ export function DatePicker({ date, onDateChange, popover }: DatePickerProps) {
       <Calendar
         locale={ko} // Calendar에도 한국어 로케일 적용
         mode="single"
-        className="border rounded-md bg-background"
+        className="border rounded-md bg-background max-sm:w-full [&_>.rdp-months]:max-sm:w-[70%] [&_>.rdp-months]:max-sm:mx-auto"
         selected={date}
         onSelect={onDateChange}
         disabled={(date) => {
@@ -31,7 +31,13 @@ export function DatePicker({ date, onDateChange, popover }: DatePickerProps) {
           const day = date.getDay();
           const isWeekend = day === 0 || day === 6;
           const isFuture = date > new Date();
-          return isWeekend || isFuture;
+
+          // 30일 이전 날짜 비활성화
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+          const isPast30Days = date < thirtyDaysAgo;
+
+          return isWeekend || isFuture || isPast30Days;
         }}
       />
     );

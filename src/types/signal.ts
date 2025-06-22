@@ -1,3 +1,10 @@
+export interface ChartPattern {
+  name: string;
+  description: string;
+  pattern_type: "bullish" | "bearish" | "neutral";
+  confidence_level: number; // Confidence level of the pattern detection (0.0 to 1.0)
+}
+
 export interface Signal {
   ticker: string;
   strategy?: string | null;
@@ -14,6 +21,7 @@ export interface Signal {
   senario?: string | null;
   good_things?: string | null;
   bad_things?: string | null;
+  chart_pattern?: ChartPattern | null;
 }
 
 export interface SignalTickerInfo {
