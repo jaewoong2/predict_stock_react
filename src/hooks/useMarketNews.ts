@@ -10,8 +10,8 @@ import {
 
 export const MARKET_NEWS_KEYS = {
   all: ["marketNews"] as const,
-  summary: (ticker?: string) =>
-    [...MARKET_NEWS_KEYS.all, "summary", ticker] as const,
+  summary: (ticker?: string, newsDate?: string, newsType?: string) =>
+    [...MARKET_NEWS_KEYS.all, "summary", ticker, newsDate, newsType] as const,
 };
 
 export const useMarketNewsSummary = ({
@@ -20,7 +20,7 @@ export const useMarketNewsSummary = ({
   news_date,
 }: GetMarketNewsSummaryRequestParams) => {
   return useQuery<MarketNewsResponse, Error>({
-    queryKey: MARKET_NEWS_KEYS.summary(ticker),
+    queryKey: MARKET_NEWS_KEYS.summary(ticker, news_date, news_type),
     queryFn: () =>
       newsService.getMarketNewsSummary({
         news_type,
