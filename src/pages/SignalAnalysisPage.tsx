@@ -41,7 +41,7 @@ const SignalAnalysisPage: React.FC = () => {
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const { data: marketNews, isLoading: isMarketNewsLoading } =
-    useMarketNewsSummary({ news_type: "market" });
+    useMarketNewsSummary({ news_type: "market", news_date: submittedDate });
 
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
