@@ -1,60 +1,39 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
-import { WeeklyActionCountCard } from "./WeeklyActionCountCard";
-import { WeeklyPriceMovementCard } from "./WeeklyPriceMovementCard";
-import RecommendationByAiCard from "./RecommendationByAICard";
-import RecommendationCard from "./RecommendationCard";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-const SummaryTabsCard = () => {
-  const { date } = useSignalSearchParams();
+type Props = {
+  tabs: {
+    value: string;
+    label: string;
+    component: React.ReactNode;
+  }[];
+};
+
+const SummaryTabsCard = ({ tabs }: Props) => {
+  const defaultValue = tabs.length > 0 ? tabs[0].value : "";
 
   return (
-    <Tabs defaultValue="weekly" className="w-full">
-      <Card className="shadow-none">
-        <CardHeader className="p-0">
-          <TabsList className="w-full">
-            <TabsTrigger value="weekly" className="flex-1">
-              Weekly
-            </TabsTrigger>
-            <TabsTrigger value="today" className="flex-1">
-              Today
-            </TabsTrigger>
+    <Tabs defaultValue={defaultValue} className="w-full h-full">
+      <Card className="shadow-none gap-2 h-full">
+        <CardHeader className="px-6 py-0">
+          <TabsList className="w-fit">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </CardHeader>
-        <CardContent className="pt-4">
-          <TabsContent value="weekly" className="outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <WeeklyActionCountCard
-                title="Weekly Top Buy Signals"
-                params={{
-                  action: "Buy",
-                  reference_date: date ?? undefined,
-                }}
-              />
-              <WeeklyPriceMovementCard
-                title="Weekly Top Up Price Movements"
-                params={{
-                  direction: "up",
-                  reference_date: date ?? undefined,
-                }}
-              />
-            </div>
-          </TabsContent>
-          <TabsContent value="today" className="outline-none">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <RecommendationByAiCard title="Today Ai`s Recommendation" />
-              <RecommendationCard
-                title="Today News Recommendation"
-                recommendation="Buy"
-                badgeColor="bg-green-100 text-green-800"
-              />
-            </div>
-          </TabsContent>
+        <CardContent className="w-full py-0 h-full">
+          {tabs.map((tab) => (
+            <TabsContent
+              key={tab.value}
+              value={tab.value}
+              className="outline-none h-full"
+            >
+              <div className="flex-1 h-full">{tab.component}</div>
+            </TabsContent>
+          ))}
         </CardContent>
       </Card>
     </Tabs>

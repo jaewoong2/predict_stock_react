@@ -28,7 +28,7 @@ export function SignalDetailSection({
   const onOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
-      setParams({ signalId: undefined });
+      setParams({ signalId: undefined, strategy_type: undefined });
     }
   };
 
@@ -47,13 +47,11 @@ export function SignalDetailSection({
         </Alert>
       )}
 
-      {signalId && (
-        <SignalDetailView
-          open={open}
-          date={date ?? undefined}
-          onOpenChange={onOpenChange}
-        />
-      )}
+      <SignalDetailView
+        open={open}
+        date={date ?? undefined}
+        onOpenChange={onOpenChange}
+      />
     </>
   );
 }
