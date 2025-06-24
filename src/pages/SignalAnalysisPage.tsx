@@ -24,6 +24,7 @@ import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovement
 import MarketForCastCard from "@/components/news/MarketForcastCard";
 import { withDateValidation } from "@/components/withDateValidation";
 import { CarouselSkeleton } from "@/components/ui/skeletons";
+import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -215,6 +216,7 @@ const SignalAnalysisPage: React.FC = () => {
             reference_date: date ?? undefined,
           }}
         />
+        <RecommendationByAiCard title="Today Ai`s Recommendation" />
         <RecommendationCard
           title="Today News Recommendation"
           recommendation="Buy"

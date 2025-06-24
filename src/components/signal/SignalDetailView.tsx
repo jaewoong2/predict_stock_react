@@ -66,13 +66,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   onOpenChange,
   date,
 }) => {
-  const { signalId, setParams } = useSignalSearchParams();
+  const { signalId, setParams, strategy_type } = useSignalSearchParams();
 
   const [symbol, aiModel] = signalId?.split("_") ?? [];
 
   const signals = useSignalDataByNameAndDate(
     [symbol],
-    date ?? new Date().toISOString().split("T")[0]
+    date ?? new Date().toISOString().split("T")[0],
+    strategy_type
   );
 
   const data = useMemo(() => {
@@ -182,9 +183,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     }}
                   />
                 </div>
-                <div>
-                  <strong>확률:</strong>{" "}
-                  {data.signal.probability ? (
+                {data.signal.probability && (
+                  <div>
+                    <strong>확률:</strong>{" "}
                     <Badge
                       variant={
                         data.signal.probability.toLowerCase() === "high"
@@ -198,22 +199,24 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     >
                       {data.signal.probability}
                     </Badge>
-                  ) : (
-                    "N/A"
-                  )}
-                </div>
+                  </div>
+                )}
                 <div>
                   <strong>진입 가격:</strong>{" "}
                   {formatCurrency(data.signal.entry_price)}
                 </div>
-                <div>
-                  <strong>손절 가격:</strong>{" "}
-                  {formatCurrency(data.signal.stop_loss)}
-                </div>
-                <div>
-                  <strong>익절 가격:</strong>{" "}
-                  {formatCurrency(data.signal.take_profit)}
-                </div>
+                {data.signal.stop_loss && (
+                  <div>
+                    <strong>손절 가격:</strong>{" "}
+                    {formatCurrency(data.signal.stop_loss)}
+                  </div>
+                )}
+                {data.signal.take_profit && (
+                  <div>
+                    <strong>익절 가격:</strong>{" "}
+                    {formatCurrency(data.signal.take_profit)}
+                  </div>
+                )}
                 {data.signal.chart_pattern && (
                   <div className="mt-4 w-full md:col-span-2">
                     <h3 className="text-lg font-semibold mb-2 border-b pb-1">
@@ -313,9 +316,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
             {data.ticker?.name && (
               <section>
                 <div className="flex flex-col border-b pb-1 mb-2">
-                  <h3 className="text-lg font-semibold">
-                    {data.ticker.name ?? "N/A"}
-                  </h3>
+                  <h3 className="text-lg font-semibold">{data.ticker.name}</h3>
                   <span className="text-sm text-muted-foreground font-light">
                     Close Price [{formatDate(data.ticker.ticker_date)}]
                   </span>
@@ -362,7 +363,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                       <TableRow>
                         <TableCell>거래량</TableCell>
                         <TableCell>
-                          {data.ticker.volume?.toLocaleString() ?? "N/A"}
+                          {data.ticker.volume?.toLocaleString()}
                         </TableCell>
                       </TableRow>
                     </TableBody>

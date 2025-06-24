@@ -16,6 +16,7 @@ export interface SignalQueryParams {
   condition: "OR" | "AND";
   page: string | null; // 페이지 번호
   pageSize: string | null; // 페이지 크기
+  strategy_type: string | null; // 전략 타입 추가
 }
 
 interface SignalSearchParamsContextValue extends SignalQueryParams {
@@ -42,6 +43,7 @@ export function SignalSearchParamsProvider({
       condition: searchParams.get("condition") === "AND" ? "AND" : "OR",
       page: searchParams.get("page"),
       pageSize: searchParams.get("pageSize"),
+      strategy_type: searchParams.get("strategy_type"), // strategy_type 추가
     };
   }, [searchParams]);
 
@@ -84,6 +86,9 @@ export function SignalSearchParamsProvider({
       if (Object.prototype.hasOwnProperty.call(updates, "pageSize")) {
         apply("pageSize", updates.pageSize);
       }
+      if (Object.prototype.hasOwnProperty.call(updates, "strategy_type")) {
+        apply("strategy_type", updates.strategy_type);
+      }
 
       if (newParams.toString() !== searchParams.toString()) {
         setSearchParams(newParams, { replace: true });
@@ -118,6 +123,9 @@ export function SignalSearchParamsProvider({
     if (params.pageSize === null) {
       setParams({ pageSize: "20" });
     }
+    if (params.strategy_type === null) {
+      setParams({ strategy_type: null });
+    }
   }, [
     params.condition,
     params.date,
@@ -126,6 +134,7 @@ export function SignalSearchParamsProvider({
     params.signalId,
     params.page,
     params.pageSize,
+    params.strategy_type,
     setParams,
   ]);
 

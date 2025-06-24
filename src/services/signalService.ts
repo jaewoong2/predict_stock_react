@@ -38,11 +38,25 @@ export const signalApiService = {
 
   getSignalByNameAndDate: async (
     symbols: string[],
-    date: string
+    date: string,
+    strategy_type?: string | null
   ): Promise<SignalAPIResponse> => {
     // 특정 시그널 이름과 날짜에 대한 데이터를 가져오는 API 호출
+    const params: {
+      symbols: string;
+      date: string;
+      strategy_type?: string | null;
+    } = {
+      symbols: symbols.join(","),
+      date,
+    };
+
+    if (strategy_type) {
+      params.strategy_type = strategy_type;
+    }
+
     const response = await api.get<SignalAPIResponse>("/signals/date", {
-      params: { symbols: symbols.join(","), date },
+      params: params,
     });
 
     return response.data;
