@@ -18,11 +18,15 @@ import { format } from "date-fns";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 import { cn } from "@/lib/utils";
-import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
+import {
+  useSignalDataByNameAndDate,
+  useWeeklyActionCount,
+} from "@/hooks/useSignal";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useEffect, useMemo } from "react";
 import { AiModelSelect } from "./AiModelSelect";
 import { Progress } from "../ui/progress";
+import { useWeeklyPriceMovement } from "@/hooks/useTicker";
 
 interface SignalDetailViewProps {
   open: boolean;
@@ -97,6 +101,24 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     news_date: date,
   });
 
+  const priceMovement = useWeeklyPriceMovement(
+    { direction: "up", reference_date: date, tickers: data?.signal.ticker },
+    {
+      enabled: !!data?.signal.ticker && !!date,
+    }
+  );
+
+  const weeklySignalData = useWeeklyActionCount(
+    {
+      action: "Buy",
+      tickers: data?.signal.ticker,
+      reference_date: date,
+    },
+    {
+      enabled: !!data?.signal.ticker && !!date,
+    }
+  );
+
   if (!data) {
     return null;
   }
@@ -110,15 +132,15 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="w-full max-w-4xl mx-auto pb-10 !select-text sm:max-h-[80vh] max-sm:w-[calc(100%-14px)] max-sm:max-h-[70vh]">
-        <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
-          <DrawerHeader>
+        <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-8 max-sm:px-1">
+          <DrawerHeader className="px-0">
             <DrawerClose asChild>
               <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">
                 &times;
               </button>
             </DrawerClose>
             {marketNews?.result && (
-              <div className="px-1 pb-4">
+              <div className="px-0 pb-4">
                 <MarketNewsCarousel items={marketNews?.result} />
               </div>
             )}
@@ -149,7 +171,25 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
             </div>
           </DrawerHeader>
 
-          <div className="px-4 space-y-6">
+          <div className="">
+            <section className="flex items-center gap-2">
+              {priceMovement.data?.tickers[0]?.count && (
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="text-xs px-2 py-1 bg-blue-500 text-white justify-center in-checked:">
+                    <strong>5일간 상승 일 수:</strong>
+                    {priceMovement.data?.tickers[0]?.count} 일
+                  </Badge>
+                </div>
+              )}
+              {weeklySignalData.data?.signals[0].count && (
+                <div className="flex items-center gap-2 mb-4">
+                  <Badge className="text-xs px-2 py-1 bg-blue-500 text-white justify-center in-checked:">
+                    <strong>5일간 상승 시그널 수:</strong>
+                    {weeklySignalData.data?.signals[0].count} 개
+                  </Badge>
+                </div>
+              )}
+            </section>
             {/* 시그널 정보 */}
             <section>
               <h3 className="text-lg font-semibold mb-2 border-b pb-1">
@@ -223,11 +263,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                       차트 패턴 분석
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <strong>패턴:</strong>
                         <Badge
                           className={cn(
-                            "capitalize",
+                            "capitalize flex flex-wrap text-wrap whitespace-pre-wrap",
                             data.signal.chart_pattern.pattern_type ===
                               "bullish" && "bg-green-500 text-white",
                             data.signal.chart_pattern.pattern_type ===

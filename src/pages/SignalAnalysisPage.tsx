@@ -21,6 +21,10 @@ import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import MarketForCastCard from "@/components/news/MarketForcastCard";
 import { withDateValidation } from "@/components/withDateValidation";
 import { CarouselSkeleton } from "@/components/ui/skeletons";
+import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
+import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
+import RecommendationCard from "@/components/signal/RecommendationCard";
+import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 
 const SignalAnalysisPage: React.FC = () => {
@@ -197,10 +201,61 @@ const SignalAnalysisPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <SummaryTabsCard />
+    <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
+      <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr]">
         <MarketForCastCard title="Today Market Forecast" />
+        <SummaryTabsCard
+          tabs={[
+            {
+              label: "Weekly Top Signals",
+              value: "signals",
+              component: (
+                <WeeklyActionCountCard
+                  title="Weekly Top Buy Signals"
+                  params={{
+                    action: "Buy",
+                    reference_date: date ?? undefined,
+                  }}
+                />
+              ),
+            },
+            {
+              label: "Weekly Top Price Movements",
+              value: "price",
+              component: (
+                <WeeklyPriceMovementCard
+                  title="Weekly Top Up Price Movements"
+                  params={{
+                    direction: "up",
+                    reference_date: date ?? undefined,
+                  }}
+                />
+              ),
+            },
+          ]}
+        />
+        <SummaryTabsCard
+          tabs={[
+            {
+              label: "AI Recommendations",
+              value: "ai",
+              component: (
+                <RecommendationByAiCard title="Today Ai's Recommendation" />
+              ),
+            },
+            {
+              label: "News Recommendations",
+              value: "news",
+              component: (
+                <RecommendationCard
+                  title="Today News Recommendation"
+                  recommendation="Buy"
+                  badgeColor="bg-green-100 text-green-800"
+                />
+              ),
+            },
+          ]}
+        />
       </div>
       <div className="my-4 flex gap-4 items-center">
         <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
