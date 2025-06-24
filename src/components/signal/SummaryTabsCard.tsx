@@ -16,7 +16,7 @@ const SummaryTabsCard = ({ tabs }: Props) => {
     <Tabs defaultValue={defaultValue} className="w-full h-full">
       <Card className="shadow-none gap-2 h-full">
         <CardHeader className="px-6 py-0">
-          <TabsList className="w-fit">
+          <TabsList className="w-fit max-w-[450px] flex items-center justify-center text-wrap whitespace-pre-wrap">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}
