@@ -202,7 +202,7 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
-      <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr]">
+      <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr] max-lg:grid-cols-1">
         <MarketForCastCard title="Today Market Forecast" />
         <SummaryTabsCard
           tabs={[
