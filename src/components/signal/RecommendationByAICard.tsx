@@ -1,0 +1,88 @@
+import { FC } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { CardSkeleton } from "../ui/skeletons";
+import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
+
+const RecommendationByAiCard: FC<{
+  title: string;
+}> = ({ title }) => {
+  const { setParams, date } = useSignalSearchParams();
+  const { data, isLoading, error } = useSignalDataByNameAndDate(
+    [],
+    date ? date : format(new Date(), "yyyy-MM-dd"),
+    "AI_GENERATED"
+  );
+
+  const onClickTicker = (ticker: string, model: string) => {
+    setParams({
+      signalId: `${ticker}_${model}`,
+      strategy_type: "AI_GENERATED",
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <CardSkeleton
+        titleHeight={6}
+        cardClassName="shadow-none h-full"
+        contentHeight={24}
+        withBadge={true}
+      />
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{title}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">데이터 로딩 중 오류가 발생했습니다.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="h-full shadow-none w-fit max-md:w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span>{title}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {data.signals.length === 0 ? (
+          <p className="text-muted-foreground">
+            해당 추천 유형의 종목이 없습니다.
+          </p>
+        ) : (
+          <div className="gap-2 flex flex-wrap">
+            {data.signals.map(
+              ({ signal: item }) =>
+                item.action === "buy" && (
+                  <Badge
+                    key={item.ticker + item.ai_model + item.timestamp}
+                    variant={"secondary"}
+                    className="border rounded-md px-3 cursor-pointer hover:bg-green-100 transition-colors"
+                    onClick={() =>
+                      onClickTicker(item.ticker, item.ai_model || "OPENAI")
+                    }
+                  >
+                    <h3 className="text-xs">{item.ticker}</h3>
+                  </Badge>
+                )
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default RecommendationByAiCard;
