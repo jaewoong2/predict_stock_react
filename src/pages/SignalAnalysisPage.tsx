@@ -26,6 +26,8 @@ import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovement
 import RecommendationCard from "@/components/signal/RecommendationCard";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
+import HeroSection from "@/components/dashboard/HeroSection";
+import DashboardFooter from "@/components/dashboard/DashboardFooter";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -201,9 +203,11 @@ const SignalAnalysisPage: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
-      <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr] max-lg:grid-cols-1">
-        <MarketForCastCard title="Today Market Forecast" />
+    <>
+      <HeroSection />
+      <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
+        <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr] max-lg:grid-cols-1">
+          <MarketForCastCard title="Today Market Forecast" />
         <SummaryTabsCard
           tabs={[
             {
@@ -358,7 +362,9 @@ const SignalAnalysisPage: React.FC = () => {
         }
         error={error}
       />
-    </div>
+      </div>
+      <DashboardFooter />
+    </>
   );
 };
 
