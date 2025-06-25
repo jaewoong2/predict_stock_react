@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  TrendingUp,
-  BarChart3,
-  LineChart,
-  Search,
-  Newspaper,
-  Brain,
-} from "lucide-react";
+import { TrendingUp, BarChart3, Search, Newspaper, Brain } from "lucide-react";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
