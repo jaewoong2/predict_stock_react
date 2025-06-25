@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, BarChart3, LineChart } from "lucide-react";
+import {
+  TrendingUp,
+  BarChart3,
+  LineChart,
+  Search,
+  Newspaper,
+  Brain,
+} from "lucide-react";
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,15 +49,27 @@ const HeroSection = () => {
           <div className="flex justify-center gap-6 py-4">
             <div className="flex flex-col items-center">
               <div className="p-3 rounded-full bg-muted mb-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <Search className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">종목 분석</span>
+              <span className="text-xs font-medium">티커 검색</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="p-3 rounded-full bg-muted mb-2">
-                <LineChart className="h-5 w-5 text-primary" />
+                <BarChart3 className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">트렌드 예측</span>
+              <span className="text-xs font-medium">시그널 분석</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="p-3 rounded-full bg-muted mb-2">
+                <Newspaper className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-xs font-medium">뉴스 추천</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="p-3 rounded-full bg-muted mb-2">
+                <Brain className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-xs font-medium">AI 추천</span>
             </div>
           </div>
         </motion.div>
