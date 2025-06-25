@@ -1,20 +1,59 @@
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { TrendingUp, BarChart3, LineChart } from "lucide-react";
 
 const HeroSection = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <section className="w-full py-10 md:py-16 bg-muted/50 border-b">
-      <div className="container mx-auto max-w-5xl text-center space-y-4">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-          AI 기반 주식 분석 대시보드
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          최신 LLM 모델을 활용해 시장 데이터를 분석하고 다양한 인사이트를 제공합니다.
-        </p>
-        <div className="pt-2">
-          <Button onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-            지금 살펴보기
-          </Button>
-        </div>
+    <section className="relative w-full py-16 md:py-24 overflow-hidden border-b">
+      {/* 그라디언트 배경 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-primary/10 z-0" />
+
+      {/* 백그라운드 그리드 패턴 */}
+      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-5" />
+
+      <div className="container relative z-10 mx-auto max-w-5xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-6"
+        >
+          {/* 상단 배지 */}
+          <div className="inline-flex items-center px-3 py-1 mb-2 text-xs font-medium rounded-full bg-primary/10 text-primary">
+            <TrendingUp size={14} className="mr-1" /> 실시간 시장 분석
+          </div>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
+            SPAM | Stock Predict AI LLM
+          </h1>
+
+          <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-lg">
+            최신 LLM 모델과 고급 알고리즘을 통해 시장 데이터를 분석하고 맞춤형
+            투자 인사이트를 제공합니다.
+          </p>
+
+          {/* 핵심 기능 아이콘 */}
+          <div className="flex justify-center gap-6 py-4">
+            <div className="flex flex-col items-center">
+              <div className="p-3 rounded-full bg-muted mb-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-xs font-medium">종목 분석</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="p-3 rounded-full bg-muted mb-2">
+                <LineChart className="h-5 w-5 text-primary" />
+              </div>
+              <span className="text-xs font-medium">트렌드 예측</span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
