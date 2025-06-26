@@ -56,7 +56,7 @@ export const useMarketForecast = (
   date: string,
   source: MarketForecastResponse["source"]
 ) => {
-  return useQuery<MarketForecastResponse, Error>({
+  return useQuery<MarketForecastResponse[], Error>({
     queryKey: ["marketForecast", date, source],
     queryFn: () => newsService.getMarketForecast({ date, source }),
     enabled: !!date, // 날짜가 있을 때만 쿼리 실행

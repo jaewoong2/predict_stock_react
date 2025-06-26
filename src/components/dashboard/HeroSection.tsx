@@ -30,12 +30,11 @@ const HeroSection = () => {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">
-            SPAM | Stock Predict AI LLM
+            오늘의 미국 주식 시장은?
           </h1>
 
           <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-lg">
-            최신 LLM 모델과 고급 알고리즘을 통해 시장 데이터를 분석하고 맞춤형
-            투자 인사이트를 제공합니다.
+            AI를 통해 오늘 내 종목의 상황을 분석하고, 인사이트를 제공 해요.
           </p>
 
           {/* 핵심 기능 아이콘 */}
@@ -44,25 +43,25 @@ const HeroSection = () => {
               <div className="p-3 rounded-full bg-muted mb-2">
                 <Search className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">티커 검색</span>
+              <span className="text-xs font-medium">AI 시장 분석</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="p-3 rounded-full bg-muted mb-2">
                 <BarChart3 className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">시그널 분석</span>
+              <span className="text-xs font-medium">AI 차트 분석</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="p-3 rounded-full bg-muted mb-2">
                 <Newspaper className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">뉴스 추천</span>
+              <span className="text-xs font-medium">AI 뉴스 분석</span>
             </div>
             <div className="flex flex-col items-center">
               <div className="p-3 rounded-full bg-muted mb-2">
                 <Brain className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-xs font-medium">AI 추천</span>
+              <span className="text-xs font-medium">AI의 종목 추천</span>
             </div>
           </div>
         </motion.div>

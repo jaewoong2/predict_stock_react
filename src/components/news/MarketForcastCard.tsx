@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useMarketForecast } from "@/hooks/useMarketNews";
 import { format } from "date-fns";
-import { Progress } from "../ui/progress";
 import {
   Drawer,
   DrawerClose,
@@ -15,6 +14,16 @@ import {
 import { useState } from "react";
 import { MarketForecastResponse } from "@/types/news";
 import { CardSkeleton } from "../ui/skeletons";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from "recharts";
 
 type Props = {
   title?: string;
@@ -26,40 +35,63 @@ const MarketForCastCard = ({ title }: Props) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedForecast, setSelectedForecast] = useState<{
     title: string;
-    data: MarketForecastResponse;
+    data: MarketForecastResponse[];
+    type: "Major" | "Minor";
   } | null>(null);
 
-  const majorForecastData = useMarketForecast(
+  const majorForecastQuery = useMarketForecast(
     date ?? format(new Date(), "yyyy-MM-dd"),
     "Major"
   );
 
-  const minorForecastData = useMarketForecast(
+  const minorForecastQuery = useMarketForecast(
     date ?? format(new Date(), "yyyy-MM-dd"),
     "Minor"
   );
 
-  const handleForecastClick = (type: "Major" | "Minor") => {
-    const data =
-      type === "Major" ? majorForecastData.data : minorForecastData.data;
-    const forecastTitle =
-      type === "Major" ? "Tranditional Forecast" : "Community Forecast";
+  const majorForecastData = majorForecastQuery.data || [];
+  const minorForecastData = minorForecastQuery.data || [];
 
-    if (data) {
-      setSelectedForecast({ title: forecastTitle, data });
+  // 차트에 사용할 데이터 구성
+  const chartData = majorForecastData.map((item, index) => {
+    const minorItem = minorForecastData[index] || {};
+
+    return {
+      date: format(new Date(item.date_yyyymmdd), "MM/dd"),
+      majorOutlook:
+        item.outlook === "UP"
+          ? item.up_percentage || 0
+          : -(100 - (item.up_percentage || 0)),
+      minorOutlook:
+        minorItem.outlook === "UP"
+          ? minorItem.up_percentage || 0
+          : -(100 - (minorItem.up_percentage || 0)),
+      majorDirection: item.outlook,
+      minorDirection: minorItem.outlook,
+    };
+  });
+
+  const handleForecastClick = (type: "Major" | "Minor") => {
+    const data = type === "Major" ? majorForecastData : minorForecastData;
+    const forecastTitle =
+      type === "Major" ? "전통적 시장 예측" : "커뮤니티 시장 예측";
+
+    if (data && data.length > 0) {
+      setSelectedForecast({ title: forecastTitle, data, type });
       setIsDrawerOpen(true);
     }
   };
 
-  const isLoading = majorForecastData.isLoading || minorForecastData.isLoading;
-  const error = majorForecastData.error || minorForecastData.error;
+  const isLoading =
+    majorForecastQuery.isLoading || minorForecastQuery.isLoading;
+  const error = majorForecastQuery.error || minorForecastQuery.error;
 
   if (isLoading) {
     return (
       <CardSkeleton
         titleHeight={6}
         cardClassName="shadow-none"
-        contentHeight={48}
+        contentHeight={140}
       />
     );
   }
@@ -77,72 +109,93 @@ const MarketForCastCard = ({ title }: Props) => {
     );
   }
 
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: { payload: MarketForecastResponse }[];
+  }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-background p-3 rounded-lg shadow-md border">
+          <p className="text-sm font-medium">{`날짜: ${data.date_yyyymmdd}`}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
-    <Card className="shadow-none gap-2">
+    <Card className="shadow-none">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{title}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        <div
-          className="cursor-pointer"
-          onClick={() => handleForecastClick("Major")}
-        >
-          <h4 className="text-sm">Tranditional Forecast</h4>
-          <div className="relative flex flex-col w-full overflow-hidden">
-            <Progress
-              value={majorForecastData?.data?.up_percentage}
-              className={cn(
-                "h-6 relative",
-                majorForecastData.data?.outlook === "UP"
-                  ? "[&>div]:bg-green-500"
-                  : "[&>div]:bg-red-500"
-              )}
-            />
-            <div
-              style={{
-                transform: `translateX(${
-                  (majorForecastData.data?.up_percentage || 0) - 10
-                }%)`,
-              }}
-              className={cn(
-                "absolute inset-0 top-0 left-0 flex items-center justify-start text-sm",
-                "text-muted"
-              )}
+      <CardContent className="flex flex-col gap-4">
+        <div className="h-[240px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
             >
-              {majorForecastData.data?.up_percentage}%
-            </div>
-          </div>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey="date" />
+              <YAxis
+                domain={[-100, 100]}
+                tickFormatter={(value) => `${Math.abs(value)}%`}
+                label={{
+                  value: "예측 확률",
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { textAnchor: "middle" },
+                }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend
+                payload={[
+                  { value: "전통적 예측", type: "rect", color: "#10b981" },
+                  { value: "커뮤니티 예측", type: "rect", color: "#3b82f6" },
+                ]}
+              />
+              <Bar
+                dataKey="majorOutlook"
+                name="전통적 예측"
+                fill="#10b981"
+                radius={[4, 4, 0, 0]}
+                onClick={() => handleForecastClick("Major")}
+                cursor="pointer"
+              />
+              <Bar
+                dataKey="minorOutlook"
+                name="커뮤니티 예측"
+                fill="#3b82f6"
+                radius={[4, 4, 0, 0]}
+                onClick={() => handleForecastClick("Minor")}
+                cursor="pointer"
+              />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <div
-          className="cursor-pointer"
-          onClick={() => handleForecastClick("Minor")}
-        >
-          <h4 className="text-sm">Community Forecast</h4>
-          <div className="relative flex flex-col w-full overflow-hidden">
-            <Progress
-              value={minorForecastData.data?.up_percentage}
-              className={cn(
-                "h-6 relative",
-                minorForecastData.data?.outlook === "UP"
-                  ? "[&>div]:bg-green-500"
-                  : "[&>div]:bg-red-500"
-              )}
-            />
-            <div
-              style={{
-                transform: `translateX(${
-                  (minorForecastData.data?.up_percentage || 0) - 10
-                }%)`,
-              }}
-              className={cn(
-                "absolute inset-0 top-0 left-0 flex items-center justify-start text-sm",
-                "text-muted"
-              )}
-            >
-              {minorForecastData.data?.up_percentage}%
-            </div>
+
+        <div className="flex gap-2 justify-around text-sm">
+          <div
+            className="cursor-pointer flex items-center px-3 py-1 bg-muted/50 rounded-md hover:bg-muted transition-colors"
+            onClick={() => handleForecastClick("Major")}
+          >
+            <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
+            <span>전통적 예측 상세보기</span>
+          </div>
+
+          <div
+            className="cursor-pointer flex items-center px-3 py-1 bg-muted/50 rounded-md hover:bg-muted transition-colors"
+            onClick={() => handleForecastClick("Minor")}
+          >
+            <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+            <span>커뮤니티 예측 상세보기</span>
           </div>
         </div>
       </CardContent>
@@ -163,26 +216,37 @@ const MarketForCastCard = ({ title }: Props) => {
               <DrawerDescription>Forecast for {date}</DrawerDescription>
             </DrawerHeader>
             <div className="p-4 pb-0 z-10">
-              <div className="rounded-lg bg-muted/50 p-4">
-                <h4 className="mb-2 font-medium">
-                  Outlook: {selectedForecast?.data?.outlook}
-                </h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Up Percentage: {selectedForecast?.data?.up_percentage}%
-                </p>
-                <h4>Reason</h4>
-                <p className="text-sm text-muted-foreground">
-                  {selectedForecast?.data?.reason.replace("\n", "") ||
-                    "No specific reason provided."}
-                </p>
-                <h4 className="mb-2 font-medium">Details</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">
-                  This forecast is based on an analysis of various market
-                  signals and news articles. The 'UP' outlook suggests a
-                  positive trend, while 'DOWN' suggests a negative trend. The
-                  percentage indicates the strength of this signal.
-                </p>
-              </div>
+              {selectedForecast?.data && selectedForecast.data.length > 0 && (
+                <div className="space-y-4">
+                  {selectedForecast.data.map((forecast, i) => (
+                    <div key={i} className="rounded-lg bg-muted/50 p-4">
+                      <h4 className="mb-2 font-medium flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "inline-block w-3 h-3 rounded-full",
+                            forecast.outlook === "UP"
+                              ? "bg-green-500"
+                              : "bg-red-500"
+                          )}
+                        ></span>
+                        예측: {forecast.outlook === "UP" ? "상승" : "하락"}
+                        <span className="text-sm text-muted-foreground">
+                          ({forecast.up_percentage}%)
+                        </span>
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        날짜:{" "}
+                        {format(new Date(forecast.date_yyyymmdd), "yyyy-MM-dd")}
+                      </p>
+                      <h4>근거</h4>
+                      <p className="text-sm text-muted-foreground whitespace-pre-line mb-4">
+                        {forecast.reason ||
+                          "특별한 이유가 제공되지 않았습니다."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </DrawerContent>
