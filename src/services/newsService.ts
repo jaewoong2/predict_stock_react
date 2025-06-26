@@ -61,8 +61,8 @@ export const newsService = {
   async getMarketForecast({
     date,
     source = "Major",
-  }: MarketForeCastRequestParams): Promise<MarketForecastResponse> {
-    const response = await api.get<MarketForecastResponse>(
+  }: MarketForeCastRequestParams) {
+    const response = await api.get<MarketForecastResponse[]>(
       "/news/market-forecast",
       { params: { forecast_date: date, source: source } }
     );
