@@ -15,8 +15,8 @@ import { useState } from "react";
 import { MarketForecastResponse } from "@/types/news";
 import { CardSkeleton } from "../ui/skeletons";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -112,15 +112,27 @@ const MarketForCastCard = ({ title }: Props) => {
   const CustomTooltip = ({
     active,
     payload,
+    label,
   }: {
     active?: boolean;
-    payload?: { payload: MarketForecastResponse }[];
+    payload?: { value: number }[];
+    label?: string;
   }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
+      const [major, minor] = payload;
       return (
-        <div className="bg-background p-3 rounded-lg shadow-md border">
-          <p className="text-sm font-medium">{`날짜: ${data.date_yyyymmdd}`}</p>
+        <div className="bg-background p-3 rounded-lg shadow-md border space-y-1">
+          <p className="text-sm font-medium">날짜: {label}</p>
+          {major && (
+            <p className="text-sm text-emerald-500">
+              전통적 예측: {Math.abs(Number(major.value))}%
+            </p>
+          )}
+          {minor && (
+            <p className="text-sm text-blue-500">
+              커뮤니티 예측: {Math.abs(Number(minor.value))}%
+            </p>
+          )}
         </div>
       );
     }
@@ -138,7 +150,7 @@ const MarketForCastCard = ({ title }: Props) => {
       <CardContent className="flex flex-col gap-4">
         <div className="h-[240px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
+            <LineChart
               data={chartData}
               margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
             >
@@ -157,27 +169,27 @@ const MarketForCastCard = ({ title }: Props) => {
               <Tooltip content={<CustomTooltip />} />
               <Legend
                 payload={[
-                  { value: "전통적 예측", type: "rect", color: "#10b981" },
-                  { value: "커뮤니티 예측", type: "rect", color: "#3b82f6" },
+                  { value: "전통적 예측", type: "line", color: "#10b981" },
+                  { value: "커뮤니티 예측", type: "line", color: "#3b82f6" },
                 ]}
               />
-              <Bar
+              <Line
+                type="monotone"
                 dataKey="majorOutlook"
                 name="전통적 예측"
-                fill="#10b981"
-                radius={[4, 4, 0, 0]}
+                stroke="#10b981"
+                activeDot={{ r: 5 }}
                 onClick={() => handleForecastClick("Major")}
-                cursor="pointer"
               />
-              <Bar
+              <Line
+                type="monotone"
                 dataKey="minorOutlook"
                 name="커뮤니티 예측"
-                fill="#3b82f6"
-                radius={[4, 4, 0, 0]}
+                stroke="#3b82f6"
+                activeDot={{ r: 5 }}
                 onClick={() => handleForecastClick("Minor")}
-                cursor="pointer"
               />
-            </BarChart>
+            </LineChart>
           </ResponsiveContainer>
         </div>
 
