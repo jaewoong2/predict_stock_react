@@ -21,7 +21,16 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   const { data, isLoading, error } = useWeeklyActionCount(params, {
     select(data) {
       return {
-        signals: data.signals.sort((a, b) => b.count - a.count).slice(0, 10),
+        signals: data.signals
+          .sort((a, b) => {
+            if (a.count && b.count) {
+              const aCount = a.count.reduce((sum, val) => sum + (val || 0), 0);
+              const bCount = b.count.reduce((sum, val) => sum + (val || 0), 0);
+              return bCount - aCount;
+            }
+            return 0;
+          })
+          .slice(0, 10),
       };
     },
   });
@@ -77,7 +86,7 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
                     params.action === "Buy" ? "text-green-600" : "text-red-600"
                   )}
                 >
-                  {count}
+                  {count.reduce((sum, val) => sum + (val || 0), 0)}
                 </span>
               </Badge>
             ))}

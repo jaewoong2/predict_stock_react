@@ -21,7 +21,13 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   const { data, isLoading, error } = useWeeklyPriceMovement(params, {
     select(data) {
       return {
-        tickers: data.tickers.sort((a, b) => b.count - a.count).slice(0, 10),
+        tickers: data.tickers
+          .sort((a, b) => {
+            const aSum = a.count.reduce((sum, val) => sum + (val || 0), 0);
+            const bSum = b.count.reduce((sum, val) => sum + (val || 0), 0);
+            return bSum - aSum;
+          })
+          .slice(0, 10),
       };
     },
   });
@@ -79,7 +85,7 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
                       : "text-red-600"
                   )}
                 >
-                  {count}
+                  {count.reduce((sum, val) => sum + (val || 0), 0)}
                 </span>
               </Badge>
             ))}
