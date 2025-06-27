@@ -34,7 +34,7 @@ const HeroSection = () => {
           </h1>
 
           <p className="max-w-2xl mx-auto text-muted-foreground text-base md:text-lg">
-            AI를 통해 오늘 내 종목의 상황을 분석하고, 인사이트를 제공 해요.
+            내 종목의 상황을 AI로 분석하고, 인사이트를 제공 해요
           </p>
 
           {/* 핵심 기능 아이콘 */}
