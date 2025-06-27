@@ -206,162 +206,162 @@ const SignalAnalysisPage: React.FC = () => {
     <>
       <HeroSection />
       <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
-        <div className="grid gap-4 mb-4 grid-cols-[2fr_4fr_4fr] max-lg:grid-cols-1">
+        <div className="grid gap-4 mb-4 grid-cols-[3fr_4fr_4fr] max-lg:grid-cols-1">
           <MarketForCastCard title="Today Market Forecast" />
-        <SummaryTabsCard
-          tabs={[
-            {
-              label: "Weekly Top Signals",
-              value: "signals",
-              component: (
-                <WeeklyActionCountCard
-                  title="Weekly Top Buy Signals"
-                  params={{
-                    action: "Buy",
-                    reference_date: date ?? undefined,
-                  }}
-                />
-              ),
-            },
-            {
-              label: "Weekly Top Price Movements",
-              value: "price",
-              component: (
-                <WeeklyPriceMovementCard
-                  title="Weekly Top Up Price Movements"
-                  params={{
-                    direction: "up",
-                    reference_date: date ?? undefined,
-                  }}
-                />
-              ),
-            },
-          ]}
-        />
-        <SummaryTabsCard
-          tabs={[
-            {
-              label: "AI Recommendations",
-              value: "ai",
-              component: (
-                <RecommendationByAiCard title="Today Ai's Recommendation" />
-              ),
-            },
-            {
-              label: "News Recommendations",
-              value: "news",
-              component: (
-                <RecommendationCard
-                  title="Today News Recommendation"
-                  recommendation="Buy"
-                  badgeColor="bg-green-100 text-green-800"
-                />
-              ),
-            },
-          ]}
-        />
-      </div>
-      <div className="my-4 flex gap-4 items-center">
-        <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
-          <DateSelectorWrapper popover={false} />
-          <div className="w-full grid grid-cols-1 h-full">
-            {!isMarketNewsLoading ? (
-              <MarketNewsCarousel items={marketNews?.result ?? []} />
-            ) : (
-              <CarouselSkeleton />
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-start justify-between gap-2 w-full">
-        <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
-          <div className="w-full">
-            <SignalSearchInput
-              selectedTickers={currentSelectedTickersArray}
-              onSelectedTickersChange={handleSelectedTickersChange}
-              availableTickers={allAvailableTickersForSearch}
-              placeholder="티커 선택"
-            />
-            {currentSelectedTickersArray.length > 0 && (
-              <div className="flex gap-1 py-2 max-w-[400px] flex-wrap">
-                {currentSelectedTickersArray.map((ticker) => (
-                  <Badge className="text-xs" key={ticker}>
-                    {ticker}
-                    <button
-                      onClick={() =>
-                        handleSelectedTickersChange(
-                          currentSelectedTickersArray.filter(
-                            (t) => t !== ticker
-                          )
-                        )
-                      }
-                    >
-                      <XIcon size={12} className="cursor-pointer text-sm" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full flex flex-wrap items-start justify-between gap-2 pb-4">
-        <div className="flex items-center gap-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InfoIcon className="w-4 h-4 cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent className="ml-2">
-              <p>
-                LLM 모델 필터링 방식을 선택합니다. <br />
-                <strong>OR:</strong> 선택된 모델 중 하나라도 포함된 시그널을
-                표시합니다. <br />
-                <strong>AND:</strong> 선택된 모든 모델을 포함하는 시그널을
-                표시합니다.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-          <AiModelFilterPanel
-            availableModels={availableAiModels}
-            selectedModels={selectedAiModels}
-            onModelsChange={(models) =>
-              setParams({
-                models,
-                page: "0",
-              })
-            }
-            onConditionChange={(value) =>
-              setParams({
-                condition: value,
-                page: "0",
-              })
-            }
-            condition={aiModelFilterCondition}
+          <SummaryTabsCard
+            tabs={[
+              {
+                label: "Weekly Top Signals",
+                value: "signals",
+                component: (
+                  <WeeklyActionCountCard
+                    title="Weekly Top Buy Signals"
+                    params={{
+                      action: "Buy",
+                      reference_date: date ?? undefined,
+                    }}
+                  />
+                ),
+              },
+              {
+                label: "Weekly Top Price Movements",
+                value: "price",
+                component: (
+                  <WeeklyPriceMovementCard
+                    title="Weekly Top Up Price Movements"
+                    params={{
+                      direction: "up",
+                      reference_date: date ?? undefined,
+                    }}
+                  />
+                ),
+              },
+            ]}
+          />
+          <SummaryTabsCard
+            tabs={[
+              {
+                label: "AI Recommendations",
+                value: "ai",
+                component: (
+                  <RecommendationByAiCard title="Today Ai's Recommendation" />
+                ),
+              },
+              {
+                label: "News Recommendations",
+                value: "news",
+                component: (
+                  <RecommendationCard
+                    title="Today News Recommendation"
+                    recommendation="Buy"
+                    badgeColor="bg-green-100 text-green-800"
+                  />
+                ),
+              },
+            ]}
           />
         </div>
-      </div>
+        <div className="my-4 flex gap-4 items-center">
+          <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
+            <DateSelectorWrapper popover={false} />
+            <div className="w-full grid grid-cols-1 h-full">
+              {!isMarketNewsLoading ? (
+                <MarketNewsCarousel items={marketNews?.result ?? []} />
+              ) : (
+                <CarouselSkeleton itemCount={10} />
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-start justify-between gap-2 w-full">
+          <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
+            <div className="w-full">
+              <SignalSearchInput
+                selectedTickers={currentSelectedTickersArray}
+                onSelectedTickersChange={handleSelectedTickersChange}
+                availableTickers={allAvailableTickersForSearch}
+                placeholder="티커 선택"
+              />
+              {currentSelectedTickersArray.length > 0 && (
+                <div className="flex gap-1 py-2 max-w-[400px] flex-wrap">
+                  {currentSelectedTickersArray.map((ticker) => (
+                    <Badge className="text-xs" key={ticker}>
+                      {ticker}
+                      <button
+                        onClick={() =>
+                          handleSelectedTickersChange(
+                            currentSelectedTickersArray.filter(
+                              (t) => t !== ticker
+                            )
+                          )
+                        }
+                      >
+                        <XIcon size={12} className="cursor-pointer text-sm" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-      <SignalListWrapper
-        submittedDate={submittedDate}
-        columns={columns}
-        data={filteredSignals}
-        onRowClick={handleRowClick}
-        isLoading={isLoading}
-        pagination={{
-          pageIndex: +`${page}`,
-          pageSize: +`${pageSize}`,
-        }}
-        onPaginationChange={handlePaginationChange}
-      />
+        <div className="w-full flex flex-wrap items-start justify-between gap-2 pb-4">
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <InfoIcon className="w-4 h-4 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="ml-2">
+                <p>
+                  LLM 모델 필터링 방식을 선택합니다. <br />
+                  <strong>OR:</strong> 선택된 모델 중 하나라도 포함된 시그널을
+                  표시합니다. <br />
+                  <strong>AND:</strong> 선택된 모든 모델을 포함하는 시그널을
+                  표시합니다.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+            <AiModelFilterPanel
+              availableModels={availableAiModels}
+              selectedModels={selectedAiModels}
+              onModelsChange={(models) =>
+                setParams({
+                  models,
+                  page: "0",
+                })
+              }
+              onConditionChange={(value) =>
+                setParams({
+                  condition: value,
+                  page: "0",
+                })
+              }
+              condition={aiModelFilterCondition}
+            />
+          </div>
+        </div>
 
-      <SignalDetailSection
-        isLoading={isLoading}
-        hasSignals={
-          !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
-        }
-        error={error}
-      />
+        <SignalListWrapper
+          submittedDate={submittedDate}
+          columns={columns}
+          data={filteredSignals}
+          onRowClick={handleRowClick}
+          isLoading={isLoading}
+          pagination={{
+            pageIndex: +`${page}`,
+            pageSize: +`${pageSize}`,
+          }}
+          onPaginationChange={handlePaginationChange}
+        />
+
+        <SignalDetailSection
+          isLoading={isLoading}
+          hasSignals={
+            !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
+          }
+          error={error}
+        />
       </div>
       <DashboardFooter />
     </>
