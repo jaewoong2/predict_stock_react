@@ -34,7 +34,7 @@ const SignalAnalysisPage: React.FC = () => {
     date,
     q,
     models: selectedAiModels,
-    condition: aiModelFilterCondition,
+    conditions: aiModelFilterConditions,
     page, // 페이지 인덱스 추가
     pageSize, // 페이지 크기 추가
     setParams,
@@ -143,12 +143,12 @@ const SignalAnalysisPage: React.FC = () => {
     }
 
     if (selectedAiModels.length > 0) {
-      if (aiModelFilterCondition === "OR") {
+      if (aiModelFilterConditions.every((c) => c === "OR")) {
         signalsToFilter = signalsToFilter.filter((item) => {
           const model = item.signal.ai_model;
           return model && selectedAiModels.includes(model);
         });
-      } else {
+      } else if (aiModelFilterConditions.every((c) => c === "AND")) {
         const signalsByTicker: Record<
           string,
           { models: Set<string>; items: SignalData[] }
@@ -182,6 +182,40 @@ const SignalAnalysisPage: React.FC = () => {
           const model = item.signal.ai_model;
           return model && selectedAiModels.includes(model);
         });
+      } else {
+        const signalsByTicker: Record<string, { models: Set<string>; items: SignalData[] }> = {};
+        signalsToFilter.forEach((item) => {
+          const ticker = item.signal.ticker;
+          const model = item.signal.ai_model;
+          if (!ticker) return;
+          if (!signalsByTicker[ticker]) {
+            signalsByTicker[ticker] = { models: new Set(), items: [] };
+          }
+          if (model) {
+            signalsByTicker[ticker].models.add(model);
+          }
+          signalsByTicker[ticker].items.push(item);
+        });
+
+        let resultSignals: SignalData[] = [];
+        Object.entries(signalsByTicker).forEach(([ticker, info]) => {
+          const tickerModels = info.models;
+          const presence = selectedAiModels.map((m) => tickerModels.has(m));
+          let acc = presence[0];
+          for (let i = 1; i < presence.length; i++) {
+            const cond = aiModelFilterConditions[i - 1] ?? aiModelFilterConditions[0] ?? "OR";
+            if (cond === "OR") {
+              acc = acc || presence[i];
+            } else {
+              acc = acc && presence[i];
+            }
+          }
+          if (acc) {
+            resultSignals = resultSignals.concat(info.items.filter((it) => selectedAiModels.includes(it.signal.ai_model ?? "")));
+          }
+        });
+
+        signalsToFilter = resultSignals;
       }
     }
     return signalsToFilter;
@@ -189,7 +223,7 @@ const SignalAnalysisPage: React.FC = () => {
     signalApiResponse?.signals,
     currentSelectedTickersArray,
     selectedAiModels,
-    aiModelFilterCondition,
+    aiModelFilterConditions,
   ]);
 
   const handlePaginationChange = (
@@ -325,19 +359,21 @@ const SignalAnalysisPage: React.FC = () => {
             <AiModelFilterPanel
               availableModels={availableAiModels}
               selectedModels={selectedAiModels}
+              conditions={aiModelFilterConditions}
               onModelsChange={(models) =>
                 setParams({
                   models,
                   page: "0",
                 })
               }
-              onConditionChange={(value) =>
+              onConditionChange={(idx, value) =>
                 setParams({
-                  condition: value,
+                  conditions: aiModelFilterConditions
+                    .map((c, i) => (i === idx ? value : c))
+                    .slice(0, Math.max(0, selectedAiModels.length - 1)),
                   page: "0",
                 })
               }
-              condition={aiModelFilterCondition}
             />
           </div>
         </div>

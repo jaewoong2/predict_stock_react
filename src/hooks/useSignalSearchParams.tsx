@@ -13,7 +13,11 @@ export interface SignalQueryParams {
   signalId: string | null;
   q: string | null;
   models: string[];
-  condition: "OR" | "AND";
+  /**
+   * Conditions between each selected AI model. The length should be
+   * `models.length - 1`. If empty, defaults to all "OR".
+   */
+  conditions: ("OR" | "AND")[];
   page: string | null; // 페이지 번호
   pageSize: string | null; // 페이지 크기
   strategy_type: string | null; // 전략 타입 추가
@@ -35,12 +39,19 @@ export function SignalSearchParamsProvider({
 
   const params: SignalQueryParams = useMemo(() => {
     const modelsParam = searchParams.get("models");
+    const conditionParam = searchParams.get("condition");
+    const parsedConditions = conditionParam
+      ? conditionParam
+          .split(",")
+          .filter(Boolean)
+          .map((c) => (c === "AND" ? "AND" : "OR"))
+      : [];
     return {
       date: searchParams.get("date"),
       signalId: searchParams.get("signalId"),
       q: searchParams.get("q"),
       models: modelsParam ? modelsParam.split(",").filter(Boolean) : [],
-      condition: searchParams.get("condition") === "AND" ? "AND" : "OR",
+      conditions: parsedConditions,
       page: searchParams.get("page"),
       pageSize: searchParams.get("pageSize"),
       strategy_type: searchParams.get("strategy_type"), // strategy_type 추가
@@ -77,8 +88,8 @@ export function SignalSearchParamsProvider({
       if (Object.prototype.hasOwnProperty.call(updates, "models")) {
         apply("models", updates.models);
       }
-      if (Object.prototype.hasOwnProperty.call(updates, "condition")) {
-        apply("condition", updates.condition);
+      if (Object.prototype.hasOwnProperty.call(updates, "conditions")) {
+        apply("condition", updates.conditions);
       }
       if (Object.prototype.hasOwnProperty.call(updates, "page")) {
         apply("page", updates.page);
@@ -111,11 +122,19 @@ export function SignalSearchParamsProvider({
     if (!params.q) {
       setParams({ q: null });
     }
-    if (params.models.length === 0) {
-      setParams({ models: [], condition: "OR" });
-    }
-    if (!params.condition) {
-      setParams({ condition: "OR" });
+    if (params.models.length <= 1) {
+      if (params.conditions.length > 0) {
+        setParams({ conditions: [] });
+      }
+    } else {
+      if (params.conditions.length !== params.models.length - 1) {
+        const fill = params.conditions[0] ?? "OR";
+        const newConds = Array(params.models.length - 1).fill(fill);
+        params.conditions.forEach((c, idx) => {
+          if (idx < newConds.length) newConds[idx] = c;
+        });
+        setParams({ conditions: newConds });
+      }
     }
     if (params.page === null) {
       setParams({ page: "0" });
@@ -127,7 +146,7 @@ export function SignalSearchParamsProvider({
       setParams({ strategy_type: null });
     }
   }, [
-    params.condition,
+    params.conditions.join(','),
     params.date,
     params.models.length,
     params.q,
