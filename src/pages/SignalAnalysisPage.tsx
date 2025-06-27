@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalData } from "@/types/signal";
 import { useSignalDataByDate } from "@/hooks/useSignal";
-import { columns } from "../components/signal/columns";
+import { createColumns } from "../components/signal/columns";
+import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "../components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "../components/signal/SignalListWrapper";
@@ -44,6 +45,7 @@ const SignalAnalysisPage: React.FC = () => {
   const submittedDate = date ?? todayString;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
+  const { favorites, toggleFavorite } = useFavoriteTickers();
   const { data: marketNews, isLoading: isMarketNewsLoading } =
     useMarketNewsSummary({ news_type: "market", news_date: submittedDate });
 
@@ -236,6 +238,20 @@ const SignalAnalysisPage: React.FC = () => {
     aiModelFilterConditions,
   ]);
 
+  const sortedSignals = useMemo(() => {
+    return [...filteredSignals].sort((a, b) => {
+      const aFav = favorites.includes(a.signal.ticker);
+      const bFav = favorites.includes(b.signal.ticker);
+      if (aFav === bFav) return 0;
+      return aFav ? -1 : 1;
+    });
+  }, [filteredSignals, favorites]);
+
+  const columns = useMemo(
+    () => createColumns(favorites, toggleFavorite),
+    [favorites, toggleFavorite]
+  );
+
   const handlePaginationChange = (
     newPageIndex: number,
     newPageSize: number
@@ -391,7 +407,7 @@ const SignalAnalysisPage: React.FC = () => {
         <SignalListWrapper
           submittedDate={submittedDate}
           columns={columns}
-          data={filteredSignals}
+          data={sortedSignals}
           onRowClick={handleRowClick}
           isLoading={isLoading}
           pagination={{
