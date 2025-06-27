@@ -25,14 +25,26 @@ export const columns: ColumnDef<SignalData>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          티커
+          Ticker
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.signal.ticker}</div> // 기본 왼쪽 정렬
-    ),
+    cell: ({ row }) => {
+      // Generate image URL dynamically
+      const ticker = row.original.signal.ticker.toUpperCase();
+      const imageUrl = `/logos/${ticker}.png`;
+      // You could add error handling with onError in the img tag
+
+      return (
+        <div className="font-medium items-center justify-start flex">
+          {imageUrl && (
+            <img src={imageUrl} alt="Stock Icon" className="h-6 w-6 mr-1" />
+          )}
+          {row.original.signal.ticker}
+        </div> // 기본 왼쪽 정렬
+      );
+    },
   },
   {
     accessorKey: "signal.action",

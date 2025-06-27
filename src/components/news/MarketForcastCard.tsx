@@ -18,11 +18,9 @@ import {
   LineChart,
   Line,
   XAxis,
-  YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  Legend,
 } from "recharts";
 
 type Props = {
@@ -34,9 +32,9 @@ const MarketForCastCard = ({ title }: Props) => {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedForecast, setSelectedForecast] = useState<{
-    title: string;
-    data: MarketForecastResponse[];
-    type: "Major" | "Minor";
+    date: string;
+    major: MarketForecastResponse | null;
+    minor: MarketForecastResponse | null;
   } | null>(null);
 
   const majorForecastQuery = useMarketForecast(
@@ -58,29 +56,12 @@ const MarketForCastCard = ({ title }: Props) => {
 
     return {
       date: format(new Date(item.date_yyyymmdd), "MM/dd"),
-      majorOutlook:
-        item.outlook === "UP"
-          ? item.up_percentage || 0
-          : -(100 - (item.up_percentage || 0)),
-      minorOutlook:
-        minorItem.outlook === "UP"
-          ? minorItem.up_percentage || 0
-          : -(100 - (minorItem.up_percentage || 0)),
+      majorOutlook: item.up_percentage ?? 0,
+      minorOutlook: minorItem.up_percentage ?? 0,
       majorDirection: item.outlook,
       minorDirection: minorItem.outlook,
     };
   });
-
-  const handleForecastClick = (type: "Major" | "Minor") => {
-    const data = type === "Major" ? majorForecastData : minorForecastData;
-    const forecastTitle =
-      type === "Major" ? "전통적 시장 예측" : "커뮤니티 시장 예측";
-
-    if (data && data.length > 0) {
-      setSelectedForecast({ title: forecastTitle, data, type });
-      setIsDrawerOpen(true);
-    }
-  };
 
   const isLoading =
     majorForecastQuery.isLoading || minorForecastQuery.isLoading;
@@ -125,7 +106,7 @@ const MarketForCastCard = ({ title }: Props) => {
           <p className="text-sm font-medium">날짜: {label}</p>
           {major && (
             <p className="text-sm text-emerald-500">
-              전통적 예측: {Math.abs(Number(major.value))}%
+              전문가 예측: {Math.abs(Number(major.value))}%
             </p>
           )}
           {minor && (
@@ -147,39 +128,62 @@ const MarketForCastCard = ({ title }: Props) => {
           <span>{title}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <div className="h-[240px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
+      <CardContent className="flex flex-col gap-4 px-0">
+        <div className="w-full h-[200px]">
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+            className="translate-x-[8px]"
+          >
             <LineChart
+              onClick={(event) => {
+                if (event.activePayload && event.activePayload[0]) {
+                  const clickedData = event.activePayload[0].payload;
+                  const clickedDate = clickedData.date;
+
+                  // 선택된 날짜의 원본 형식 찾기
+                  const originalDateFormat = majorForecastData.find(
+                    (item) =>
+                      format(new Date(item.date_yyyymmdd), "MM/dd") ===
+                      clickedDate
+                  )?.date_yyyymmdd;
+
+                  if (originalDateFormat) {
+                    // 해당 날짜의 Major와 Minor 예측 찾기
+                    const majorData = majorForecastData.filter(
+                      (item) =>
+                        format(new Date(item.date_yyyymmdd), "MM/dd") ===
+                        clickedDate
+                    );
+
+                    const minorData = minorForecastData.filter(
+                      (item) =>
+                        format(new Date(item.date_yyyymmdd), "MM/dd") ===
+                        clickedDate
+                    );
+
+                    // 상태 업데이트 및 Drawer 열기
+                    setSelectedForecast({
+                      date: originalDateFormat,
+                      major: majorData.length > 0 ? majorData[0] : null,
+                      minor: minorData.length > 0 ? minorData[0] : null,
+                    });
+                    setIsDrawerOpen(true);
+                  }
+                }
+              }}
               data={chartData}
               margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis dataKey="date" />
-              <YAxis
-                domain={[-100, 100]}
-                tickFormatter={(value) => `${Math.abs(value)}%`}
-                label={{
-                  value: "예측 확률",
-                  angle: -90,
-                  position: "insideLeft",
-                  style: { textAnchor: "middle" },
-                }}
-              />
+              <XAxis dataKey="date" className="text-xs text-black" />
               <Tooltip content={<CustomTooltip />} />
-              <Legend
-                payload={[
-                  { value: "전통적 예측", type: "line", color: "#10b981" },
-                  { value: "커뮤니티 예측", type: "line", color: "#3b82f6" },
-                ]}
-              />
               <Line
                 type="monotone"
                 dataKey="majorOutlook"
-                name="전통적 예측"
+                name="전문가 예측"
                 stroke="#10b981"
                 activeDot={{ r: 5 }}
-                onClick={() => handleForecastClick("Major")}
               />
               <Line
                 type="monotone"
@@ -187,28 +191,9 @@ const MarketForCastCard = ({ title }: Props) => {
                 name="커뮤니티 예측"
                 stroke="#3b82f6"
                 activeDot={{ r: 5 }}
-                onClick={() => handleForecastClick("Minor")}
               />
             </LineChart>
           </ResponsiveContainer>
-        </div>
-
-        <div className="flex gap-2 justify-around text-sm">
-          <div
-            className="cursor-pointer flex items-center px-3 py-1 bg-muted/50 rounded-md hover:bg-muted transition-colors"
-            onClick={() => handleForecastClick("Major")}
-          >
-            <div className="w-3 h-3 bg-emerald-500 rounded-full mr-2"></div>
-            <span>전통적 예측 상세보기</span>
-          </div>
-
-          <div
-            className="cursor-pointer flex items-center px-3 py-1 bg-muted/50 rounded-md hover:bg-muted transition-colors"
-            onClick={() => handleForecastClick("Minor")}
-          >
-            <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-            <span>커뮤니티 예측 상세보기</span>
-          </div>
         </div>
       </CardContent>
 
@@ -224,39 +209,100 @@ const MarketForCastCard = ({ title }: Props) => {
                   &times;
                 </button>
               </DrawerClose>
-              <DrawerTitle>{selectedForecast?.title}</DrawerTitle>
-              <DrawerDescription>Forecast for {date}</DrawerDescription>
+              <DrawerTitle>시장 예측 세부정보</DrawerTitle>
+              <DrawerDescription>
+                {selectedForecast?.date
+                  ? format(new Date(selectedForecast.date), "yyyy-MM-dd")
+                  : date}{" "}
+                날짜 예측
+              </DrawerDescription>
             </DrawerHeader>
             <div className="p-4 pb-0 z-10">
-              {selectedForecast?.data && selectedForecast.data.length > 0 && (
-                <div className="space-y-4">
-                  {selectedForecast.data.map((forecast, i) => (
-                    <div key={i} className="rounded-lg bg-muted/50 p-4">
-                      <h4 className="mb-2 font-medium flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "inline-block w-3 h-3 rounded-full",
-                            forecast.outlook === "UP"
-                              ? "bg-green-500"
-                              : "bg-red-500"
+              {selectedForecast && (
+                <div className="space-y-6">
+                  {/* 전문가 시장 예측 섹션 */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-2 text-emerald-500">
+                      전문가 시장 예측
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="rounded-lg bg-muted/50 p-4">
+                        <h4 className="mb-2 font-medium flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "inline-block w-3 h-3 rounded-full",
+                              selectedForecast.major?.outlook === "UP"
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                            )}
+                          ></span>
+                          예측:{" "}
+                          {selectedForecast.major?.outlook === "UP"
+                            ? "상승"
+                            : "하락"}
+                          <span className="text-sm text-muted-foreground">
+                            ({selectedForecast.major?.up_percentage}%)
+                          </span>
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          날짜:{" "}
+                          {format(
+                            new Date(
+                              selectedForecast.major?.date_yyyymmdd ?? ""
+                            ),
+                            "yyyy-MM-dd"
                           )}
-                        ></span>
-                        예측: {forecast.outlook === "UP" ? "상승" : "하락"}
-                        <span className="text-sm text-muted-foreground">
-                          ({forecast.up_percentage}%)
-                        </span>
-                      </h4>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        날짜:{" "}
-                        {format(new Date(forecast.date_yyyymmdd), "yyyy-MM-dd")}
-                      </p>
-                      <h4>근거</h4>
-                      <p className="text-sm text-muted-foreground whitespace-pre-line mb-4">
-                        {forecast.reason ||
-                          "특별한 이유가 제공되지 않았습니다."}
-                      </p>
+                        </p>
+                        <h4>근거</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line mb-4">
+                          {selectedForecast.major?.reason ||
+                            "특별한 이유가 제공되지 않았습니다."}
+                        </p>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* 커뮤니티 시장 예측 섹션 */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-2 text-blue-500">
+                      커뮤니티 시장 예측
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="rounded-lg bg-muted/50 p-4">
+                        <h4 className="mb-2 font-medium flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "inline-block w-3 h-3 rounded-full",
+                              selectedForecast.minor?.outlook === "UP"
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                            )}
+                          ></span>
+                          예측:{" "}
+                          {selectedForecast.minor?.outlook === "UP"
+                            ? "상승"
+                            : "하락"}
+                          <span className="text-sm text-muted-foreground">
+                            ({selectedForecast.minor?.up_percentage}%)
+                          </span>
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          날짜:{" "}
+                          {format(
+                            new Date(
+                              selectedForecast.minor?.date_yyyymmdd ?? ""
+                            ),
+                            "yyyy-MM-dd"
+                          )}
+                        </p>
+                        <h4>근거</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line mb-4">
+                          {selectedForecast.minor?.reason ||
+                            "특별한 이유가 제공되지 않았습니다."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
