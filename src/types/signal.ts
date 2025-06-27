@@ -57,7 +57,8 @@ export interface SignalAPIResponse {
 // 주간 액션 카운트 타입
 export interface WeeklyActionCount {
   ticker: string;
-  count: number;
+  count: number[];
+  date: string[];
 }
 
 export interface WeeklyActionCountResponse {

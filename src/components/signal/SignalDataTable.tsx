@@ -53,6 +53,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   onPaginationChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
+    { desc: true, id: "signal.favorite" }, // 제출일 기준 내림차순 정렬
     { desc: true, id: "take_profit_buy" },
   ]); // 기본 정렬 상태 설정 (제출일 기준 내림차순)
   const [columnFilters, setColumnFilters] = React.useState<

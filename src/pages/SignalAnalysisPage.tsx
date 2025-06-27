@@ -230,22 +230,31 @@ const SignalAnalysisPage: React.FC = () => {
         signalsToFilter = resultSignals;
       }
     }
-    return signalsToFilter;
+    return signalsToFilter.map((signalData) => ({
+      ...signalData,
+      signal: {
+        ...signalData.signal,
+        favorite: favorites.includes(signalData.signal.ticker) ? 1 : 0,
+      },
+    }));
   }, [
     signalApiResponse?.signals,
     currentSelectedTickersArray,
     selectedAiModels,
     aiModelFilterConditions,
+    favorites,
   ]);
 
   const sortedSignals = useMemo(() => {
-    return [...filteredSignals].sort((a, b) => {
-      const aFav = favorites.includes(a.signal.ticker);
-      const bFav = favorites.includes(b.signal.ticker);
-      if (aFav === bFav) return 0;
-      return aFav ? -1 : 1;
+    const a = [...filteredSignals].sort((a, b) => {
+      return (
+        a.signal.favorite - b.signal.favorite ||
+        a.signal.ticker.localeCompare(b.signal.ticker)
+      );
     });
-  }, [filteredSignals, favorites]);
+
+    return a;
+  }, [filteredSignals]);
 
   const columns = useMemo(
     () => createColumns(favorites, toggleFavorite),

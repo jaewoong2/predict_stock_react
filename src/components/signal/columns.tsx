@@ -21,7 +21,8 @@ export const createColumns = (
   toggleFavorite: (ticker: string) => void
 ): ColumnDef<SignalData>[] => [
   {
-    id: "favorite",
+    id: "signal.favorite",
+    accessorKey: "signal.favorite",
     header: "",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;
@@ -32,7 +33,7 @@ export const createColumns = (
             e.stopPropagation();
             toggleFavorite(ticker);
           }}
-          className="cursor-pointer"
+          className="cursor-pointer flex justify-center items-center"
         >
           <Star
             className="h-4 w-4"
@@ -42,8 +43,6 @@ export const createColumns = (
         </button>
       );
     },
-    enableSorting: false,
-    enableHiding: false,
   },
   {
     accessorKey: "signal.ticker",

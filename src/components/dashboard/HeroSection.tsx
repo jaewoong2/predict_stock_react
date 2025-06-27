@@ -26,7 +26,7 @@ const HeroSection = () => {
         >
           {/* 상단 배지 */}
           <div className="inline-flex items-center px-3 py-1 mb-2 text-xs font-medium rounded-full bg-primary/10 text-primary">
-            <TrendingUp size={14} className="mr-1" /> 실시간 시장 분석
+            <TrendingUp size={14} className="mr-1" /> AI 시장 분석
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-foreground">

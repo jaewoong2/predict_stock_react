@@ -30,7 +30,8 @@ export interface TickerChangeResponse {
 
 export interface WeeklyPriceMovement {
   ticker: string;
-  count: number;
+  count: number[];
+  date: string[];
 }
 
 export interface WeeklyPriceMovementResponse {

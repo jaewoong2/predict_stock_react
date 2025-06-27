@@ -27,6 +27,7 @@ import { useEffect, useMemo } from "react";
 import { AiModelSelect } from "./AiModelSelect";
 import { Progress } from "../ui/progress";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface SignalDetailViewProps {
   open: boolean;
@@ -159,7 +160,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   className={cn(
                     "text-xs px-3 py-1",
                     data.signal.action.toLowerCase() === "buy"
-                      ? "bg-green-500 text-white"
+                      ? "bg-green-600 text-white"
                       : data.signal.action.toLowerCase() === "sell"
                       ? "bg-red-500 text-white"
                       : "bg-yellow-500 text-white"
@@ -172,23 +173,59 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
           </DrawerHeader>
 
           <div className="">
-            <section className="flex items-center gap-2">
-              {priceMovement.data?.tickers[0]?.count && (
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge className="text-xs px-2 py-1 bg-blue-500 text-white justify-center in-checked:">
-                    <strong>5일간 상승 일 수:</strong>
-                    {priceMovement.data?.tickers[0]?.count} 일
-                  </Badge>
+            <section className="flex gap-2 flex-col mb-4">
+              <div className="flex flex-col">
+                <strong>7일간 주식 움직임</strong>
+                <div className="flex flex-wrap gap-1">
+                  {priceMovement.data?.tickers[0]?.count.map((count, index) => (
+                    <Tooltip>
+                      <TooltipTrigger className="cursor-pointer">
+                        <Badge
+                          key={count}
+                          className={cn(
+                            "text-xs bg-blue-500 text-white justify-center in-checked:",
+                            count > 0 ? "bg-green-600" : "bg-red-400"
+                          )}
+                        >
+                          {count > 0 ? "상승" : "하락"}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
                 </div>
-              )}
-              {weeklySignalData.data?.signals[0].count && (
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge className="text-xs px-2 py-1 bg-blue-500 text-white justify-center in-checked:">
-                    <strong>5일간 상승 시그널 수:</strong>
-                    {weeklySignalData.data?.signals[0].count} 개
-                  </Badge>
+              </div>
+
+              <div className="flex flex-col">
+                {weeklySignalData.data?.signals[0].count?.length && (
+                  <strong>7일간 상승 시그널</strong>
+                )}
+                <div className="flex flex-wrap gap-1">
+                  {weeklySignalData.data?.signals[0].count.map(
+                    (count, index) => (
+                      <Tooltip>
+                        <TooltipTrigger className="cursor-pointer">
+                          <Badge
+                            key={count}
+                            className={cn(
+                              "text-xs bg-blue-500 text-white justify-center in-checked:",
+                              count > 0 ? "bg-green-600" : "bg-red-400"
+                            )}
+                          >
+                            {count}개
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {priceMovement.data?.tickers?.[0]?.date[index] ??
+                            "N/A"}
+                        </TooltipContent>
+                      </Tooltip>
+                    )
+                  )}
                 </div>
-              )}
+              </div>
             </section>
             {/* 시그널 정보 */}
             <section>
@@ -269,7 +306,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                           className={cn(
                             "capitalize flex flex-wrap text-wrap whitespace-pre-wrap",
                             data.signal.chart_pattern.pattern_type ===
-                              "bullish" && "bg-green-500 text-white",
+                              "bullish" && "bg-green-600 text-white",
                             data.signal.chart_pattern.pattern_type ===
                               "bearish" && "bg-red-500 text-white",
                             data.signal.chart_pattern.pattern_type ===
@@ -285,7 +322,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                           className={cn(
                             "capitalize",
                             data.signal.chart_pattern.pattern_type ===
-                              "bullish" && "bg-green-500 text-white",
+                              "bullish" && "bg-green-600 text-white",
                             data.signal.chart_pattern.pattern_type ===
                               "bearish" && "bg-red-500 text-white",
                             data.signal.chart_pattern.pattern_type ===
@@ -424,7 +461,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   </div>
                   <div>
                     {data.result.is_correct ? (
-                      <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                      <Badge className="bg-green-600 hover:bg-green-600 text-white">
                         성공
                       </Badge>
                     ) : (
