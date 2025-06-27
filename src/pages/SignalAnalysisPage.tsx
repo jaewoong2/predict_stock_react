@@ -183,7 +183,10 @@ const SignalAnalysisPage: React.FC = () => {
           return model && selectedAiModels.includes(model);
         });
       } else {
-        const signalsByTicker: Record<string, { models: Set<string>; items: SignalData[] }> = {};
+        const signalsByTicker: Record<
+          string,
+          { models: Set<string>; items: SignalData[] }
+        > = {};
         signalsToFilter.forEach((item) => {
           const ticker = item.signal.ticker;
           const model = item.signal.ai_model;
@@ -198,12 +201,15 @@ const SignalAnalysisPage: React.FC = () => {
         });
 
         let resultSignals: SignalData[] = [];
-        Object.entries(signalsByTicker).forEach(([ticker, info]) => {
+        Object.entries(signalsByTicker).forEach(([, info]) => {
           const tickerModels = info.models;
           const presence = selectedAiModels.map((m) => tickerModels.has(m));
           let acc = presence[0];
           for (let i = 1; i < presence.length; i++) {
-            const cond = aiModelFilterConditions[i - 1] ?? aiModelFilterConditions[0] ?? "OR";
+            const cond =
+              aiModelFilterConditions[i - 1] ??
+              aiModelFilterConditions[0] ??
+              "OR";
             if (cond === "OR") {
               acc = acc || presence[i];
             } else {
@@ -211,7 +217,11 @@ const SignalAnalysisPage: React.FC = () => {
             }
           }
           if (acc) {
-            resultSignals = resultSignals.concat(info.items.filter((it) => selectedAiModels.includes(it.signal.ai_model ?? "")));
+            resultSignals = resultSignals.concat(
+              info.items.filter((it) =>
+                selectedAiModels.includes(it.signal.ai_model ?? "")
+              )
+            );
           }
         });
 
