@@ -43,9 +43,15 @@ export function useDashboardFilters() {
   const [selectedAiModels, setSelectedAiModels] = useState<string[]>(() =>
     getArrayParam(searchParams, "models")
   );
-  const [aiModelFilterCondition, setAiModelFilterCondition] = useState<
-    "OR" | "AND"
-  >(() => (getParam(searchParams, "condition", "OR") === "AND" ? "AND" : "OR"));
+  const [aiModelFilterConditions, setAiModelFilterConditions] = useState<
+    ("OR" | "AND")[]
+  >(() => {
+    const condParam = getParam(searchParams, "condition") ?? "";
+    return condParam
+      .split(",")
+      .filter(Boolean)
+      .map((c) => (c === "AND" ? "AND" : "OR"));
+  });
 
   const updateUrlParams = useCallback(() => {
     const params = new URLSearchParams();
@@ -54,7 +60,8 @@ export function useDashboardFilters() {
     if (globalFilter) params.set("q", globalFilter);
     if (selectedAiModels.length > 0)
       params.set("models", selectedAiModels.join(","));
-    if (aiModelFilterCondition === "AND") params.set("condition", "AND");
+    if (aiModelFilterConditions.length > 0)
+      params.set("condition", aiModelFilterConditions.join(","));
 
     if (params.toString() !== searchParams.toString()) {
       setSearchParams(params, { replace: true });
@@ -64,7 +71,7 @@ export function useDashboardFilters() {
     selectedSignalId,
     globalFilter,
     selectedAiModels,
-    aiModelFilterCondition,
+    aiModelFilterConditions,
     setSearchParams,
     todayString,
     searchParams,
@@ -85,7 +92,7 @@ export function useDashboardFilters() {
     setGlobalFilter,
     selectedAiModels,
     setSelectedAiModels,
-    aiModelFilterCondition,
-    setAiModelFilterCondition,
+    aiModelFilterConditions,
+    setAiModelFilterConditions,
   };
 }
