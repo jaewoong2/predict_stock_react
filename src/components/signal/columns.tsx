@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { SignalData } from "../../types/signal";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
@@ -16,7 +16,35 @@ const formatCurrency = (amount: number | undefined | null) => {
   }).format(amount);
 };
 
-export const columns: ColumnDef<SignalData>[] = [
+export const createColumns = (
+  favorites: string[],
+  toggleFavorite: (ticker: string) => void
+): ColumnDef<SignalData>[] => [
+  {
+    id: "favorite",
+    header: "",
+    cell: ({ row }) => {
+      const ticker = row.original.signal.ticker;
+      const isFav = favorites.includes(ticker);
+      return (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite(ticker);
+          }}
+          className="cursor-pointer"
+        >
+          <Star
+            className="h-4 w-4"
+            fill={isFav ? "#facc15" : "none"}
+            stroke={isFav ? "#facc15" : "currentColor"}
+          />
+        </button>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "signal.ticker",
     header: ({ column }) => {
