@@ -29,11 +29,13 @@ import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import HeroSection from "@/components/dashboard/HeroSection";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
+import { SeoHelmet } from "../components/seo/SeoHelmet";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
     date,
     q,
+    signalId,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
     page, // 페이지 인덱스 추가
@@ -108,6 +110,19 @@ const SignalAnalysisPage: React.FC = () => {
       setAvailableAiModels(models);
     }
   }, [signalApiResponse?.signals]);
+
+  const selectedSignal = useMemo(() => {
+    if (!signalApiResponse?.signals || !signalId) return null;
+    const [symbol, model] = signalId.split("_");
+    return signalApiResponse.signals.find(
+      (s) => s.signal.ticker === symbol && s.signal.ai_model === model,
+    );
+  }, [signalId, signalApiResponse?.signals]);
+
+  const seoTitle = selectedSignal
+    ? `${selectedSignal.signal.ticker} ${selectedSignal.signal.ai_model}`
+    : "Dashboard";
+  const seoDesc = selectedSignal?.signal.report_summary ?? "Signal dashboard";
 
   const handleRowClick = (signal: SignalData) => {
     const id = `${signal.signal.ticker}_${signal.signal.ai_model}`;
@@ -273,6 +288,7 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <>
+      <SeoHelmet title={seoTitle} description={seoDesc} />
       <HeroSection />
       <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
         <div className="grid gap-4 mb-4 grid-cols-[3fr_4fr_4fr] max-lg:grid-cols-1">
