@@ -1,8 +1,9 @@
-import type {
-  CloudFrontRequestEvent,
-  CloudFrontRequestResult,
-} from "aws-lambda";
-import { siteConfig } from "../seo.config.js";
+const siteConfig = {
+  siteName: "SAPM",
+  baseUrl: "https://example.com",
+  apiBaseUrl: process.env.SEO_API_BASE_URL ?? "https://api.example.com",
+  defaultImage: "/default-og.png",
+};
 
 interface SignalSeoData {
   title: string;
@@ -15,12 +16,21 @@ function buildDashboardTags(): string {
 }
 
 function buildSignalTags(data: SignalSeoData): string {
-  return `\n    <title>${data.title} | ${siteConfig.siteName}</title>\n    <meta name="description" content="${data.description}" />\n    <meta property="og:title" content="${data.title}" />\n    <meta property="og:description" content="${data.description}" />\n    <meta property="og:image" content="${data.image ?? siteConfig.defaultImage}" />`;
+  return `\n    <title>${data.title} | ${
+    siteConfig.siteName
+  }</title>\n    <meta name="description" content="${
+    data.description
+  }" />\n    <meta property="og:title" content="${
+    data.title
+  }" />\n    <meta property="og:description" content="${
+    data.description
+  }" />\n    <meta property="og:image" content="${
+    data.image ?? siteConfig.defaultImage
+  }" />`;
 }
 
-export const handler = async (
-  event: CloudFrontRequestEvent,
-): Promise<CloudFrontRequestResult> => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const handler = async (event: any) => {
   const request = event.Records[0].cf.request;
 
   // Only intercept dashboard pages
@@ -32,7 +42,9 @@ export const handler = async (
   const signalId = params.get("signalId");
 
   // Fetch the original HTML from the origin
-  const originUrl = `https://${request.headers.host[0].value}${request.uri}${request.querystring ? `?${request.querystring}` : ""}`;
+  const originUrl = `https://${request.headers.host[0].value}${request.uri}${
+    request.querystring ? `?${request.querystring}` : ""
+  }`;
   const originRes = await fetch(originUrl);
   let html = await originRes.text();
 
@@ -41,7 +53,7 @@ export const handler = async (
   if (signalId) {
     try {
       const detail = (await fetch(
-        `${siteConfig.apiBaseUrl}/signals/${signalId}`,
+        `${siteConfig.apiBaseUrl}/signals/${signalId}`
       ).then((r) => r.json())) as SignalSeoData;
       tags = buildSignalTags(detail);
     } catch {
@@ -59,7 +71,7 @@ export const handler = async (
       Object.entries(originRes.headers).map(([k, v]) => [
         k.toLowerCase(),
         [{ key: k, value: String(v) }],
-      ]),
+      ])
     ),
     body: html,
   };
