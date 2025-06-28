@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import App from "./App";
 import Header from "./components/header";
 import { SignalSearchParamsProvider } from "./hooks/useSignalSearchParams";
+import ReactGA from "react-ga4";
 // 쿼리 클라이언트 생성
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,6 +17,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+ReactGA.initialize("G-GFEX2C3MBB");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

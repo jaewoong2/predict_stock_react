@@ -129,7 +129,7 @@ const MarketForCastCard = ({ title }: Props) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 px-0">
-        <div className="w-full h-[200px]">
+        <div className="w-full h-[200px] flex justify-center items-center">
           <ResponsiveContainer
             width="100%"
             height="100%"
@@ -175,8 +175,13 @@ const MarketForCastCard = ({ title }: Props) => {
               data={chartData}
               margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-              <XAxis dataKey="date" className="text-xs text-black" />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.8} />
+              <XAxis
+                dataKey="date"
+                className="text-xs stroke-black text-black"
+                tickLine={false}
+                axisLine={false}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Line
                 type="monotone"

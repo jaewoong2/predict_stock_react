@@ -21,10 +21,16 @@ const DashboardFooter = () => {
             않습니다.
           </li>
           <li>
-            보다 상세한 사항은 당사의 <a href="/terms" className="underline">이용약관</a> 및
-            <a href="/privacy" className="underline">개인정보처리방침</a>을 참조해 주시기 바랍니다.
+            보다 상세한 사항은 당사의{" "}
+            <a href="/terms" className="underline">
+              이용약관
+            </a>{" "}
+            및
+            <a href="/privacy" className="underline">
+              개인정보처리방침
+            </a>
+            을 참조해 주시기 바랍니다.
           </li>
-          <li>문의: <a href="mailto:support@example.com" className="underline">support@example.com</a></li>
         </ul>
       </div>
     </footer>
