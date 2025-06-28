@@ -77,6 +77,24 @@ react-vite-ui/
   └── vite.config.ts     # Vite configuration
 ```
 
+## SEO Utilities
+
+Dynamic meta tags for the dashboard are injected by an Edge function located at
+`edgeHandlers/seo.ts`. Global values used by the function and build scripts are
+defined in `seo.config.ts`.
+
+Generate the sitemap and robots files with:
+
+```bash
+node scripts/generate-sitemap.js
+```
+
+This writes `public/sitemap.xml` and `public/robots.txt` for upload alongside
+the built assets.
+
+Client pages use `react-helmet-async` via the `SeoHelmet` component to set
+browser meta tags dynamically.
+
 ## 📄 License
 
 This project is licensed under the MIT License. See the [LICENSE](https://choosealicense.com/licenses/mit/) file for details.
