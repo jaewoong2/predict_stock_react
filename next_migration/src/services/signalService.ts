@@ -4,16 +4,7 @@ import {
   SignalAPIResponse,
   WeeklyActionCountResponse,
 } from "../types/signal";
-
-const API_BASE_URL = "/api";
-
-// Axios 인스턴스 생성
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import api from "./api";
 
 export const signalApiService = {
   /**

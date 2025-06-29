@@ -9,15 +9,7 @@ import {
   GetNewsRecommendationsParams,
   NewsRecommendationsResponse,
 } from "@/types/news";
-
-const API_BASE_URL = "/api";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import api from "./api";
 
 export const newsService = {
   async getMarketNewsSummary({

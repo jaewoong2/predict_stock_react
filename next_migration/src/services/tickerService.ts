@@ -8,17 +8,7 @@ import {
   GetWeeklyPriceMovementParams,
   WeeklyPriceMovementResponse,
 } from "../types/ticker";
-
-// Axios 인스턴스 생성
-
-const API_BASE_URL = "/api";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import api from "./api";
 
 export const tickerService = {
   // 1. 티커 ID로 조회
