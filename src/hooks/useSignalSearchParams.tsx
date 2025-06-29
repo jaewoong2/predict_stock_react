@@ -1,26 +1,25 @@
+"use client";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  type ReactNode,
   createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  type ReactNode,
+  useRef,
 } from "react";
-import { useSearchParams } from "react-router-dom";
 
 export interface SignalQueryParams {
   date: string | null;
   signalId: string | null;
   q: string | null;
   models: string[];
-  /**
-   * Conditions between each selected AI model. The length should be
-   * `models.length - 1`. If empty, defaults to all "OR".
-   */
   conditions: ("OR" | "AND")[];
-  page: string | null; // 페이지 번호
-  pageSize: string | null; // 페이지 크기
-  strategy_type: string | null; // 전략 타입 추가
+  page: string | null;
+  pageSize: string | null;
+  strategy_type: string | null;
 }
 
 interface SignalSearchParamsContextValue extends SignalQueryParams {
@@ -35,7 +34,10 @@ export function SignalSearchParamsProvider({
 }: {
   children: ReactNode;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const params: SignalQueryParams = useMemo(() => {
     const modelsParam = searchParams.get("models");
@@ -54,7 +56,7 @@ export function SignalSearchParamsProvider({
       conditions: parsedConditions,
       page: searchParams.get("page"),
       pageSize: searchParams.get("pageSize"),
-      strategy_type: searchParams.get("strategy_type"), // strategy_type 추가
+      strategy_type: searchParams.get("strategy_type"),
     };
   }, [searchParams]);
 
@@ -102,59 +104,96 @@ export function SignalSearchParamsProvider({
       }
 
       if (newParams.toString() !== searchParams.toString()) {
-        setSearchParams(newParams, { replace: true });
+        router.replace(`${pathname}?${newParams.toString()}`, {
+          scroll: false,
+        });
       }
     },
-    [searchParams, setSearchParams]
+    [searchParams, router, pathname],
+  );
+
+  const debouncedSetParams = useCallback(
+    (updates: Partial<SignalQueryParams>, delay = 500) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        setParams(updates);
+        timeoutRef.current = null;
+      }, delay);
+    },
+    [setParams],
   );
 
   useEffect(() => {
+    // 페이지 첫 로드 시에는 딜레이 없이 바로 적용
+    const initialUpdates: Partial<SignalQueryParams> = {};
+    let needsUpdate = false;
+
     if (!params.date) {
       const today = new Date();
       const formattedDate = today.toISOString().split("T")[0];
-      setParams({
-        date: formattedDate,
-      });
+      initialUpdates.date = formattedDate;
+      needsUpdate = true;
     }
-    if (!params.signalId) {
-      setParams({ signalId: null });
+
+    if (!params.page) {
+      initialUpdates.page = "0";
+      needsUpdate = true;
     }
-    if (!params.q) {
-      setParams({ q: null });
+
+    if (!params.pageSize) {
+      initialUpdates.pageSize = "20";
+      needsUpdate = true;
     }
-    if (params.models.length <= 1) {
-      if (params.conditions.length > 0) {
-        setParams({ conditions: [] });
+
+    // 초기 필수값들은 즉시 적용
+    if (needsUpdate) {
+      setParams(initialUpdates);
+    }
+
+    // 디바운스 처리가 필요한 보조 업데이트들
+    const checkAndUpdateParams = () => {
+      const updates: Partial<SignalQueryParams> = {};
+
+      // 모델 조건 관련 업데이트
+      if (params.models.length <= 1) {
+        if (params.conditions.length > 0) {
+          updates.conditions = [];
+        }
+      } else {
+        if (params.conditions.length !== params.models.length - 1) {
+          const fill = params.conditions[0] ?? "OR";
+          const newConds = Array(params.models.length - 1).fill(fill);
+          params.conditions.forEach((c, idx) => {
+            if (idx < newConds.length) newConds[idx] = c;
+          });
+          updates.conditions = newConds;
+        }
       }
-    } else {
-      if (params.conditions.length !== params.models.length - 1) {
-        const fill = params.conditions[0] ?? "OR";
-        const newConds = Array(params.models.length - 1).fill(fill);
-        params.conditions.forEach((c, idx) => {
-          if (idx < newConds.length) newConds[idx] = c;
-        });
-        setParams({ conditions: newConds });
+
+      if (Object.keys(updates).length > 0) {
+        debouncedSetParams(updates);
       }
-    }
-    if (params.page === null) {
-      setParams({ page: "0" });
-    }
-    if (params.pageSize === null) {
-      setParams({ pageSize: "20" });
-    }
-    if (params.strategy_type === null) {
-      setParams({ strategy_type: null });
-    }
+    };
+
+    checkAndUpdateParams();
+
+    // 컴포넌트 언마운트 시 타이머 정리
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [
-    params.conditions.join(','),
+    params.conditions.join(","),
     params.date,
     params.models.length,
-    params.q,
-    params.signalId,
     params.page,
     params.pageSize,
-    params.strategy_type,
     setParams,
+    debouncedSetParams,
   ]);
 
   const value = useMemo(() => ({ ...params, setParams }), [params, setParams]);
@@ -170,7 +209,7 @@ export function useSignalSearchParams() {
   const ctx = useContext(SignalSearchParamsContext);
   if (!ctx) {
     throw new Error(
-      "useSignalSearchParams must be used within SignalSearchParamsProvider"
+      "useSignalSearchParams must be used within SignalSearchParamsProvider",
     );
   }
   return ctx;

@@ -1,3 +1,4 @@
+"use client";
 import { parseISO, format as formatDate } from "date-fns";
 import { DatePicker } from "@/components/ui/date-picker";
 

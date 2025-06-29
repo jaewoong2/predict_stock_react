@@ -1,3 +1,4 @@
+"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { SignalData } from "@/types/signal";
 import { SignalDataTable } from "./SignalDataTable";

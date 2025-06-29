@@ -1,17 +1,26 @@
+"use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button"; // shadcn/ui 버튼 경로
-import { AlertTitle, DismissibleAlert } from "./ui/alert";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { AlertTitle, DismissibleAlert } from "@/components/ui/alert";
+import Image from "next/image";
 
 const Header = () => {
+  const [mounted, setMounted] = useState(false);
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false;
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       return savedTheme === "dark";
     }
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -24,14 +33,24 @@ const Header = () => {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    setIsDarkMode((prevMode) => !prevMode);
+    setIsDarkMode((prev) => !prev);
   };
 
+  if (!mounted) {
+    return null; // Prevents hydration mismatch
+  }
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-6">
-        <Link className="flex items-center w-full" to={"/dashboard"}>
-          <img src="/favicon.png" className="w-12 h-12" />
+        <Link className="flex w-fit items-center" href="/dashboard">
+          <img
+            alt="Favicon"
+            src={process.env.NEXT_PUBLIC_IMAGE_URL + "/favicon.png"}
+            width={48}
+            height={48}
+            className="h-12 w-12"
+          />
           <span className="text-base font-light">Stock Predict AI LLM</span>
         </Link>
         <div className="flex flex-1 items-center justify-end">
@@ -50,7 +69,7 @@ const Header = () => {
           </Button>
         </div>
       </nav>
-      <DismissibleAlert variant="default" className="px-8 rounded-none">
+      <DismissibleAlert variant="default" className="rounded-none px-8">
         <AlertTitle>🎉 Add Nova AI, Perplexity Sonar Pro Model 🎉</AlertTitle>
       </DismissibleAlert>
     </header>

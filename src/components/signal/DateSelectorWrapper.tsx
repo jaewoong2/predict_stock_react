@@ -1,3 +1,4 @@
+"use client";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { DateSelector } from "./DateSelector";
 import { useEffect, useState } from "react";

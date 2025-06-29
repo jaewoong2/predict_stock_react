@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -43,7 +44,7 @@ export const CardSkeleton = ({
   return (
     <Card className={`shadow-none ${cardClassName}`}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="font-medium flex items-center justify-between w-full">
+        <CardTitle className="flex w-full items-center justify-between font-medium">
           <Skeleton className={`h-${titleHeight} w-1/2 ${className}`} />
           {withBadge && <Skeleton className="h-6 w-16 rounded-full" />}
         </CardTitle>
@@ -106,12 +107,12 @@ export const TableSkeleton = ({
 export const DetailSkeleton = () => {
   return (
     <div className="space-y-4 rounded-lg border p-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-6 w-20" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Skeleton className="h-6 w-1/3" />
           <Skeleton className="h-32 w-full" />
@@ -123,7 +124,7 @@ export const DetailSkeleton = () => {
       </div>
 
       <div className="pt-2">
-        <Skeleton className="h-6 w-1/4 mb-2" />
+        <Skeleton className="mb-2 h-6 w-1/4" />
         <Skeleton className="h-24 w-full" />
       </div>
     </div>
@@ -147,21 +148,21 @@ export const BadgeGroupSkeleton = ({
 
 export const CarouselSkeleton = ({ itemCount = 3 }: CarouselSkeletonProps) => {
   return (
-    <div className="flex overflow-x-auto space-x-4 snap-x h-full">
+    <div className="flex h-full snap-x space-x-4 overflow-x-auto">
       {Array(itemCount)
         .fill(null)
         .map((_, index) => (
           <div
             key={`carousel-item-${index}`}
-            className="min-w-[250px] snap-start bg-card rounded-md p-4 border flex flex-col justify-between"
+            className="flex min-w-[250px] snap-start flex-col justify-between rounded-md border bg-card p-4"
           >
             <div>
-              <Skeleton className="h-6 w-16 mb-2 rounded-full" />
-              <Skeleton className="h-4 w-full mb-1" />
-              <Skeleton className="h-3 w-full mb-1" />
+              <Skeleton className="mb-2 h-6 w-16 rounded-full" />
+              <Skeleton className="mb-1 h-4 w-full" />
+              <Skeleton className="mb-1 h-3 w-full" />
               <Skeleton className="h-3 w-3/4" />
             </div>
-            <Skeleton className="h-3 w-24 mt-2" />
+            <Skeleton className="mt-2 h-3 w-24" />
           </div>
         ))}
     </div>

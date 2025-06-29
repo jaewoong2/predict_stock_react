@@ -1,3 +1,4 @@
+"use client";
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyActionCount } from "@/hooks/useSignal";
@@ -74,16 +75,16 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
           <div className="flex flex-wrap gap-2">
             {data.signals.map(({ ticker, count }) => (
               <Badge
-                key={ticker}
+                key={ticker + count.join("-")}
                 variant="secondary"
-                className="flex gap-2 hover:bg-green-100 cursor-pointer transition-colors"
+                className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
                 onClick={() => onClickTicker(ticker)}
               >
                 <span>{ticker}</span>
                 <span
                   className={cn(
                     "font-bold",
-                    params.action === "Buy" ? "text-green-600" : "text-red-600"
+                    params.action === "Buy" ? "text-green-600" : "text-red-600",
                   )}
                 >
                   {count.reduce((sum, val) => sum + (val || 0), 0)}

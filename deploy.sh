@@ -1,34 +1,26 @@
 #!/bin/bash
 
-AWS_REGION="ap-northeast-2" 
+# 필요한 변수 설정
+AWS_REGION="ap-northeast-2"  # 예: ap-northeast-2
 AWS_PROFILE="lime_admin"
-BUCKET_NAME="lime-stock"
-CLOUDFRONT_DISTRIBUTION_ID="E3P7S7SJJJ4J6A"  # Replace with your actual CloudFront distribution ID
+ECR_REPOSITORY="849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/stock-predict"  
+LAMBDA_FUNCTION_NAME="stock_alarm_react"  # Lambda 함수 이름
+# LAMBDA_FUNCTION_URL="https://guqx2yonk5wzcrkzlp2yfp77pm0rdmqx.lambda-url.ap-northeast-2.on.aws"
 
-# Check if the S3 bucket exists
-# if ! aws s3api head-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" --profile "$AWS_PROFILE" 2>/dev/null; then
-#     echo "S3 bucket $BUCKET_NAME does not exist. Creating it now..."
-#     aws s3 mb s3://$BUCKET_NAME --region "$AWS_REGION" --profile "$AWS_PROFILE"
-# else
-#     echo "S3 bucket $BUCKET_NAME already exists."
-# fi
+# AWS ECR 로그인
+aws ecr get-login-password --region $AWS_REGION --profile $AWS_PROFILE | docker login --username AWS --password-stdin $ECR_REPOSITORY
 
-pnpm run build
+# Docker Compose로 빌드
+docker-compose build
 
-# Delete existing files in the S3 bucket
-aws s3 rm s3://$BUCKET_NAME/ --recursive --region "$AWS_REGION" --profile "$AWS_PROFILE"
-if [ $? -ne 0 ]; then
-    echo "Failed to delete existing files in S3 bucket $BUCKET_NAME."
-    exit 1
-fi
-echo "Existing files in S3 bucket $BUCKET_NAME deleted successfully."
+# ECR로 푸쉬
+docker-compose push
 
-# Upload the build files (dist) to the S3 bucket
-aws s3 sync dist/ s3://$BUCKET_NAME/ --region "$AWS_REGION" --profile "$AWS_PROFILE"
-echo "Build files uploaded to S3 bucket $BUCKET_NAME."
 
-aws cloudfront create-invalidation --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --paths "/*" --profile "$AWS_PROFILE"
-echo "CloudFront cache invalidated for distribution $CLOUDFRONT_DISTRIBUTION_ID."
+IMAGE_NAME="$ECR_REPOSITORY:latest"
 
-# Output the URL of the deployed site
-echo "Deployment completed successfully."
+aws lambda --profile $AWS_PROFILE update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $IMAGE_NAME --region $AWS_REGION
+
+echo "Docker image $IMAGE_NAME has been pushed to ECR and Lambda function $LAMBDA_FUNCTION_NAME has been updated"
+echo "Lambda function URL: $LAMBDA_FUNCTION_URL"
+
