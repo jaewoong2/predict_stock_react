@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/Users/jaeung2/Desktop/ Dev./Study/predict_stock_react/next_migration/src/app/layout\":[\"static/media/ac4702ce37614088-s.p.ttf\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"

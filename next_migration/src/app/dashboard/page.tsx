@@ -32,7 +32,6 @@ import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import HeroSection from "@/components/dashboard/HeroSection";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
-import { SeoHelmet } from "@/components/seo/SeoHelmet";
 
 const SignalAnalysisPage: React.FC = () => {
   const {
@@ -90,7 +89,7 @@ const SignalAnalysisPage: React.FC = () => {
       ...new Set(
         signalApiResponse.signals
           .map((s) => s.signal.ticker)
-          .filter(Boolean) as string[]
+          .filter(Boolean) as string[],
       ),
     ].sort();
   }, [signalApiResponse?.signals]);
@@ -107,8 +106,8 @@ const SignalAnalysisPage: React.FC = () => {
         new Set(
           signalApiResponse.signals
             .map((s) => s.signal.ai_model)
-            .filter(Boolean) as string[]
-        )
+            .filter(Boolean) as string[],
+        ),
       ).sort();
       setAvailableAiModels(models);
     }
@@ -157,7 +156,7 @@ const SignalAnalysisPage: React.FC = () => {
         const ticker = item.signal.ticker?.toLowerCase();
         if (!ticker) return false;
         return searchTickersArray.some((st) =>
-          ticker.includes(st.toLowerCase())
+          ticker.includes(st.toLowerCase()),
         );
       });
     }
@@ -187,7 +186,7 @@ const SignalAnalysisPage: React.FC = () => {
         });
 
         const tickersSatisfyingAndCondition = Object.keys(
-          signalsByTicker
+          signalsByTicker,
         ).filter((ticker) => {
           const tickerModels = signalsByTicker[ticker].models;
           return selectedAiModels.every((m) => tickerModels.has(m));
@@ -239,8 +238,8 @@ const SignalAnalysisPage: React.FC = () => {
           if (acc) {
             resultSignals = resultSignals.concat(
               info.items.filter((it) =>
-                selectedAiModels.includes(it.signal.ai_model ?? "")
-              )
+                selectedAiModels.includes(it.signal.ai_model ?? ""),
+              ),
             );
           }
         });
@@ -276,12 +275,12 @@ const SignalAnalysisPage: React.FC = () => {
 
   const columns = useMemo(
     () => createColumns(favorites, toggleFavorite),
-    [favorites, toggleFavorite]
+    [favorites, toggleFavorite],
   );
 
   const handlePaginationChange = (
     newPageIndex: number,
-    newPageSize: number
+    newPageSize: number,
   ) => {
     setParams({
       page: newPageIndex.toString(),
@@ -291,10 +290,9 @@ const SignalAnalysisPage: React.FC = () => {
 
   return (
     <>
-      <SeoHelmet title={seoTitle} description={seoDesc} />
       <HeroSection />
-      <div className="mx-auto p-4 md:p-8 max-w-[1500px]">
-        <div className="grid gap-4 mb-4 grid-cols-[3fr_4fr_4fr] max-lg:grid-cols-1">
+      <div className="mx-auto max-w-[1500px] p-4 md:p-8">
+        <div className="mb-4 grid grid-cols-[3fr_4fr_4fr] gap-4 max-lg:grid-cols-1">
           <MarketForCastCard title="Today Market Forecast" />
           <SummaryTabsCard
             tabs={[
@@ -349,10 +347,10 @@ const SignalAnalysisPage: React.FC = () => {
             ]}
           />
         </div>
-        <div className="my-4 flex gap-4 items-center">
-          <div className="w-full h-full grid grid-cols-[1fr_auto] gap-4 max-w-full max-sm:flex max-sm:flex-col">
+        <div className="my-4 flex items-center gap-4">
+          <div className="grid h-full w-full max-w-full grid-cols-[1fr_auto] gap-4 max-sm:flex max-sm:flex-col">
             <DateSelectorWrapper popover={false} />
-            <div className="w-full grid grid-cols-1 h-full">
+            <div className="grid h-full w-full grid-cols-1">
               {!isMarketNewsLoading ? (
                 <MarketNewsCarousel items={marketNews?.result ?? []} />
               ) : (
@@ -361,8 +359,8 @@ const SignalAnalysisPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-start justify-between gap-2 w-full">
-          <div className="flex flex-grow items-end gap-2 sm:flex-nowrap w-full">
+        <div className="flex w-full flex-wrap items-start justify-between gap-2">
+          <div className="flex w-full flex-grow items-end gap-2 sm:flex-nowrap">
             <div className="w-full">
               <SignalSearchInput
                 selectedTickers={currentSelectedTickersArray}
@@ -371,7 +369,7 @@ const SignalAnalysisPage: React.FC = () => {
                 placeholder="티커 선택"
               />
               {currentSelectedTickersArray.length > 0 && (
-                <div className="flex gap-1 py-2 max-w-[400px] flex-wrap">
+                <div className="flex max-w-[400px] flex-wrap gap-1 py-2">
                   {currentSelectedTickersArray.map((ticker) => (
                     <Badge className="text-xs" key={ticker}>
                       {ticker}
@@ -379,8 +377,8 @@ const SignalAnalysisPage: React.FC = () => {
                         onClick={() =>
                           handleSelectedTickersChange(
                             currentSelectedTickersArray.filter(
-                              (t) => t !== ticker
-                            )
+                              (t) => t !== ticker,
+                            ),
                           )
                         }
                       >
@@ -394,11 +392,11 @@ const SignalAnalysisPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-full flex flex-wrap items-start justify-between gap-2 pb-4">
+        <div className="flex w-full flex-wrap items-start justify-between gap-2 pb-4">
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <InfoIcon className="w-4 h-4 cursor-help" />
+                <InfoIcon className="h-4 w-4 cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="ml-2">
                 <p>
