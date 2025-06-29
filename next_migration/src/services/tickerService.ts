@@ -9,13 +9,10 @@ import {
   WeeklyPriceMovementResponse,
 } from "../types/ticker";
 
-// API 기본 URL 설정
-const API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.NEXT_PUBLIC_API_LOCAL_URL
-    : process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-
 // Axios 인스턴스 생성
+
+const API_BASE_URL = "/api";
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -51,7 +48,7 @@ export const tickerService = {
   // 5. 티커 정보 업데이트
   updateTicker: async (
     tickerId: number,
-    tickerData: TickerUpdate
+    tickerData: TickerUpdate,
   ): Promise<Ticker> => {
     const response = await api.put<Ticker>(`/tickers/${tickerId}`, tickerData);
     return response.data;
@@ -60,7 +57,7 @@ export const tickerService = {
   // 6. 티커 삭제
   deleteTicker: async (tickerId: number): Promise<{ message: string }> => {
     const response = await api.delete<{ message: string }>(
-      `/tickers/${tickerId}`
+      `/tickers/${tickerId}`,
     );
     return response.data;
   },
@@ -75,11 +72,11 @@ export const tickerService = {
 
   // 8. 날짜별 변화율 조회
   getTickerChanges: async (
-    query: TickerMultiDateQuery
+    query: TickerMultiDateQuery,
   ): Promise<TickerChangeResponse[]> => {
     const response = await api.post<TickerChangeResponse[]>(
       "/tickers/changes",
-      query
+      query,
     );
     return response.data;
   },
@@ -93,7 +90,7 @@ export const tickerService = {
       "/tickers/weekly/price-movement",
       {
         params: { tickers, reference_date, direction },
-      }
+      },
     );
     return response.data;
   },

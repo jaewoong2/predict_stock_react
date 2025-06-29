@@ -19,7 +19,7 @@ const nextConfig = {
       source: "/api/:path*",
       destination:
         process.env.NODE_ENV === "development"
-          ? `http://localhost:3000/api/:path*`
+          ? `http://localhost:8000/api/:path*`
           : "https://pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com/dev/:path*",
     },
   ],

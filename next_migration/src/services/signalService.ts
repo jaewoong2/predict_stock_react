@@ -5,11 +5,7 @@ import {
   WeeklyActionCountResponse,
 } from "../types/signal";
 
-// API 기본 URL 설정 (기존 tickerService.ts와 동일하게 환경 변수 사용)
-const API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.NEXT_PUBLIC_API_LOCAL_URL
-    : process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = "/api";
 
 // Axios 인스턴스 생성
 const api = axios.create({
@@ -40,7 +36,7 @@ export const signalApiService = {
   getSignalByNameAndDate: async (
     symbols: string[],
     date: string,
-    strategy_type?: string | null
+    strategy_type?: string | null,
   ): Promise<SignalAPIResponse> => {
     // 특정 시그널 이름과 날짜에 대한 데이터를 가져오는 API 호출
     const params: {
@@ -72,7 +68,7 @@ export const signalApiService = {
       "/signals/weekly/action-count",
       {
         params: { tickers, reference_date, action },
-      }
+      },
     );
     return response.data;
   },

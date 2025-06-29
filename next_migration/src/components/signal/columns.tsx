@@ -72,7 +72,7 @@ export const createColumns = (
               height={24}
               loading="lazy"
               objectFit="contain"
-              src={imageUrl}
+              src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
               alt="Stock Icon"
               className="mr-1 h-6 w-6"
             />
