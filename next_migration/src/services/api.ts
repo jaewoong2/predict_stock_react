@@ -13,7 +13,7 @@ const getBaseUrl = () => {
 
 // Axios 인스턴스 생성
 const api = axios.create({
-  baseURL: "/api", // Next.js rewrites에 맞춰 /api로 설정
+  baseURL: getBaseUrl(), // Next.js rewrites에 맞춰 /api로 설정
   headers: {
     "Content-Type": "application/json",
   },
