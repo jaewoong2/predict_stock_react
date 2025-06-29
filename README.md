@@ -46,8 +46,20 @@ Follow these steps to get started with the react-vite-ui template:
 4. Start the development server:
 
    ```bash
-   pnpm dev
-   ```
+  pnpm dev
+  ```
+
+## 🌐 Environment Variables
+
+Create a `.env` file in the project root with the following keys:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=<production api url>
+NEXT_PUBLIC_API_LOCAL_URL=<local api url>
+NEXT_PUBLIC_SEO_API_BASE_URL=<seo api url>
+```
+
+These variables are used by the service layer and SEO utilities.
 
 ## 📜 Available Scripts
 
