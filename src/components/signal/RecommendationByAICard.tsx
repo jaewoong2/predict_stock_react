@@ -17,10 +17,6 @@ const RecommendationByAiCard: FC<{
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),
     "AI_GENERATED",
-    {
-      initialData,
-      enabled: !initialData,
-    },
   );
 
   const onClickTicker = (ticker: string, model: string) => {
