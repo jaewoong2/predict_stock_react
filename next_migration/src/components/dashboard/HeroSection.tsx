@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, BarChart3, Search, Newspaper, Brain } from "lucide-react";
