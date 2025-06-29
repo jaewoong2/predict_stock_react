@@ -44,7 +44,7 @@ const Header = () => {
     <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-6">
         <Link className="flex w-fit items-center" href="/dashboard">
-          <Image
+          <img
             alt="Favicon"
             src={process.env.NEXT_PUBLIC_IMAGE_URL + "/favicon.png"}
             width={48}

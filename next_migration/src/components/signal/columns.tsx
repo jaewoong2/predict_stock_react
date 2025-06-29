@@ -67,11 +67,10 @@ export const createColumns = (
       return (
         <div className="flex items-center justify-start font-medium">
           {imageUrl && (
-            <Image
+            <img
               width={24}
               height={24}
               loading="lazy"
-              objectFit="contain"
               src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
               alt="Stock Icon"
               className="mr-1 h-6 w-6"

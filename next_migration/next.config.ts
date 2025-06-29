@@ -20,7 +20,7 @@ const nextConfig = {
       destination:
         process.env.NODE_ENV === "development"
           ? `http://localhost:8000/:path*`
-          : "https://pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com/dev/:path*",
+          : "https://stock-api.bamtoly.com/:path*",
     },
   ],
   assetPrefix:
@@ -36,6 +36,7 @@ const nextConfig = {
       { hostname: "static.bamtoly.com" },
       { hostname: "stock.bamtoly.com" },
       { hostname: "pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com" },
+      { hostname: "stock-api.bamtoly.com" },
     ],
   },
   reactStrictMode: true,
