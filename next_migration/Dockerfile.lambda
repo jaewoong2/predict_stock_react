@@ -32,7 +32,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN pnpm run build
+# ADD Pnpm
+RUN yarn global add pnpm && pnpm run build
 
 FROM base AS runner
 WORKDIR /app
