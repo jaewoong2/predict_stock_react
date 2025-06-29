@@ -29,6 +29,8 @@ import { AiModelSelect } from "./AiModelSelect";
 import { Progress } from "../ui/progress";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { da } from "date-fns/locale";
+import useMounted from "@/hooks/useMounted";
 
 interface SignalDetailViewProps {
   open: boolean;
@@ -38,7 +40,7 @@ interface SignalDetailViewProps {
 
 const formatDate = (
   dateString: string | null | undefined,
-  includeTime = false
+  includeTime = false,
 ) => {
   if (!dateString) return "N/A";
   try {
@@ -79,13 +81,13 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   const signals = useSignalDataByNameAndDate(
     [symbol],
     date ?? new Date().toISOString().split("T")[0],
-    strategy_type
+    strategy_type,
   );
 
   const data = useMemo(() => {
     return signals.data?.signals.find(
       (value) =>
-        value.signal.ai_model === aiModel && value.signal.ticker === symbol
+        value.signal.ai_model === aiModel && value.signal.ticker === symbol,
     );
   }, [aiModel, signals.data?.signals, symbol]);
 
@@ -107,7 +109,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     { direction: "up", reference_date: date, tickers: data?.signal.ticker },
     {
       enabled: !!data?.signal.ticker && !!date,
-    }
+    },
   );
 
   const weeklySignalData = useWeeklyActionCount(
@@ -118,10 +120,12 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     },
     {
       enabled: !!data?.signal.ticker && !!date,
-    }
+    },
   );
 
-  if (!data) {
+  const mounted = useMounted();
+
+  if (!data || !mounted) {
     return null;
   }
 
@@ -133,11 +137,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="w-full max-w-4xl mx-auto pb-10 !select-text sm:max-h-[80vh] max-sm:w-[calc(100%-14px)] max-sm:max-h-[70vh]">
-        <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-8 max-sm:px-1">
+      <DrawerContent className="mx-auto w-full max-w-4xl pb-10 !select-text max-sm:max-h-[70vh] max-sm:w-[calc(100%-14px)] sm:max-h-[80vh]">
+        <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-8 max-sm:px-1">
           <DrawerHeader className="px-0">
             <DrawerClose asChild>
-              <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">
+              <button className="absolute -top-10 -right-0 cursor-pointer text-3xl text-white">
                 &times;
               </button>
             </DrawerClose>
@@ -146,9 +150,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 <MarketNewsCarousel items={marketNews?.result} />
               </div>
             )}
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <div>
-                <DrawerTitle className="text-2xl p-0 m-0 text-left">
+                <DrawerTitle className="m-0 p-0 text-left text-2xl">
                   {data.signal.ticker}
                 </DrawerTitle>
                 <span className="text-muted-foreground text-sm font-light">
@@ -159,12 +163,12 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               {data.signal.action && (
                 <Badge
                   className={cn(
-                    "text-xs px-3 py-1",
+                    "px-3 py-1 text-xs",
                     data.signal.action.toLowerCase() === "buy"
                       ? "bg-green-600 text-white"
                       : data.signal.action.toLowerCase() === "sell"
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-500 text-white"
+                        ? "bg-red-500 text-white"
+                        : "bg-yellow-500 text-white",
                   )}
                 >
                   {data.signal.action.toUpperCase()}
@@ -174,18 +178,18 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
           </DrawerHeader>
 
           <div className="">
-            <section className="flex gap-2 flex-col mb-4">
+            <section className="mb-4 flex flex-col gap-2">
               <div className="flex flex-col">
                 <strong>7일간 주식 움직임</strong>
                 <div className="flex flex-wrap gap-1">
                   {priceMovement.data?.tickers[0]?.count.map((count, index) => (
-                    <Tooltip>
+                    <Tooltip key={priceMovement.data?.tickers[0]?.date[index]}>
                       <TooltipTrigger className="cursor-pointer">
                         <Badge
                           key={count}
                           className={cn(
-                            "text-xs bg-blue-500 text-white justify-center in-checked:",
-                            count > 0 ? "bg-green-600" : "bg-red-400"
+                            "in-checked: justify-center bg-blue-500 text-xs text-white",
+                            count > 0 ? "bg-green-600" : "bg-red-400",
                           )}
                         >
                           {count > 0 ? "상승" : "하락"}
@@ -206,13 +210,15 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 <div className="flex flex-wrap gap-1">
                   {weeklySignalData.data?.signals[0].count.map(
                     (count, index) => (
-                      <Tooltip>
+                      <Tooltip
+                        key={weeklySignalData.data?.signals[0].date[index]}
+                      >
                         <TooltipTrigger className="cursor-pointer">
                           <Badge
                             key={count}
                             className={cn(
-                              "text-xs bg-blue-500 text-white justify-center in-checked:",
-                              count > 0 ? "bg-green-600" : "bg-red-400"
+                              "in-checked: justify-center bg-blue-500 text-xs text-white",
+                              count > 0 ? "bg-green-600" : "bg-red-400",
                             )}
                           >
                             {count}개
@@ -223,18 +229,18 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                             "N/A"}
                         </TooltipContent>
                       </Tooltip>
-                    )
+                    ),
                   )}
                 </div>
               </div>
             </section>
             {/* 시그널 정보 */}
             <section>
-              <h3 className="text-lg font-semibold mb-2 border-b pb-1">
+              <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
                 예측 정보
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="w-full flex flex-col">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="flex w-full flex-col">
                   <strong>전략:</strong>{" "}
                   <div className="flex flex-wrap gap-1">
                     {data.signal.strategy
@@ -244,14 +250,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                       )) ?? "N/A"}
                   </div>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex items-center gap-2">
                   <strong>LLM 모델:</strong>
                   <AiModelSelect
                     options={[
                       ...new Set(
                         signals.data?.signals.map(
-                          (signal) => signal.signal.ai_model ?? ""
-                        )
+                          (signal) => signal.signal.ai_model ?? "",
+                        ),
                       ),
                     ]}
                     value={aiModel}
@@ -269,10 +275,10 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                         data.signal.probability.toLowerCase() === "high"
                           ? "default"
                           : data.signal.probability.toLowerCase() === "medium"
-                          ? "secondary"
-                          : data.signal.probability.toLowerCase() === "low"
-                          ? "destructive"
-                          : "outline"
+                            ? "secondary"
+                            : data.signal.probability.toLowerCase() === "low"
+                              ? "destructive"
+                              : "outline"
                       }
                     >
                       {data.signal.probability}
@@ -297,21 +303,21 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 )}
                 {data.signal.chart_pattern && (
                   <div className="mt-4 w-full md:col-span-2">
-                    <h3 className="text-lg font-semibold mb-2 border-b pb-1">
+                    <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
                       차트 패턴 분석
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <strong>패턴:</strong>
                         <Badge
                           className={cn(
-                            "capitalize flex flex-wrap text-wrap whitespace-pre-wrap",
+                            "flex flex-wrap text-wrap whitespace-pre-wrap capitalize",
                             data.signal.chart_pattern.pattern_type ===
                               "bullish" && "bg-green-600 text-white",
                             data.signal.chart_pattern.pattern_type ===
                               "bearish" && "bg-red-500 text-white",
                             data.signal.chart_pattern.pattern_type ===
-                              "neutral" && "bg-yellow-500 text-white"
+                              "neutral" && "bg-yellow-500 text-white",
                           )}
                         >
                           {data.signal.chart_pattern.name}
@@ -327,21 +333,21 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                             data.signal.chart_pattern.pattern_type ===
                               "bearish" && "bg-red-500 text-white",
                             data.signal.chart_pattern.pattern_type ===
-                              "neutral" && "bg-yellow-500 text-white"
+                              "neutral" && "bg-yellow-500 text-white",
                           )}
                         >
                           {data.signal.chart_pattern.pattern_type === "bullish"
                             ? "상승"
                             : data.signal.chart_pattern.pattern_type ===
-                              "bearish"
-                            ? "하락"
-                            : "중립"}
+                                "bearish"
+                              ? "하락"
+                              : "중립"}
                         </Badge>
                       </div>
                       <div>
                         <strong className="flex items-center">
                           신뢰도:
-                          <span className="text-sm ml-2">
+                          <span className="ml-2 text-sm">
                             {confidenceLevel * 100}%
                           </span>
                         </strong>{" "}
@@ -349,7 +355,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                       </div>
                       <div className="md:col-span-2">
                         <strong>차트 설명:</strong>{" "}
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {data.signal.chart_pattern.description}
                         </p>
                       </div>
@@ -375,7 +381,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               {data.signal.report_summary && (
                 <div className="mt-2">
                   <strong>리포트 요약:</strong>{" "}
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {data.signal.report_summary}
                   </p>
                 </div>
@@ -383,7 +389,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               {data.signal.result_description && (
                 <div className="mt-2">
                   <strong>결과 설명:</strong>{" "}
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     {data.signal.result_description}
                   </p>
                 </div>
@@ -393,9 +399,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
             {/* 티커 정보 */}
             {data.ticker?.name && (
               <section>
-                <div className="flex flex-col border-b pb-1 mb-2">
+                <div className="mb-2 flex flex-col border-b pb-1">
                   <h3 className="text-lg font-semibold">{data.ticker.name}</h3>
-                  <span className="text-sm text-muted-foreground font-light">
+                  <span className="text-muted-foreground text-sm font-light">
                     Close Price [{formatDate(data.ticker.ticker_date)}]
                   </span>
                 </div>
@@ -453,7 +459,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
             {/* 결과 정보 */}
             {data.result && (
               <section>
-                <h3 className="text-lg font-semibold mb-2 border-b pb-1">
+                <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
                   실제 결과
                 </h3>
                 <div className="flex flex-wrap items-center gap-4">
@@ -462,7 +468,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   </div>
                   <div>
                     {data.result.is_correct ? (
-                      <Badge className="bg-green-600 hover:bg-green-600 text-white">
+                      <Badge className="bg-green-600 text-white hover:bg-green-600">
                         성공
                       </Badge>
                     ) : (
@@ -474,7 +480,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     {data.ticker?.close_price &&
                       data.ticker?.open_price &&
                       formatCurrency(
-                        data.ticker.close_price - data.ticker.open_price
+                        data.ticker.close_price - data.ticker.open_price,
                       )}
                   </div>
                 </div>

@@ -39,7 +39,7 @@ const SignalSearchInput = ({
       return availableTickers;
     }
     return availableTickers.filter((ticker) =>
-      ticker.toLowerCase().includes(inputValue.toLowerCase())
+      ticker.toLowerCase().includes(inputValue.toLowerCase()),
     );
   }, [inputValue, availableTickers]);
 
@@ -54,10 +54,10 @@ const SignalSearchInput = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild className="">
         <div className="relative w-fit max-sm:w-full">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2" />
           <Button
             variant={"outline"}
-            className="pl-7 w-[250px] flex justify-start cursor-pointer max-sm:w-full"
+            className="flex w-[250px] cursor-pointer justify-start pl-7 max-sm:w-full"
           >
             {placeholder}
           </Button>
@@ -84,14 +84,14 @@ const SignalSearchInput = ({
               {inputValue && filteredDropdownTickers.length === 0
                 ? "해당 티커가 없습니다."
                 : availableTickers.length === 0
-                ? "선택 가능한 티커가 없습니다."
-                : "티커를 검색하거나 선택하세요."}
+                  ? "선택 가능한 티커가 없습니다."
+                  : "티커를 검색하거나 선택하세요."}
             </CommandEmpty>
             {filteredDropdownTickers.length > 0 && (
               <CommandGroup>
-                {filteredDropdownTickers.map((ticker) => (
+                {filteredDropdownTickers.map((ticker, index) => (
                   <CommandItem
-                    key={ticker}
+                    key={`${ticker}-${index}`}
                     value={ticker}
                     onSelect={() => {
                       handleToggleTicker(ticker);
@@ -103,7 +103,7 @@ const SignalSearchInput = ({
                         "mr-2 h-4 w-4",
                         selectedTickers.includes(ticker)
                           ? "opacity-100" // 선택된 경우 체크 표시
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                     {ticker}

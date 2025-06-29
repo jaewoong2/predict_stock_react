@@ -1,14 +1,14 @@
-version: '3.8'
+version: "3.8"
 services:
-  habbits:
+  stock-predict:
     platform: linux/amd64
-    image: 849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/habbits/frontend:latest
+    image: 849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/stock-predict:latest
     build:
       dockerfile: Dockerfile.lambda
       args:
-        PROJECT_NAME: habbits
+        PROJECT_NAME: stock-predict
     environment:
       - NODE_ENV=production
-      - PROJECT_NAME=bamtoly
+      - PROJECT_NAME=stock-predict
     ports:
       - 3000:3000

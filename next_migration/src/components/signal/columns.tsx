@@ -67,7 +67,15 @@ export const createColumns = (
       return (
         <div className="flex items-center justify-start font-medium">
           {imageUrl && (
-            <Image src={imageUrl} alt="Stock Icon" className="mr-1 h-6 w-6" />
+            <Image
+              width={24}
+              height={24}
+              loading="lazy"
+              objectFit="contain"
+              src={imageUrl}
+              alt="Stock Icon"
+              className="mr-1 h-6 w-6"
+            />
           )}
           {row.original.signal.ticker}
         </div> // 기본 왼쪽 정렬

@@ -7,7 +7,7 @@ import { format as formatDate, parseISO } from "date-fns";
 const getParam = (
   searchParams: URLSearchParams,
   key: string,
-  defaultValue: string | null = null
+  defaultValue: string | null = null,
 ) => searchParams.get(key) ?? defaultValue;
 
 const getArrayParam = (searchParams: URLSearchParams, key: string) => {
@@ -38,13 +38,13 @@ export function useDashboardFilters() {
   const [selectedDate, setSelectedDate] = useState<string>(initialDate);
   const [submittedDate, setSubmittedDate] = useState<string>(initialDate);
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(() =>
-    getParam(searchParams, "signalId")
+    getParam(searchParams, "signalId"),
   );
   const [globalFilter, setGlobalFilter] = useState<string>(
-    () => getParam(searchParams, "q") ?? ""
+    () => getParam(searchParams, "q") ?? "",
   );
   const [selectedAiModels, setSelectedAiModels] = useState<string[]>(() =>
-    getArrayParam(searchParams, "models")
+    getArrayParam(searchParams, "models"),
   );
   const [aiModelFilterConditions, setAiModelFilterConditions] = useState<
     ("OR" | "AND")[]
@@ -67,7 +67,7 @@ export function useDashboardFilters() {
       params.set("condition", aiModelFilterConditions.join(","));
 
     if (params.toString() !== searchParams.toString()) {
-      router.replace('?' + params.toString());
+      router.replace("?" + params.toString(), { scroll: false });
     }
   }, [
     submittedDate,

@@ -7,6 +7,8 @@ import { AlertTitle, DismissibleAlert } from "@/components/ui/alert";
 import Image from "next/image";
 
 const Header = () => {
+  const [mounted, setMounted] = useState(false);
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window === "undefined") return false;
     const savedTheme = localStorage.getItem("theme");
@@ -15,6 +17,10 @@ const Header = () => {
     }
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
@@ -30,10 +36,14 @@ const Header = () => {
     setIsDarkMode((prev) => !prev);
   };
 
+  if (!mounted) {
+    return null; // Prevents hydration mismatch
+  }
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-6">
-        <Link className="flex w-full items-center" href="/">
+        <Link className="flex w-fit items-center" href="/dashboard">
           <Image
             alt="Favicon"
             src="/favicon.png"
