@@ -1,3 +1,4 @@
+"use client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SignalDetailView } from "./SignalDetailView";
 import { useEffect, useState } from "react";

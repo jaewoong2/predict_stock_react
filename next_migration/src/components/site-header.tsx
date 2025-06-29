@@ -1,3 +1,4 @@
+"use client";
 import { MainNav } from '@/components/main-nav';
 
 import SideNav from './side-nav';
