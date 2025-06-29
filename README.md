@@ -66,6 +66,7 @@ These variables are used by the service layer and SEO utilities.
 - pnpm dev - Starts the development server.
 - pnpm build - Builds the production-ready code.
 - pnpm lint - Runs ESLint to analyze and lint the code.
+- pnpm format - Formats the codebase with Prettier.
 - pnpm preview - Starts the Vite development server in preview mode.
 
 ## 📂 Project Structure
