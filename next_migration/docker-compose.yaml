@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  habbits:
+    platform: linux/amd64
+    image: 849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/habbits/frontend:latest
+    build:
+      dockerfile: Dockerfile.lambda
+      args:
+        PROJECT_NAME: habbits
+    environment:
+      - NODE_ENV=production
+      - PROJECT_NAME=bamtoly
+    ports:
+      - 3000:3000
