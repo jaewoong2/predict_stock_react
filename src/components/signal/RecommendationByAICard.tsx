@@ -1,3 +1,4 @@
+"use client";
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -13,7 +14,7 @@ const RecommendationByAiCard: FC<{
   const { data, isLoading, error } = useSignalDataByNameAndDate(
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),
-    "AI_GENERATED"
+    "AI_GENERATED",
   );
 
   const onClickTicker = (ticker: string, model: string) => {
@@ -50,7 +51,7 @@ const RecommendationByAiCard: FC<{
   }
 
   return (
-    <Card className="h-full shadow-none w-fit max-md:w-full">
+    <Card className="h-full w-fit shadow-none max-md:w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{title}</span>
@@ -62,21 +63,21 @@ const RecommendationByAiCard: FC<{
             해당 추천 유형의 종목이 없습니다.
           </p>
         ) : (
-          <div className="gap-2 flex flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {data.signals.map(
-              ({ signal: item }) =>
+              ({ signal: item }, index) =>
                 item.action === "buy" && (
                   <Badge
-                    key={item.ticker + item.ai_model + item.timestamp}
+                    key={item.ticker + item.ai_model + item.timestamp + index}
                     variant={"secondary"}
-                    className="border rounded-md px-3 cursor-pointer hover:bg-green-100 transition-colors"
+                    className="cursor-pointer rounded-md border px-3 transition-colors hover:bg-green-100"
                     onClick={() =>
                       onClickTicker(item.ticker, item.ai_model || "OPENAI")
                     }
                   >
                     <h3 className="text-xs">{item.ticker}</h3>
                   </Badge>
-                )
+                ),
             )}
           </div>
         )}

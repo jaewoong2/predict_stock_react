@@ -9,18 +9,7 @@ import {
   GetNewsRecommendationsParams,
   NewsRecommendationsResponse,
 } from "@/types/news";
-
-const API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.NEXT_PUBLIC_API_LOCAL_URL
-    : process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import api from "./api";
 
 export const newsService = {
   async getMarketNewsSummary({
@@ -54,7 +43,7 @@ export const newsService = {
 
     const response = await api.get<NewsRecommendationsResponse>(
       "/news/recommendations",
-      { params }
+      { params },
     );
     return response.data;
   },
@@ -65,7 +54,7 @@ export const newsService = {
   }: MarketForeCastRequestParams) {
     const response = await api.get<MarketForecastResponse[]>(
       "/news/market-forecast",
-      { params: { forecast_date: date, source: source } }
+      { params: { forecast_date: date, source: source } },
     );
 
     return response.data;

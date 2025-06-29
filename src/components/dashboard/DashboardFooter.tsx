@@ -1,3 +1,4 @@
+"use client";
 const DashboardFooter = () => {
   return (
     <footer className="border-t bg-muted/50 mt-10 py-6 text-sm leading-relaxed">

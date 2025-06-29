@@ -6,6 +6,7 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 // Helper function to format date string
 const formatCurrency = (amount: number | undefined | null) => {
@@ -18,7 +19,7 @@ const formatCurrency = (amount: number | undefined | null) => {
 
 export const createColumns = (
   favorites: string[],
-  toggleFavorite: (ticker: string) => void
+  toggleFavorite: (ticker: string) => void,
 ): ColumnDef<SignalData>[] => [
   {
     id: "signal.favorite",
@@ -33,7 +34,7 @@ export const createColumns = (
             e.stopPropagation();
             toggleFavorite(ticker);
           }}
-          className="cursor-pointer flex justify-center items-center"
+          className="flex cursor-pointer items-center justify-center"
         >
           <Star
             className="h-4 w-4"
@@ -64,9 +65,16 @@ export const createColumns = (
       // You could add error handling with onError in the img tag
 
       return (
-        <div className="font-medium items-center justify-start flex">
+        <div className="flex items-center justify-start font-medium">
           {imageUrl && (
-            <img src={imageUrl} alt="Stock Icon" className="h-6 w-6 mr-1" />
+            <img
+              width={24}
+              height={24}
+              loading="lazy"
+              src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
+              alt="Stock Icon"
+              className="mr-1 h-6 w-6"
+            />
           )}
           {row.original.signal.ticker}
         </div> // 기본 왼쪽 정렬
@@ -96,7 +104,7 @@ export const createColumns = (
             "w-fit",
             action.toLowerCase() === "buy" && "bg-green-500 text-white",
             action.toLowerCase() === "sell" && "bg-red-500 text-white",
-            action.toLowerCase() === "hold" && "bg-yellow-500 text-white"
+            action.toLowerCase() === "hold" && "bg-yellow-500 text-white",
           )}
         >
           {action.toUpperCase()}
@@ -154,7 +162,7 @@ export const createColumns = (
       if (entry_price && take_profit && entry_price !== 0) {
         const percentage = ((take_profit - entry_price) / entry_price) * 100;
         percentageString = ` (${percentage >= 0 ? "+" : ""}${percentage.toFixed(
-          2
+          2,
         )}%)`;
       }
       return (
@@ -202,7 +210,7 @@ export const createColumns = (
       if (entry_price && stop_loss && entry_price !== 0) {
         const percentage = ((stop_loss - entry_price) / entry_price) * 100;
         percentageString = ` (${percentage >= 0 ? "+" : ""}${percentage.toFixed(
-          2
+          2,
         )}%)`;
       }
       return (
@@ -254,7 +262,7 @@ export const createColumns = (
       return (
         <Badge
           variant="default"
-          className="bg-green-500 hover:bg-green-600 text-white"
+          className="bg-green-500 text-white hover:bg-green-600"
         >
           {row.original.signal?.ai_model ?? "N/A"}
         </Badge>
@@ -270,7 +278,7 @@ export const createColumns = (
       return isCorrect ? (
         <Badge
           variant="default"
-          className="bg-green-500 hover:bg-green-600 text-white"
+          className="bg-green-500 text-white hover:bg-green-600"
         >
           OK
         </Badge>

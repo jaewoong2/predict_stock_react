@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MarketNewsItem } from "@/types/news";
