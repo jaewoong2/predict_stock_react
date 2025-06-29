@@ -3,6 +3,7 @@ FROM node:18.18-alpine AS base
 # Install dependencies needed for certain node modules
 RUN apk add --no-cache --virtual .gyp python3 make g++ \
     && apk del .gyp
+    
 RUN apk add --no-cache python3 py3-pip && pip install awscli
 
 RUN apk add --update --no-cache python3 build-base gcc && ln -sf /usr/bin/python3 /usr/bin/python

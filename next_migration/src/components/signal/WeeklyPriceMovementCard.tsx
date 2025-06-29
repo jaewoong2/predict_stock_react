@@ -72,9 +72,9 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
           <div className="flex flex-wrap gap-2">
             {data.tickers.map(({ ticker, count }) => (
               <Badge
-                key={ticker}
+                key={ticker + count.join("-")}
                 variant="secondary"
-                className="flex gap-2 hover:bg-green-100 cursor-pointer transition-colors"
+                className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
                 onClick={() => onClickTicker(ticker)}
               >
                 <span>{ticker}</span>
@@ -83,7 +83,7 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
                     "font-bold",
                     params.direction === "up"
                       ? "text-green-600"
-                      : "text-red-600"
+                      : "text-red-600",
                   )}
                 >
                   {count.reduce((sum, val) => sum + (val || 0), 0)}

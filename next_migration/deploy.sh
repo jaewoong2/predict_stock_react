@@ -3,8 +3,8 @@
 # 필요한 변수 설정
 AWS_REGION="ap-northeast-2"  # 예: ap-northeast-2
 AWS_PROFILE="lime_admin"
-ECR_REPOSITORY="849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/habbits/frontend"  
-LAMBDA_FUNCTION_NAME="habbits_frontend"
+ECR_REPOSITORY="849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/stock-predict"  
+LAMBDA_FUNCTION_NAME="stock_alarm_react"  # Lambda 함수 이름
 # LAMBDA_FUNCTION_URL="https://guqx2yonk5wzcrkzlp2yfp77pm0rdmqx.lambda-url.ap-northeast-2.on.aws"
 
 # AWS ECR 로그인
