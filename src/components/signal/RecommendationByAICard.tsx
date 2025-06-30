@@ -6,15 +6,21 @@ import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { CardSkeleton } from "../ui/skeletons";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
+import { SignalAPIResponse } from "@/types/signal";
 
 const RecommendationByAiCard: FC<{
   title: string;
-}> = ({ title }) => {
+  data?: SignalAPIResponse;
+}> = ({ title, data: initialData }) => {
   const { setParams, date } = useSignalSearchParams();
   const { data, isLoading, error } = useSignalDataByNameAndDate(
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),
     "AI_GENERATED",
+    {
+      initialData,
+      enabled: !initialData,
+    },
   );
 
   const onClickTicker = (ticker: string, model: string) => {

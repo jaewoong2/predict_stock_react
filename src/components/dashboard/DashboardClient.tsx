@@ -30,7 +30,6 @@ import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovement
 import RecommendationCard from "@/components/signal/RecommendationCard";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
-import HeroSection from "@/components/dashboard/HeroSection";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 
 interface DashboardClientProps {
