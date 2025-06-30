@@ -31,6 +31,7 @@ import RecommendationCard from "@/components/signal/RecommendationCard";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
+import HeroSection from "@/components/dashboard/HeroSection";
 
 interface DashboardClientProps {
   initialSignals: SignalAPIResponse;
@@ -350,6 +351,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   return (
     <>
+      <HeroSection />
       <div className="mx-auto max-w-[1500px] p-4 md:p-8">
         <div className="mb-4 grid grid-cols-[3fr_4fr_4fr] gap-4 max-lg:grid-cols-1">
           <MarketForCastCard title="Today Market Forecast" />
