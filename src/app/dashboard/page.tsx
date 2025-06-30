@@ -16,7 +16,10 @@ export default async function DashboardPage({
   searchParams: { date?: string };
 }) {
   const today = new Date().toISOString().split("T")[0];
-  const date = typeof searchParams?.date === "string" ? searchParams.date : today;
+
+  // searchParams를 비동기적으로 처리
+  const params = await searchParams;
+  const date = typeof params?.date === "string" ? params.date : today;
 
   const [initialSignals, initialMarketNews] = await Promise.all([
     signalApiService.getSignalsByDate(date),
@@ -25,7 +28,8 @@ export default async function DashboardPage({
 
   let initialFavorites: string[] = [];
   try {
-    const fav = cookies().get("favoriteTickers")?.value;
+    const cookiesStore = cookies();
+    const fav = (await cookiesStore).get("favoriteTickers")?.value;
     if (fav) initialFavorites = JSON.parse(fav);
   } catch {
     initialFavorites = [];
