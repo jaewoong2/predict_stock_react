@@ -2,6 +2,7 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNewsRecommendations } from "@/hooks/useMarketNews";
+import { NewsRecommendationsResponse } from "@/types/news";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
@@ -11,13 +12,20 @@ const RecommendationCard: FC<{
   title: string;
   recommendation: "Buy" | "Hold" | "Sell";
   badgeColor: string;
-}> = ({ title, recommendation, badgeColor }) => {
+  data?: NewsRecommendationsResponse;
+}> = ({ title, recommendation, badgeColor, data: initialData }) => {
   const { setParams, date } = useSignalSearchParams();
-  const { data, isLoading, error } = useNewsRecommendations({
-    recommendation,
-    limit: 10,
-    date: date ? date : format(new Date(), "yyyy-MM-dd"),
-  });
+  const { data, isLoading, error } = useNewsRecommendations(
+    {
+      recommendation,
+      limit: 10,
+      date: date ? date : format(new Date(), "yyyy-MM-dd"),
+    },
+    {
+      initialData,
+      enabled: !initialData,
+    },
+  );
 
   const onClickTicker = (ticker: string) => {
     setParams({ signalId: `${ticker}_OPENAI` });

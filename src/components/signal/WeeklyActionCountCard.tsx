@@ -11,11 +11,13 @@ import { CardSkeleton } from "../ui/skeletons";
 interface WeeklyActionCountCardProps {
   title: string;
   params: GetWeeklyActionCountParams;
+  data?: WeeklyActionCountResponse;
 }
 
 export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   title,
   params,
+  data: initialData,
 }) => {
   const { setParams } = useSignalSearchParams();
 
@@ -34,6 +36,8 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
           .slice(0, 10),
       };
     },
+    initialData,
+    enabled: !initialData,
   });
 
   const onClickTicker = (ticker: string) => {

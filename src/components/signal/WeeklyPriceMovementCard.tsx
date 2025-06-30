@@ -11,11 +11,13 @@ import { CardSkeleton } from "../ui/skeletons";
 interface WeeklyPriceMovementCardProps {
   title: string;
   params: GetWeeklyPriceMovementParams;
+  data?: WeeklyPriceMovementResponse;
 }
 
 export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   title,
   params,
+  data: initialData,
 }) => {
   const { setParams } = useSignalSearchParams();
 
@@ -31,6 +33,8 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
           .slice(0, 10),
       };
     },
+    initialData,
+    enabled: !initialData,
   });
 
   const onClickTicker = (ticker: string) => {

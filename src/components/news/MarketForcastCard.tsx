@@ -26,9 +26,11 @@ import {
 
 type Props = {
   title?: string;
+  majorData?: MarketForecastResponse[];
+  minorData?: MarketForecastResponse[];
 };
 
-const MarketForCastCard = ({ title }: Props) => {
+const MarketForCastCard = ({ title, majorData, minorData }: Props) => {
   const { date } = useSignalSearchParams();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -40,12 +42,14 @@ const MarketForCastCard = ({ title }: Props) => {
 
   const majorForecastQuery = useMarketForecast(
     date ?? format(new Date(), "yyyy-MM-dd"),
-    "Major"
+    "Major",
+    { initialData: majorData, enabled: !majorData },
   );
 
   const minorForecastQuery = useMarketForecast(
     date ?? format(new Date(), "yyyy-MM-dd"),
-    "Minor"
+    "Minor",
+    { initialData: minorData, enabled: !minorData },
   );
 
   const majorForecastData = majorForecastQuery.data || [];
