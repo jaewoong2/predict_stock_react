@@ -2,10 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
-import {
-  SignalData,
-  SignalAPIResponse,
-} from "@/types/signal";
+import { SignalData, SignalAPIResponse } from "@/types/signal";
 import { MarketNewsResponse } from "@/types/news";
 import { signalApiService } from "@/services/signalService";
 import { newsService } from "@/services/newsService";
@@ -95,7 +92,9 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   const toggleFavorite = (ticker: string) => {
     setFavorites((prev) =>
-      prev.includes(ticker) ? prev.filter((t) => t !== ticker) : [...prev, ticker],
+      prev.includes(ticker)
+        ? prev.filter((t) => t !== ticker)
+        : [...prev, ticker],
     );
   };
 
@@ -352,7 +351,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   return (
     <>
-      <HeroSection />
       <div className="mx-auto max-w-[1500px] p-4 md:p-8">
         <div className="mb-4 grid grid-cols-[3fr_4fr_4fr] gap-4 max-lg:grid-cols-1">
           <MarketForCastCard title="Today Market Forecast" />

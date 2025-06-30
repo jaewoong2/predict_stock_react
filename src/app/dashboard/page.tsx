@@ -1,9 +1,8 @@
-import { Suspense } from "react";
 import DashboardClient from "@/components/dashboard/DashboardClient";
-import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import { signalApiService } from "@/services/signalService";
 import { newsService } from "@/services/newsService";
 import { cookies } from "next/headers";
+import HeroSection from "@/components/dashboard/HeroSection";
 
 export const metadata = {
   title: "Dashboard",
@@ -36,12 +35,13 @@ export default async function DashboardPage({
   }
 
   return (
-    <Suspense fallback={<DashboardLoading />}>
+    <>
+      <HeroSection />
       <DashboardClient
         initialSignals={initialSignals}
         initialMarketNews={initialMarketNews}
         initialFavorites={initialFavorites}
       />
-    </Suspense>
+    </>
   );
 }
