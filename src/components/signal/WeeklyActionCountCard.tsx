@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyActionCount } from "@/hooks/useSignal";
-import { GetWeeklyActionCountParams } from "@/types/signal";
+import { GetWeeklyActionCountParams, WeeklyActionCountResponse } from "@/types/signal";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";

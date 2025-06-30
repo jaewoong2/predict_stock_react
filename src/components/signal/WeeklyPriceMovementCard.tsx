@@ -2,7 +2,7 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
-import { GetWeeklyPriceMovementParams } from "@/types/ticker";
+import { GetWeeklyPriceMovementParams, WeeklyPriceMovementResponse } from "@/types/ticker";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
