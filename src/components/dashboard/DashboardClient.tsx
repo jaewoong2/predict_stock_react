@@ -2,11 +2,15 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
-import { SignalData } from "@/types/signal";
-import { useSignalDataByDate } from "@/hooks/useSignal";
+import {
+  SignalData,
+  SignalAPIResponse,
+} from "@/types/signal";
+import { MarketNewsResponse } from "@/types/news";
+import { signalApiService } from "@/services/signalService";
+import { newsService } from "@/services/newsService";
 
 import { createColumns } from "@/components/signal/columns";
-import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "@/components/signal/SignalListWrapper";
@@ -19,7 +23,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import MarketForCastCard from "@/components/news/MarketForcastCard";
@@ -33,7 +36,17 @@ import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import HeroSection from "@/components/dashboard/HeroSection";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 
-const SignalAnalysisPage: React.FC = () => {
+interface DashboardClientProps {
+  initialSignals: SignalAPIResponse;
+  initialMarketNews: MarketNewsResponse | null;
+  initialFavorites: string[];
+}
+
+const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
+  initialSignals,
+  initialMarketNews,
+  initialFavorites,
+}) => {
   const {
     date,
     q,
@@ -49,12 +62,42 @@ const SignalAnalysisPage: React.FC = () => {
   const submittedDate = date ?? todayString;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
-  const { favorites, toggleFavorite } = useFavoriteTickers();
-  const { data: marketNews, isLoading: isMarketNewsLoading } =
-    useMarketNewsSummary({ news_type: "market", news_date: submittedDate });
+  const STORAGE_KEY = "favoriteTickers";
+  const [favorites, setFavorites] = useState<string[]>(initialFavorites);
+  const [marketNews, setMarketNews] = useState<MarketNewsResponse | null>(
+    initialMarketNews,
+  );
+  const [isMarketNewsLoading, setIsMarketNewsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) setFavorites(JSON.parse(stored));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    } catch {
+      /* ignore */
+    }
+  }, [favorites]);
+
+  const toggleFavorite = (ticker: string) => {
+    setFavorites((prev) =>
+      prev.includes(ticker) ? prev.filter((t) => t !== ticker) : [...prev, ticker],
+    );
+  };
 
   // URL의 q 파라미터가 변경되면 currentSelectedTickersArray를 업데이트
   useEffect(() => {
@@ -67,20 +110,22 @@ const SignalAnalysisPage: React.FC = () => {
     setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
-  const {
-    data: signalApiResponse,
-    isLoading,
-    error,
-    refetch,
-  } = useSignalDataByDate(submittedDate, {
-    enabled: !!submittedDate,
-    select(data) {
-      return {
-        date: data.date,
-        signals: data.signals,
-      };
-    },
-  });
+  const [signalApiResponse, setSignalApiResponse] =
+    useState<SignalAPIResponse>(initialSignals);
+
+  const fetchSignals = async () => {
+    if (!submittedDate) return;
+    setIsLoading(true);
+    try {
+      const data = await signalApiService.getSignalsByDate(submittedDate);
+      setSignalApiResponse(data);
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // SignalSearchInput에 제공할 전체 티커 목록 (중복 제거)
   const allAvailableTickersForSearch = useMemo(() => {
@@ -95,10 +140,27 @@ const SignalAnalysisPage: React.FC = () => {
   }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    if (submittedDate) {
-      refetch();
+    fetchSignals();
+  }, [submittedDate]);
+
+  const fetchMarketNews = async () => {
+    setIsMarketNewsLoading(true);
+    try {
+      const data = await newsService.getMarketNewsSummary({
+        news_type: "market",
+        news_date: submittedDate,
+      });
+      setMarketNews(data);
+    } catch {
+      setMarketNews(null);
+    } finally {
+      setIsMarketNewsLoading(false);
     }
-  }, [submittedDate, refetch]);
+  };
+
+  useEffect(() => {
+    fetchMarketNews();
+  }, [submittedDate]);
 
   useEffect(() => {
     if (signalApiResponse?.signals) {
