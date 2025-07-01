@@ -1,6 +1,5 @@
 import HeroSection from "@/components/dashboard/HeroSection";
 import DashboardClient from "@/components/dashboard/DashboardClient";
-import { withDateValidation } from "@/components/withDateValidation";
 
 function DashboardPage() {
   return (
@@ -11,4 +10,4 @@ function DashboardPage() {
   );
 }
 
-export default withDateValidation(DashboardPage);
+export default DashboardPage;
