@@ -1,6 +1,8 @@
 import { signalApiService } from "@/services/signalService";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }
