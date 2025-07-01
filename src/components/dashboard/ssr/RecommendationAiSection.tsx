@@ -4,14 +4,19 @@ import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
 export const revalidate = 3600;
 
 interface Props {
+  title?: string;
   date: string;
 }
 
-export default async function RecommendationAiSection({ date }: Props) {
-  const data = await signalApiService.getSignalByNameAndDate([], date, "AI_GENERATED");
+export default async function RecommendationAiSection({ date, title }: Props) {
+  const data = await signalApiService.getSignalByNameAndDate(
+    [],
+    date,
+    "AI_GENERATED",
+  );
   return (
     <RecommendationByAiCard
-      title="Today Ai's Recommendation"
+      title={title ?? "AI Generated Recommendations"}
       data={data}
     />
   );

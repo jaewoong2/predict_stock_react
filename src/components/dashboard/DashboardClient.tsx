@@ -323,163 +323,97 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   return (
     <>
-      <div className="mx-auto max-w-[1500px] p-4 md:p-8">
-        <div className="mb-4 grid grid-cols-[3fr_4fr_4fr] gap-4 max-lg:grid-cols-1">
-          <MarketForCastCard title="Today Market Forecast" />
-          <SummaryTabsCard
-            tabs={[
-              {
-                label: "Weekly Top Signals",
-                value: "signals",
-                component: (
-                  <WeeklyActionCountCard
-                    title="Weekly Top Buy Signals"
-                    params={{
-                      action: "Buy",
-                      reference_date: date ?? undefined,
-                    }}
-                  />
-                ),
-              },
-              {
-                label: "Weekly Top Price Movements",
-                value: "price",
-                component: (
-                  <WeeklyPriceMovementCard
-                    title="Weekly Top Up Price Movements"
-                    params={{
-                      direction: "up",
-                      reference_date: date ?? undefined,
-                    }}
-                  />
-                ),
-              },
-            ]}
-          />
-          <SummaryTabsCard
-            tabs={[
-              {
-                label: "AI Recommendations",
-                value: "ai",
-                component: (
-                  <RecommendationByAiCard title="Today Ai's Recommendation" />
-                ),
-              },
-              {
-                label: "News Recommendations",
-                value: "news",
-                component: (
-                  <RecommendationCard
-                    title="Today News Recommendation"
-                    recommendation="Buy"
-                    badgeColor="bg-green-100 text-green-800"
-                  />
-                ),
-              },
-            ]}
-          />
-        </div>
-        <div className="my-4 flex items-center gap-4">
-          <div className="grid h-full w-full max-w-full grid-cols-[1fr_auto] gap-4 max-sm:flex max-sm:flex-col">
-            <DateSelectorWrapper popover={false} />
-            <div className="grid h-full w-full grid-cols-1">
-              <MarketNewsSection />
-            </div>
-          </div>
-        </div>
-        <div className="flex w-full flex-wrap items-start justify-between gap-2">
-          <div className="flex w-full flex-grow items-end gap-2 sm:flex-nowrap">
-            <div className="w-full">
-              <SignalSearchInput
-                selectedTickers={currentSelectedTickersArray}
-                onSelectedTickersChange={handleSelectedTickersChange}
-                availableTickers={allAvailableTickersForSearch}
-                placeholder="티커 선택"
-              />
-              {currentSelectedTickersArray.length > 0 && (
-                <div className="flex max-w-[400px] flex-wrap gap-1 py-2">
-                  {currentSelectedTickersArray.map((ticker) => (
-                    <Badge className="text-xs" key={ticker}>
-                      {ticker}
-                      <button
-                        onClick={() =>
-                          handleSelectedTickersChange(
-                            currentSelectedTickersArray.filter(
-                              (t) => t !== ticker,
-                            ),
-                          )
-                        }
-                      >
-                        <XIcon size={12} className="cursor-pointer text-sm" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex w-full flex-wrap items-start justify-between gap-2 pb-4">
-          <div className="flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <InfoIcon className="h-4 w-4 cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent className="ml-2">
-                <p>
-                  LLM 모델 필터링 방식을 선택합니다. <br />
-                  <strong>OR:</strong> 선택된 모델 중 하나라도 포함된 시그널을
-                  표시합니다. <br />
-                  <strong>AND:</strong> 선택된 모든 모델을 포함하는 시그널을
-                  표시합니다.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-            <AiModelFilterPanel
-              availableModels={availableAiModels}
-              selectedModels={selectedAiModels}
-              conditions={aiModelFilterConditions}
-              onModelsChange={(models) =>
-                setParams({
-                  models,
-                  page: "0",
-                })
-              }
-              onConditionChange={(idx, value) =>
-                setParams({
-                  conditions: aiModelFilterConditions
-                    .map((c, i) => (i === idx ? value : c))
-                    .slice(0, Math.max(0, selectedAiModels.length - 1)),
-                  page: "0",
-                })
-              }
+      <div className="flex w-full flex-wrap items-start justify-between gap-2">
+        <div className="flex w-full flex-grow items-end gap-2 sm:flex-nowrap">
+          <div className="w-full">
+            <SignalSearchInput
+              selectedTickers={currentSelectedTickersArray}
+              onSelectedTickersChange={handleSelectedTickersChange}
+              availableTickers={allAvailableTickersForSearch}
+              placeholder="티커 선택"
             />
+            {currentSelectedTickersArray.length > 0 && (
+              <div className="flex max-w-[400px] flex-wrap gap-1 py-2">
+                {currentSelectedTickersArray.map((ticker) => (
+                  <Badge className="text-xs" key={ticker}>
+                    {ticker}
+                    <button
+                      onClick={() =>
+                        handleSelectedTickersChange(
+                          currentSelectedTickersArray.filter(
+                            (t) => t !== ticker,
+                          ),
+                        )
+                      }
+                    >
+                      <XIcon size={12} className="cursor-pointer text-sm" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-
-        <SignalListWrapper
-          submittedDate={submittedDate}
-          columns={columns}
-          data={sortedSignals}
-          onRowClick={handleRowClick}
-          isLoading={isLoading}
-          pagination={{
-            pageIndex: +`${page}`,
-            pageSize: +`${pageSize}`,
-          }}
-          onPaginationChange={handlePaginationChange}
-        />
-
-        <SignalDetailSection
-          isLoading={isLoading}
-          hasSignals={
-            !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
-          }
-          error={error}
-        />
       </div>
-      <DashboardFooter />
+
+      <div className="flex w-full flex-wrap items-start justify-between gap-2 pb-4">
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoIcon className="h-4 w-4 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="ml-2">
+              <p>
+                LLM 모델 필터링 방식을 선택합니다. <br />
+                <strong>OR:</strong> 선택된 모델 중 하나라도 포함된 시그널을
+                표시합니다. <br />
+                <strong>AND:</strong> 선택된 모든 모델을 포함하는 시그널을
+                표시합니다.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+          <AiModelFilterPanel
+            availableModels={availableAiModels}
+            selectedModels={selectedAiModels}
+            conditions={aiModelFilterConditions}
+            onModelsChange={(models) =>
+              setParams({
+                models,
+                page: "0",
+              })
+            }
+            onConditionChange={(idx, value) =>
+              setParams({
+                conditions: aiModelFilterConditions
+                  .map((c, i) => (i === idx ? value : c))
+                  .slice(0, Math.max(0, selectedAiModels.length - 1)),
+                page: "0",
+              })
+            }
+          />
+        </div>
+      </div>
+
+      <SignalListWrapper
+        submittedDate={submittedDate}
+        columns={columns}
+        data={sortedSignals}
+        onRowClick={handleRowClick}
+        isLoading={isLoading}
+        pagination={{
+          pageIndex: +`${page}`,
+          pageSize: +`${pageSize}`,
+        }}
+        onPaginationChange={handlePaginationChange}
+      />
+
+      <SignalDetailSection
+        isLoading={isLoading}
+        hasSignals={
+          !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
+        }
+        error={error}
+      />
     </>
   );
 };
