@@ -3,6 +3,8 @@ import { signalApiService } from "@/services/signalService";
 import { newsService } from "@/services/newsService";
 import { cookies } from "next/headers";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }

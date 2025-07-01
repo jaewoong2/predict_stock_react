@@ -1,6 +1,8 @@
 import { newsService } from "@/services/newsService";
 import RecommendationCard from "@/components/signal/RecommendationCard";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }
