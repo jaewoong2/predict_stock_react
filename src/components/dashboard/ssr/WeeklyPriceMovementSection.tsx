@@ -1,6 +1,8 @@
 import { tickerService } from "@/services/tickerService";
 import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }
