@@ -99,10 +99,9 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
-  const [signalApiResponse, setSignalApiResponse] =
-    useState<SignalAPIResponse>(
-      initialSignals ?? { date: submittedDate, signals: [] },
-    );
+  const [signalApiResponse, setSignalApiResponse] = useState<SignalAPIResponse>(
+    initialSignals ?? { date: submittedDate, signals: [] },
+  );
 
   const fetchSignals = async () => {
     if (!submittedDate) return;
@@ -133,7 +132,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   useEffect(() => {
     fetchSignals();
   }, [submittedDate]);
-
 
   useEffect(() => {
     if (signalApiResponse?.signals) {
