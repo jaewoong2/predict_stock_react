@@ -1,5 +1,4 @@
 import { CardSkeleton, CarouselSkeleton } from "@/components/ui/skeletons";
-import HeroSection from "./HeroSection";
 
 export default function DashboardLoading() {
   return (
