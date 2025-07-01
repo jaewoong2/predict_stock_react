@@ -1,6 +1,8 @@
 import MarketForCastCard from "@/components/news/MarketForcastCard";
 import { newsService } from "@/services/newsService";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }

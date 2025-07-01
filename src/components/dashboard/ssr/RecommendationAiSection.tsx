@@ -1,6 +1,8 @@
 import { signalApiService } from "@/services/signalService";
 import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
 
+export const revalidate = 3600;
+
 interface Props {
   date: string;
 }
