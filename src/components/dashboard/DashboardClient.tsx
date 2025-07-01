@@ -3,9 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalData, SignalAPIResponse } from "@/types/signal";
-import { MarketNewsResponse } from "@/types/news";
 import { signalApiService } from "@/services/signalService";
-import { newsService } from "@/services/newsService";
 
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
@@ -20,11 +18,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MarketNewsCarousel } from "@/components/news/MarketNewsCarousel";
+import MarketNewsSection from "@/components/news/MarketNewsSection";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import MarketForCastCard from "@/components/news/MarketForcastCard";
 import { withDateValidation } from "@/components/withDateValidation";
-import { CarouselSkeleton } from "@/components/ui/skeletons";
 import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
 import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
 import RecommendationCard from "@/components/signal/RecommendationCard";
@@ -33,14 +30,12 @@ import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 
 interface DashboardClientProps {
-  initialSignals: SignalAPIResponse;
-  initialMarketNews: MarketNewsResponse | null;
-  initialFavorites: string[];
+  initialSignals?: SignalAPIResponse;
+  initialFavorites?: string[];
 }
 
 const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   initialSignals,
-  initialMarketNews,
   initialFavorites,
 }) => {
   const {
@@ -59,11 +54,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const STORAGE_KEY = "favoriteTickers";
-  const [favorites, setFavorites] = useState<string[]>(initialFavorites);
-  const [marketNews, setMarketNews] = useState<MarketNewsResponse | null>(
-    initialMarketNews,
-  );
-  const [isMarketNewsLoading, setIsMarketNewsLoading] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>(initialFavorites ?? []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -109,7 +100,9 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   }, [q]);
 
   const [signalApiResponse, setSignalApiResponse] =
-    useState<SignalAPIResponse>(initialSignals);
+    useState<SignalAPIResponse>(
+      initialSignals ?? { date: submittedDate, signals: [] },
+    );
 
   const fetchSignals = async () => {
     if (!submittedDate) return;
@@ -141,24 +134,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     fetchSignals();
   }, [submittedDate]);
 
-  const fetchMarketNews = async () => {
-    setIsMarketNewsLoading(true);
-    try {
-      const data = await newsService.getMarketNewsSummary({
-        news_type: "market",
-        news_date: submittedDate,
-      });
-      setMarketNews(data);
-    } catch {
-      setMarketNews(null);
-    } finally {
-      setIsMarketNewsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMarketNews();
-  }, [submittedDate]);
 
   useEffect(() => {
     if (signalApiResponse?.signals) {
@@ -410,11 +385,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
           <div className="grid h-full w-full max-w-full grid-cols-[1fr_auto] gap-4 max-sm:flex max-sm:flex-col">
             <DateSelectorWrapper popover={false} />
             <div className="grid h-full w-full grid-cols-1">
-              {!isMarketNewsLoading ? (
-                <MarketNewsCarousel items={marketNews?.result ?? []} />
-              ) : (
-                <CarouselSkeleton itemCount={10} />
-              )}
+              <MarketNewsSection />
             </div>
           </div>
         </div>
