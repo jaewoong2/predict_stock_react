@@ -9,6 +9,9 @@ import MarketNewsSection from "@/components/dashboard/ssr/MarketNewsSection";
 import SignalsSection from "@/components/dashboard/ssr/SignalsSection";
 import { CardSkeleton, CarouselSkeleton } from "@/components/ui/skeletons";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
+import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
+import DashboardFooter from "@/components/dashboard/DashboardFooter";
+import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 
 export const metadata = {
   title: "Dashboard",
@@ -43,58 +46,74 @@ export default async function DashboardPage({
           >
             <MarketForecastSection date={date} />
           </Suspense>
-          <Suspense
-            fallback={
-              <CardSkeleton
-                titleHeight={6}
-                cardClassName="shadow-none"
-                contentHeight={24}
-              />
-            }
-          >
-            <WeeklyActionCountSection date={date} />
-          </Suspense>
-          <Suspense
-            fallback={
-              <CardSkeleton
-                titleHeight={6}
-                cardClassName="shadow-none"
-                contentHeight={24}
-              />
-            }
-          >
-            <WeeklyPriceMovementSection date={date} />
-          </Suspense>
-          <Suspense
-            fallback={
-              <CardSkeleton
-                titleHeight={6}
-                cardClassName="shadow-none"
-                contentHeight={24}
-              />
-            }
-          >
-            <RecommendationAiSection date={date} />
-          </Suspense>
-          <Suspense
-            fallback={
-              <CardSkeleton
-                titleHeight={6}
-                cardClassName="shadow-none"
-                contentHeight={24}
-              />
-            }
-          >
-            <RecommendationNewsSection date={date} />
-          </Suspense>
+          <SummaryTabsCard
+            tabs={[
+              {
+                label: "Weekly Top Signals",
+                value: "signals",
+                component: (
+                  <WeeklyActionCountSection
+                    title="Weekly Top Buy Signals"
+                    date={date}
+                    action="Buy"
+                  />
+                ),
+              },
+              {
+                label: "Weekly Top Price Movements",
+                value: "price",
+                component: (
+                  <WeeklyPriceMovementSection
+                    title="Weekly Top Up Price Movements"
+                    date={date}
+                    direction="up"
+                  />
+                ),
+              },
+            ]}
+          />
+          <SummaryTabsCard
+            tabs={[
+              {
+                label: "AI Recommendations",
+                value: "ai",
+                component: (
+                  <RecommendationAiSection
+                    date={date}
+                    title="Today Ai's Recommendation"
+                  />
+                ),
+              },
+              {
+                label: "News Recommendations",
+                value: "news",
+                component: (
+                  <RecommendationNewsSection
+                    title="Today News Recommendation"
+                    recommendation="Buy"
+                    badgeColor="bg-green-100 text-green-800"
+                    date={date}
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
         <Suspense fallback={<CarouselSkeleton itemCount={10} />}>
-          <MarketNewsSection date={date} />
+          <div className="my-4 flex items-center gap-4">
+            <div className="grid h-full w-full max-w-full grid-cols-[1fr_auto] gap-4 max-sm:flex max-sm:flex-col">
+              <DateSelectorWrapper popover={false} />
+              <div className="grid h-full w-full grid-cols-1">
+                <MarketNewsSection date={date} />
+              </div>
+            </div>
+          </div>
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />
         </Suspense>
       </div>
+      <DashboardFooter />
     </>
   );
 }

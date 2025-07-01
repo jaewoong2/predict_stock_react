@@ -27,7 +27,6 @@ export default async function SignalsSection({ date }: Props) {
   return (
     <DashboardClient
       initialSignals={initialSignals}
-      initialMarketNews={initialMarketNews}
       initialFavorites={initialFavorites}
     />
   );

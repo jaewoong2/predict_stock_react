@@ -1,10 +1,9 @@
-"use client";
 const DashboardFooter = () => {
   return (
-    <footer className="border-t bg-muted/50 mt-10 py-6 text-sm leading-relaxed">
+    <footer className="bg-muted/50 mt-10 border-t py-6 text-sm leading-relaxed">
       <div className="container mx-auto max-w-5xl space-y-2">
         <h2 className="font-semibold">투자정보 제공 서비스 관련 고지</h2>
-        <ul className="list-disc pl-5 space-y-1">
+        <ul className="list-disc space-y-1 pl-5">
           <li>
             본 서비스는 교육·정보 제공 목적으로 종목 관련 데이터를 분석하여
             시각화하거나 지표를 설명합니다. 특정 종목의 매수·매도 권유 또는
