@@ -12,21 +12,63 @@ import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
+import { Metadata } from "next";
+import { signalApiService } from "@/services/signalService";
 
-export const metadata = {
-  title: "Dashboard",
-  description: "Signal dashboard",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    date?: string;
+    signalId?: string;
+    strategy_type?: string;
+  }>;
+}): Promise<Metadata> {
+  const metadata = {
+    title: "Forecast US Stock Prices | Spam",
+    description: "Forecast US stock prices using AI models and market signals.",
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+  const params = await searchParams;
+  const date = typeof params?.date === "string" ? params.date : today;
+  const signalId = params?.signalId;
+  const strategyType = params?.strategy_type;
+
+  if (signalId) {
+    const [symbol, aiModel] = signalId.split("_");
+    try {
+      const data = await signalApiService.getSignalByNameAndDate(
+        [symbol],
+        date,
+        strategyType,
+      );
+      const signal = data.signals.find(
+        (s) => s.signal.ticker === symbol && s.signal.ai_model === aiModel,
+      );
+      if (signal) {
+        return {
+          title: `Forecast ${signal.signal.ticker} Prices | ${signal.signal.ai_model} Model`,
+          description: signal.signal.result_description ?? metadata.description,
+        } satisfies Metadata;
+      }
+    } catch (error) {
+      console.error("Failed to generate metadata", error);
+    }
+  }
+
+  return metadata;
+}
 
 export const revalidate = 3600;
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { date?: string };
+  searchParams: Promise<{ date?: string }>;
 }) {
   const today = new Date().toISOString().split("T")[0];
-
+  // 이 줄을 제거하고 searchParams를 직접 사용
   const params = await searchParams;
   const date = typeof params?.date === "string" ? params.date : today;
 
