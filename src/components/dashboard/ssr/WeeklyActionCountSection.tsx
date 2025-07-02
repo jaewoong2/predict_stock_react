@@ -1,5 +1,6 @@
 import { signalApiService } from "@/services/signalService";
 import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const revalidate = 3600;
 
@@ -14,15 +15,31 @@ export default async function WeeklyActionCountSection({
   title,
   action = "Buy",
 }: Props) {
-  const data = await signalApiService.getWeeklyActionCount({
-    action: "Buy",
-    reference_date: date,
-  });
-  return (
-    <WeeklyActionCountCard
-      title={title ?? "Weekly Action Count"}
-      params={{ action: action, reference_date: date }}
-      data={data}
-    />
-  );
+  try {
+    const data = await signalApiService.getWeeklyActionCount({
+      action: "Buy",
+      reference_date: date,
+    });
+    return (
+      <WeeklyActionCountCard
+        title={title ?? "Weekly Action Count"}
+        params={{ action: action, reference_date: date }}
+        data={data}
+      />
+    );
+  } catch (error) {
+    console.error("WeeklyActionCountSection error", error);
+    return (
+      <Card className="shadow-none">
+        <CardHeader>
+          <CardTitle className="font-medium">
+            {title ?? "Weekly Action Count"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">데이터 로딩 중 오류가 발생했습니다.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 }
