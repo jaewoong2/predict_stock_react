@@ -1,19 +1,8 @@
-FROM node:22-alpine AS base
+FROM node:18-alpine AS base
 
-# Install dependencies needed for certain node modules
-RUN apk add --no-cache --virtual .gyp python3 make g++ \
-    && apk del .gyp
-RUN apk add --no-cache python3 py3-pip && pip install awscli
-
-RUN apk add --update --no-cache python3 build-base gcc && ln -sf /usr/bin/python3 /usr/bin/python
-
-# Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat yarn
 WORKDIR /app
-
-# Install yarn package manager
-RUN apk add --no-cache yarn
 
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
@@ -28,12 +17,15 @@ RUN \
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+RUN apk add --no-cache python3 py3-pip build-base gcc make g++ \
+    && pip install awscli \
+    && ln -sf /usr/bin/python3 /usr/bin/python
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN yarn global add pnpm && pnpm run build
+RUN sh ./upload-to-s3.sh
 
-RUN npm run build
-
-FROM base AS runner
+FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
@@ -49,8 +41,6 @@ RUN chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/upload-to-s3.sh ./upload-to-s3.sh
-RUN sh ./upload-to-s3.sh
 
 # Use /tmp/next/cache for storeing all caching
 RUN mkdir -p .next/cache 
