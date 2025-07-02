@@ -31,7 +31,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+RUN npm run build \
+    && sh ./upload-to-s3.sh
 
 FROM base AS runner
 WORKDIR /app
@@ -49,8 +50,6 @@ RUN chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/upload-to-s3.sh ./upload-to-s3.sh
-RUN sh ./upload-to-s3.sh
 
 # Use /tmp/next/cache for storeing all caching
 RUN mkdir -p .next/cache 
