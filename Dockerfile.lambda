@@ -33,7 +33,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # ADD Pnpm
-RUN yarn global add pnpm && pnpm run build
+RUN yarn global add pnpm && pnpm run build \
+    && sh ./upload-to-s3.sh
 
 FROM base AS runner
 WORKDIR /app
@@ -51,8 +52,6 @@ RUN chown nextjs:nodejs .next
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/upload-to-s3.sh ./upload-to-s3.sh
-RUN sh ./upload-to-s3.sh
 
 ### aws-lambda-adapter
 COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.0 /lambda-adapter /opt/extensions/lambda-adapter
