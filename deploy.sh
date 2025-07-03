@@ -11,7 +11,7 @@ LAMBDA_FUNCTION_NAME="stock_alarm_react"  # Lambda 함수 이름
 aws ecr get-login-password --region $AWS_REGION --profile $AWS_PROFILE | docker login --username AWS --password-stdin $ECR_REPOSITORY
 
 # Docker Compose로 빌드
-docker-compose build
+COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
 # ECR로 푸쉬
 docker-compose push

@@ -5,8 +5,14 @@ services:
     image: 849441246713.dkr.ecr.ap-northeast-2.amazonaws.com/stock-predict:latest
     build:
       dockerfile: Dockerfile.lambda
+      context: .
       args:
         PROJECT_NAME: stock-predict
+        BUILDPLATFORM: linux/amd64,linux/arm64
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
     environment:
       - NODE_ENV=production
       - PROJECT_NAME=stock-predict
