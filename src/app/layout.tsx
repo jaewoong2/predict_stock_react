@@ -4,7 +4,7 @@ import Freesentation from "./fonts";
 import Header from "@/components/header";
 import { SignalSearchParamsProvider } from "@/hooks/useSignalSearchParams";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
-import { Suspense } from "react";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Stock Predict AI LLM",
@@ -19,14 +19,26 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={Freesentation.className}>
-        <Suspense>
-          <ReactQueryProvider>
-            <SignalSearchParamsProvider>
-              <Header />
-              {children}
-            </SignalSearchParamsProvider>
-          </ReactQueryProvider>
-        </Suspense>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-GFEX2C3MBB"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-GFEX2C3MBB');
+          `}
+        </Script>
+
+        <ReactQueryProvider>
+          <SignalSearchParamsProvider>
+            <Header />
+            {children}
+          </SignalSearchParamsProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

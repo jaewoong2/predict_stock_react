@@ -24,9 +24,7 @@ const nextConfig = {
     },
   ],
   assetPrefix:
-    process.env.NODE_ENV === "development"
-      ? undefined
-      : "https://stock.bamtoly.com",
+    process.env.NODE_ENV === "development" ? null : "https://stock.bamtoly.com",
   output: "standalone",
   images: {
     remotePatterns: [
