@@ -14,7 +14,6 @@ import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 import { signalApiService } from "@/services/signalService";
-
 export async function generateMetadata({
   searchParams,
 }: {
@@ -24,17 +23,60 @@ export async function generateMetadata({
     strategy_type?: string;
   }>;
 }): Promise<Metadata> {
-  const metadata = {
-    title: "Forecast US Stock Prices | Spam",
-    description: "Forecast US stock prices using AI models and market signals.",
-  };
-
   const today = new Date().toISOString().split("T")[0];
   const params = await searchParams;
   const date = typeof params?.date === "string" ? params.date : today;
   const signalId = params?.signalId;
   const strategyType = params?.strategy_type;
 
+  // 기본 메타데이터
+  const baseMetadata = {
+    title: "Forecast US Stock Prices | Spam",
+    description: "Forecast US stock prices using AI models and market signals.",
+    keywords: [
+      "stock forecast",
+      "AI prediction",
+      "market signals",
+      "stock analysis",
+      "financial analysis",
+    ],
+    authors: [{ name: "Spam Finance" }],
+    category: "Finance",
+    creator: "Spam Finance Team",
+    publisher: "Spam Finance",
+    robots: "index, follow",
+    viewport: "width=device-width, initial-scale=1",
+    alternates: {
+      canonical: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
+    },
+    openGraph: {
+      title: "Forecast US Stock Prices | Spam",
+      description:
+        "Forecast US stock prices using AI models and market signals.",
+      url: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
+      siteName: "Spam Finance",
+      locale: "ko_KR",
+      type: "website",
+      images: [
+        {
+          url: "https://stock.bamtoly.com/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Spam Finance Dashboard Preview",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Forecast US Stock Prices | Spam",
+      description:
+        "Forecast US stock prices using AI models and market signals.",
+      images: ["https://stock.bamtoly.com/twitter-image.jpg"],
+      creator: "@spamfinance",
+    },
+  };
+
+  // 특정 주식 신호에 대한 메타데이터
   if (signalId) {
     const [symbol, aiModel] = signalId.split("_");
     try {
@@ -43,24 +85,52 @@ export async function generateMetadata({
         date,
         strategyType,
       );
+
       const signal = data.signals.find(
         (s) => s.signal.ticker === symbol && s.signal.ai_model === aiModel,
       );
+
       if (signal) {
+        const title = `Forecast ${signal.signal.ticker} Prices | ${signal.signal.ai_model} Model`;
+        const description =
+          signal.signal.result_description ?? baseMetadata.description;
+
         return {
-          title: `Forecast ${signal.signal.ticker} Prices | ${signal.signal.ai_model} Model`,
-          description: signal.signal.result_description ?? metadata.description,
-        } satisfies Metadata;
+          ...baseMetadata,
+          title,
+          description,
+          keywords: [
+            ...baseMetadata.keywords,
+            symbol,
+            aiModel,
+            `${symbol} forecast`,
+          ],
+          alternates: {
+            canonical: `https://stock.bamtoly.com/dashboard?signalId=${signalId}&date=${date}${strategyType ? `&strategy_type=${strategyType}` : ""}`,
+          },
+          openGraph: {
+            ...baseMetadata.openGraph,
+            title,
+            description,
+            url: `https://stock.bamtoly.com/dashboard?signalId=${signalId}&date=${date}`,
+          },
+          twitter: {
+            ...baseMetadata.twitter,
+            title,
+            description,
+          },
+        };
       }
     } catch (error) {
       console.error("Failed to generate metadata", error);
     }
   }
 
-  return metadata;
+  return baseMetadata;
 }
 
 export const revalidate = 3600;
+export const runtime = "edge"; // Use edge runtime for better performance
 
 export default async function DashboardPage({
   searchParams,

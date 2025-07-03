@@ -1,62 +1,62 @@
-FROM node:18-alpine AS base
+FROM node:22-alpine AS base
 
 FROM base AS deps
-RUN apk add --no-cache libc6-compat yarn
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+# 필요한 의존성만 설치
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile --production; \
+    elif [ -f package-lock.json ]; then npm ci --only=production; \
+    elif [ -f pnpm-lock.yaml ]; then apk add --no-cache --virtual .build-deps yarn && \
+        yarn global add pnpm && \
+        pnpm i --prod --frozen-lockfile && \
+        apk del .build-deps; \
     else echo "Lockfile not found." && exit 1; \
     fi
 
-
-# Rebuild the source code only when needed
+# 빌드 단계 최적화
 FROM base AS builder
 WORKDIR /app
-RUN apk add --no-cache python3 py3-pip build-base gcc make g++ \
-    && pip install awscli \
-    && ln -sf /usr/bin/python3 /usr/bin/python
+
+# 빌드에 필요한 의존성 설치 - AWS CLI는 apk를 통해 설치
+RUN apk add --no-cache --virtual .build-deps \
+    python3 build-base gcc make g++ \
+    aws-cli
+
+# 빌드에 필요한 파일만 복사
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# 빌드 실행
 RUN yarn global add pnpm && pnpm run build
 RUN sh ./upload-to-s3.sh
 
-FROM node:18-alpine AS runner
+# 최종 런타임 이미지
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# 필요한 디렉토리 생성 및 권한 설정
+RUN mkdir -p .next/cache && \
+    chown -R nextjs:nodejs .next
 
+# 필요한 파일만 복사
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-### aws-lambda-adapter
-COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.6.0 /lambda-adapter /opt/extensions/lambda-adapter
-
-# Use /tmp/next/cache for storeing all caching
-RUN mkdir -p .next/cache 
-RUN chown -R nextjs:nodejs .next
-
+# AWS Lambda Adapter
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adrsquo; /opt/extensions/lambda-adapter
 USER nextjs
 
 EXPOSE 3000
 
 ENV PORT 3000
-# set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
 CMD ["node", "server.js"]
-
-
