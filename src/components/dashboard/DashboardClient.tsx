@@ -19,8 +19,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { withDateValidation } from "@/components/withDateValidation";
-
 interface DashboardClientProps {
   initialSignals?: SignalAPIResponse;
   initialFavorites?: string[];
@@ -410,4 +408,4 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   );
 };
 
-export default withDateValidation(SignalAnalysisPage);
+export default SignalAnalysisPage;
