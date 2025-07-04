@@ -14,6 +14,7 @@ import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 import { signalApiService } from "@/services/signalService";
+import { validateAndRedirectDate } from "@/lib/serverActions";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -45,7 +46,6 @@ export async function generateMetadata({
     creator: "Spam Finance Team",
     publisher: "Spam Finance",
     robots: "index, follow",
-    viewport: "width=device-width, initial-scale=1",
     alternates: {
       canonical: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
     },
@@ -141,6 +141,7 @@ export default async function DashboardPage({
   // 이 줄을 제거하고 searchParams를 직접 사용
   const params = await searchParams;
   const date = typeof params?.date === "string" ? params.date : today;
+  await validateAndRedirectDate(date, "/dashboard");
 
   return (
     <>

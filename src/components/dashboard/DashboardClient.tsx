@@ -18,16 +18,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import MarketNewsSection from "@/components/news/MarketNewsSection";
-import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
-import MarketForCastCard from "@/components/news/MarketForcastCard";
+
 import { withDateValidation } from "@/components/withDateValidation";
-import RecommendationByAiCard from "@/components/signal/RecommendationByAICard";
-import { WeeklyPriceMovementCard } from "@/components/signal/WeeklyPriceMovementCard";
-import RecommendationCard from "@/components/signal/RecommendationCard";
-import { WeeklyActionCountCard } from "@/components/signal/WeeklyActionCountCard";
-import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
-import DashboardFooter from "@/components/dashboard/DashboardFooter";
 
 interface DashboardClientProps {
   initialSignals?: SignalAPIResponse;
