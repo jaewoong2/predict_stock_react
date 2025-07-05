@@ -7,6 +7,7 @@ import RecommendationAiSection from "@/components/dashboard/ssr/RecommendationAi
 import RecommendationNewsSection from "@/components/dashboard/ssr/RecommendationNewsSection";
 import MarketNewsSection from "@/components/dashboard/ssr/MarketNewsSection";
 import SignalsSection from "@/components/dashboard/ssr/SignalsSection";
+import MarketAnalysisSection from "@/components/dashboard/ssr/MarketAnalysisSection";
 import { CardSkeleton, CarouselSkeleton } from "@/components/ui/skeletons";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
@@ -15,6 +16,7 @@ import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 import { signalApiService } from "@/services/signalService";
 import { validateAndRedirectDate } from "@/lib/serverActions";
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -221,6 +223,17 @@ export default async function DashboardPage({
               </div>
             </div>
           </div>
+        </Suspense>
+        <Suspense
+          fallback={
+            <CardSkeleton
+              titleHeight={6}
+              cardClassName="shadow-none"
+              contentHeight={140}
+            />
+          }
+        >
+          <MarketAnalysisSection date={date} />
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />

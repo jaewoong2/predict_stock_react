@@ -27,7 +27,6 @@ export const validateAndRedirectDate = async (
   };
 
   const isBefore11AM = today.getHours() < 11;
-  console.log(today.getHours());
 
   let validDate: string;
 
@@ -48,12 +47,6 @@ export const validateAndRedirectDate = async (
     } else {
       validDate = date;
     }
-
-    if (isBefore11AM) {
-      const yesterday = new Date();
-      yesterday.setDate(today.getDate() - 1);
-      validDate = getClosestWorkingDay(yesterday);
-    }
   } else {
     // 날짜가 없으면 기본 날짜 설정
     validDate = todayFormatted;
@@ -72,7 +65,6 @@ export const validateAndRedirectDate = async (
   }
 
   if (!date || date !== validDate) {
-    console.log("Hello WOrld@@");
     redirect(`${path}?date=${validDate}`);
   }
 

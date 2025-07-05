@@ -126,7 +126,7 @@ export const useWeeklyPriceMovement = (
   options?: Omit<
     UseQueryOptions<WeeklyPriceMovementResponse, Error>,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   return useQuery<WeeklyPriceMovementResponse, Error>({
     queryKey: TICKER_KEYS.weeklyPriceMovement(params),
