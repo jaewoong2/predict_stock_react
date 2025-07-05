@@ -7,6 +7,7 @@ import {
   MarketNewsResponse,
   NewsRecommendationsResponse,
 } from "@/types/news";
+import { MarketAnalysis } from "@/types/market";
 
 export const MARKET_NEWS_KEYS = {
   all: ["marketNews"] as const,
@@ -69,6 +70,21 @@ export const useMarketForecast = (
   return useQuery<MarketForecastResponse[], Error>({
     queryKey: ["marketForecast", date, source],
     queryFn: () => newsService.getMarketForecast({ date, source }),
+    enabled: !!date && (options?.enabled === undefined || options.enabled),
+    ...options,
+  });
+};
+
+export const useMarketAnalysis = (
+  date: string,
+  options?: Omit<
+    UseQueryOptions<MarketAnalysis, Error>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  return useQuery<MarketAnalysis, Error>({
+    queryKey: ["marketAnalysis", date],
+    queryFn: () => newsService.getMarketAnalysis(date),
     enabled: !!date && (options?.enabled === undefined || options.enabled),
     ...options,
   });

@@ -43,3 +43,24 @@ export interface GetWeeklyPriceMovementParams {
   reference_date?: string;
   direction: "up" | "down";
 }
+
+export interface TickerOrderByRequest {
+  target_date?: string; // 'YYYY-MM-DD' 형식
+  direction?: "asc" | "desc";
+  field?: "close_change" | "volume_change";
+  limit?: number;
+}
+
+export interface StockData {
+  date: string;
+  symbol: string;
+  open_price: number;
+  high_price: number;
+  low_price: number;
+  close_price: number;
+  volume: number;
+  open_change: number;
+  close_change: number;
+  price_change: number;
+  volume_change: number;
+}

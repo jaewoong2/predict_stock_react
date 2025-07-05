@@ -11,7 +11,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative w-full overflow-hidden border-b py-16 md:py-24">
+    <section className="relative w-full overflow-hidden border-b py-8 md:py-12">
       {/* 그라디언트 배경 */}
       <div className="from-background via-background/95 to-primary/10 absolute inset-0 z-0 bg-gradient-to-br" />
 
@@ -35,7 +35,7 @@ const HeroSection = () => {
           </h1>
 
           <p className="text-muted-foreground mx-auto max-w-2xl text-base md:text-lg">
-            내 종목의 상황을 AI로 분석하고, 인사이트를 제공 해요
+            AI로 분석 하고 시장을 예측 했어요.
           </p>
 
           {/* 핵심 기능 아이콘 */}

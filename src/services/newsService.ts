@@ -10,6 +10,7 @@ import {
   NewsRecommendationsResponse,
 } from "@/types/news";
 import api from "./api";
+import { MarketAnalysis } from "@/types/market";
 
 export const newsService = {
   async getMarketNewsSummary({
@@ -58,5 +59,18 @@ export const newsService = {
     );
 
     return response.data;
+  },
+
+  async getMarketAnalysis(date: string): Promise<MarketAnalysis> {
+    try {
+      const res = await api.get<MarketAnalysis>("/news/market-analysis", {
+        params: { today: date },
+      });
+
+      return res.data;
+    } catch (error) {
+      console.error("Failed to fetch market analysis:", error);
+      throw error;
+    }
   },
 };
