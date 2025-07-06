@@ -15,7 +15,6 @@ import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 import { signalApiService } from "@/services/signalService";
-import { validateAndRedirectDate } from "@/lib/serverActions";
 
 export async function generateMetadata({
   searchParams,
@@ -137,13 +136,20 @@ export const runtime = "edge"; // Use edge runtime for better performance
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{
+    date?: string;
+    signalId?: string;
+    q?: string;
+    models?: string;
+    condition?: string;
+    page?: string;
+    pageSize?: string;
+    strategy_type?: string;
+  }>;
 }) {
   const today = new Date().toISOString().split("T")[0];
-  // 이 줄을 제거하고 searchParams를 직접 사용
   const params = await searchParams;
-  const date = typeof params?.date === "string" ? params.date : today;
-  await validateAndRedirectDate(date, "/dashboard");
+  const date = params?.date || today;
 
   return (
     <>

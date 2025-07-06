@@ -10,10 +10,6 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
   return (
     <div className="container mx-auto my-10 space-y-4 p-4">
       <Alert variant="destructive">
