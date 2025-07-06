@@ -144,11 +144,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     );
   }, [signalId, signalApiResponse?.signals]);
 
-  const seoTitle = selectedSignal
-    ? `${selectedSignal.signal.ticker} ${selectedSignal.signal.ai_model}`
-    : "Dashboard";
-  const seoDesc = selectedSignal?.signal.report_summary ?? "Signal dashboard";
-
   const handleRowClick = (signal: SignalData) => {
     const id = `${signal.signal.ticker}_${signal.signal.ai_model}`;
     setParams({

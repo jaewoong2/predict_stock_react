@@ -151,9 +151,9 @@ function PopularStocksTable({
               const isPriceDown = price_change < 0;
               const isVolumeUp = volume_change > 0;
               const priceChangeColor = isPriceUp
-                ? "text-red-500"
+                ? "text-green-500"
                 : isPriceDown
-                  ? "text-blue-500"
+                  ? "text-red-500"
                   : "text-gray-500";
 
               const formattedPrice = close_price.toLocaleString("en-US", {
