@@ -24,7 +24,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Link from "next/link";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 
 type Props = {
@@ -125,10 +125,10 @@ function PopularStocksTable({
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-  const { setParams } = useSignalSearchParams();
+  const router = useRouter();
 
   const onClickSymbol = (symbol: string) => {
-    setParams({ signalId: `${symbol}_GOOGLE` });
+    router.push(`/dashboard/d/${symbol}?model=GOOGLE`);
   };
 
   return (

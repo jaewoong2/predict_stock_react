@@ -5,7 +5,7 @@ import { useWeeklyPriceMovement } from "@/hooks/useTicker";
 import { GetWeeklyPriceMovementParams, WeeklyPriceMovementResponse } from "@/types/ticker";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 
 interface WeeklyPriceMovementCardProps {
@@ -19,7 +19,7 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   params,
   data: initialData,
 }) => {
-  const { setParams } = useSignalSearchParams();
+  const router = useRouter();
 
   const { data, isLoading, error } = useWeeklyPriceMovement(params, {
     select(data) {
@@ -38,7 +38,7 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   });
 
   const onClickTicker = (ticker: string) => {
-    setParams({ signalId: `${ticker}_OPENAI` });
+    router.push(`/dashboard/d/${ticker}?model=OPENAI`);
   };
 
   if (isLoading) {
