@@ -28,12 +28,12 @@ export function MomentumSectorsCard({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue={defaultValue}>
-          <TabsList className="mb-4 w-full">
+          <TabsList className="mb-4 w-full max-md:flex max-md:flex-col">
             {sectors.map((sector) => (
               <TabsTrigger
                 key={sector.sector_ranking}
                 value={sector.sector}
-                className="flex items-center gap-1.5"
+                className="flex w-full items-center gap-1.5"
               >
                 <span className="hidden sm:inline">
                   {sector.sector_ranking}.
@@ -48,7 +48,7 @@ export function MomentumSectorsCard({
               value={sector.sector}
               className="space-y-4"
             >
-              <div className="space-y-3">
+              <div className="space-y-3 pt-4">
                 <h4 className="flex items-center gap-1.5 text-sm font-medium">
                   <TrendingUp className="h-4 w-4 text-green-500" />
                   섹터 모멘텀 분석
