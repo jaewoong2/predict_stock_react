@@ -9,9 +9,9 @@ import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "@/components/signal/SignalListWrapper";
-import { SignalDetailSection } from "@/components/signal/SignalDetailSection";
 import SignalSearchInput from "@/components/signal/SignalSearchInput";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 import { InfoIcon, XIcon } from "lucide-react";
 import {
   Tooltip,
@@ -31,13 +31,14 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   const {
     date,
     q,
-    signalId,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
     page, // 페이지 인덱스 추가
     pageSize, // 페이지 크기 추가
     setParams,
   } = useSignalSearchParams();
+
+  const router = useRouter();
 
   const todayString = formatDate(new Date(), "yyyy-MM-dd");
   const submittedDate = date ?? todayString;
@@ -136,19 +137,11 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }
   }, [signalApiResponse?.signals]);
 
-  const selectedSignal = useMemo(() => {
-    if (!signalApiResponse?.signals || !signalId) return null;
-    const [symbol, model] = signalId.split("_");
-    return signalApiResponse.signals.find(
-      (s) => s.signal.ticker === symbol && s.signal.ai_model === model,
-    );
-  }, [signalId, signalApiResponse?.signals]);
 
   const handleRowClick = (signal: SignalData) => {
-    const id = `${signal.signal.ticker}_${signal.signal.ai_model}`;
-    setParams({
-      signalId: id, // 행 클릭 시 해당 시그널 ID 설정
-    });
+    router.push(
+      `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
+    );
   };
 
   // SignalSearchInput에서 선택된 티커가 변경될 때 호출
@@ -158,7 +151,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
     setParams({
       q: newQ, // 새로운 티커 문자열로 q 업데이트
-      signalId: null, // 티커 검색 변경 시 특정 시그널 선택은 초기화
       page: "0",
     });
   };
@@ -392,13 +384,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         onPaginationChange={handlePaginationChange}
       />
 
-      <SignalDetailSection
-        isLoading={isLoading}
-        hasSignals={
-          !!signalApiResponse?.signals && signalApiResponse.signals.length > 0
-        }
-        error={error}
-      />
     </>
   );
 };

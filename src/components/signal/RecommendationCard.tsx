@@ -6,6 +6,7 @@ import { NewsRecommendationsResponse } from "@/types/news";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 
 const RecommendationCard: FC<{
@@ -14,7 +15,8 @@ const RecommendationCard: FC<{
   badgeColor: string;
   data?: NewsRecommendationsResponse;
 }> = ({ title, recommendation, badgeColor, data: initialData }) => {
-  const { setParams, date } = useSignalSearchParams();
+  const { date } = useSignalSearchParams();
+  const router = useRouter();
   const { data, isLoading, error } = useNewsRecommendations(
     {
       recommendation,
@@ -28,7 +30,7 @@ const RecommendationCard: FC<{
   );
 
   const onClickTicker = (ticker: string) => {
-    setParams({ signalId: `${ticker}_OPENAI` });
+    router.push(`/dashboard/d/${ticker}?model=OPENAI`);
   };
 
   if (isLoading) {

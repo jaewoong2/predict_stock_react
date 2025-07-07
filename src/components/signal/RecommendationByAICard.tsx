@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { SignalAPIResponse } from "@/types/signal";
@@ -12,7 +13,8 @@ const RecommendationByAiCard: FC<{
   title: string;
   data?: SignalAPIResponse;
 }> = ({ title, data: initialData }) => {
-  const { setParams, date } = useSignalSearchParams();
+  const { date } = useSignalSearchParams();
+  const router = useRouter();
   const { data, isLoading, error } = useSignalDataByNameAndDate(
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),
@@ -20,10 +22,7 @@ const RecommendationByAiCard: FC<{
   );
 
   const onClickTicker = (ticker: string, model: string) => {
-    setParams({
-      signalId: `${ticker}_${model}`,
-      strategy_type: "AI_GENERATED",
-    });
+    router.push(`/dashboard/d/${ticker}?model=${model}&strategy_type=AI_GENERATED`);
   };
 
   if (isLoading) {
