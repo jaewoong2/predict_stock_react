@@ -3,6 +3,7 @@ import {
   useQuery,
   useQueryClient,
   UseQueryOptions,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import {
   TickerCreate,
@@ -143,11 +144,9 @@ export const useGetTickerByDiffrences = (
   params: TickerOrderByRequest,
   options?: Omit<UseQueryOptions<StockData[], Error>, "queryKey" | "queryFn">,
 ) => {
-  return useQuery<StockData[], Error>({
+  return useSuspenseQuery<StockData[], Error>({
     queryKey: TICKER_KEYS.list(JSON.stringify(params)),
     queryFn: () => tickerService.getPopularStocks(params),
     ...options,
-    enabled:
-      !!params.direction && (options?.enabled === undefined || options.enabled),
   });
 };
