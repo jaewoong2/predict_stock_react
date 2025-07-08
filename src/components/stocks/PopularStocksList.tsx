@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { getPopularStocks } from "@/services/tickerService";
 import { StockData } from "@/types/ticker";
 import {
   Table,
@@ -23,9 +21,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
+import { useGetTickerByDiffrences } from "@/hooks/useTicker";
 
 type Props = {
   date: string;
@@ -33,32 +31,14 @@ type Props = {
 };
 
 export function PopularStocksList({ date, viewType = "table" }: Props) {
-  const [data, setData] = useState<StockData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const stocksData = await getPopularStocks({
-          direction: "desc",
-          limit: 20,
-          field: "close_change",
-          target_date: date,
-        });
-        setData(stocksData || []);
-      } catch (error) {
-        console.error("Failed to fetch popular stocks:", error);
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [date]);
+  const { data, isLoading: loading } = useGetTickerByDiffrences({
+    direction: "desc",
+    limit: 20,
+    field: "close_change",
+    target_date: date,
+  });
 
   if (loading) {
     return <LoadingState />;

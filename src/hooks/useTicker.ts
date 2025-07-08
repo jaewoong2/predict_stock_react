@@ -10,6 +10,8 @@ import {
   TickerMultiDateQuery,
   GetWeeklyPriceMovementParams,
   WeeklyPriceMovementResponse,
+  StockData,
+  TickerOrderByRequest,
 } from "../types/ticker";
 import { tickerService } from "../services/tickerService";
 
@@ -131,6 +133,19 @@ export const useWeeklyPriceMovement = (
   return useQuery<WeeklyPriceMovementResponse, Error>({
     queryKey: TICKER_KEYS.weeklyPriceMovement(params),
     queryFn: () => tickerService.getWeeklyPriceMovement(params),
+    ...options,
+    enabled:
+      !!params.direction && (options?.enabled === undefined || options.enabled),
+  });
+};
+
+export const useGetTickerByDiffrences = (
+  params: TickerOrderByRequest,
+  options?: Omit<UseQueryOptions<StockData[], Error>, "queryKey" | "queryFn">,
+) => {
+  return useQuery<StockData[], Error>({
+    queryKey: TICKER_KEYS.list(JSON.stringify(params)),
+    queryFn: () => tickerService.getPopularStocks(params),
     ...options,
     enabled:
       !!params.direction && (options?.enabled === undefined || options.enabled),
