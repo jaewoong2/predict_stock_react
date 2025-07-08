@@ -13,16 +13,6 @@ const nextConfig = {
   env: {
     TZ: "Asia/Seoul",
   },
-  /* config options here */
-  rewrites: async () => [
-    {
-      source: "/api/:path*",
-      destination:
-        process.env.NODE_ENV === "development"
-          ? `http://localhost:8000/:path*`
-          : "https://stock-api.bamtoly.com/:path*",
-    },
-  ],
   assetPrefix:
     process.env.NODE_ENV === "development" ? null : "https://stock.bamtoly.com",
   output: "standalone",

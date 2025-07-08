@@ -3,7 +3,7 @@ import axios from "axios";
 // 환경에 따른 API 기본 URL 설정
 const getBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
-    return process.env.NEXT_PUBLIC_API_LOCAL_URL || "http://localhost:8000/";
+    return process.env.NEXT_PUBLIC_API_LOCAL_URL || "http://localhost:8001/";
   }
   return (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
