@@ -80,10 +80,15 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   );
 
   const data = useMemo(() => {
-    return signals.data?.signals.find(
-      (value) =>
-        value.signal.ai_model === aiModel && value.signal.ticker === symbol,
-    );
+    try {
+      return signals.data?.signals.find(
+        (value) =>
+          value.signal.ai_model === aiModel && value.signal.ticker === symbol,
+      );
+    } catch (error) {
+      console.error("Error in useMemo:", error);
+      return null;
+    }
   }, [aiModel, signals.data?.signals, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
@@ -113,6 +118,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   const mounted = useMounted();
 
   if (!data || !mounted) {
+    console.error("Data or mounted state is invalid:", { data, mounted });
     return null;
   }
 
