@@ -86,21 +86,20 @@ export const tickerService = {
     );
     return response.data;
   },
+
+  getPopularStocks: async ({
+    ...params
+  }: TickerOrderByRequest): Promise<StockData[]> => {
+    try {
+      const response = await api.get<StockData[]>("/tickers/order-by/date", {
+        params,
+      });
+
+      // API 응답 데이터를 UI에 맞게 변환
+      return response.data;
+    } catch (error) {
+      console.error("인기 주식 정보를 가져오는 중 오류 발생:", error);
+      return [];
+    }
+  },
 };
-
-// 인기 주식 정보를 가져오는 서비스 함수 추가
-export async function getPopularStocks({
-  ...params
-}: TickerOrderByRequest): Promise<StockData[]> {
-  try {
-    const response = await api.get<StockData[]>("/tickers/order-by/date", {
-      params,
-    });
-
-    // API 응답 데이터를 UI에 맞게 변환
-    return response.data;
-  } catch (error) {
-    console.error("인기 주식 정보를 가져오는 중 오류 발생:", error);
-    return [];
-  }
-}
