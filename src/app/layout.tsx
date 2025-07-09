@@ -19,6 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
+  // modal이 NaN인지 확인하고 처리
+  const safeChidren =
+    typeof children === "object" && children !== null ? children : null;
+
+  const safeModal = typeof modal === "object" && modal !== null ? modal : null;
+
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={Freesentation.className}>
@@ -39,8 +45,8 @@ export default function RootLayout({
           <ReactQueryProvider>
             <SignalSearchParamsProvider>
               <Header />
-              {children}
-              {modal}
+              {safeChidren}
+              {safeModal}
             </SignalSearchParamsProvider>
           </ReactQueryProvider>
         </Suspense>
