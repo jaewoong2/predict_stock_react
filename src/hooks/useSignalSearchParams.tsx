@@ -198,9 +198,12 @@ export function SignalSearchParamsProvider({
 
   const value = useMemo(() => ({ ...params, setParams }), [params, setParams]);
 
+  const safeChidren =
+    typeof children === "object" && children !== null ? children : null;
+
   return (
     <SignalSearchParamsContext.Provider value={value}>
-      {children}
+      {safeChidren}
     </SignalSearchParamsContext.Provider>
   );
 }
