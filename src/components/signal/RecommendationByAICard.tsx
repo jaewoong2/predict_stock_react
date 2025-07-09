@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { SignalAPIResponse } from "@/types/signal";
+import Link from "next/link";
 
 const RecommendationByAiCard: FC<{
   title: string;
@@ -22,7 +23,9 @@ const RecommendationByAiCard: FC<{
   );
 
   const onClickTicker = (ticker: string, model: string) => {
-    router.push(`/dashboard/d/${ticker}?model=${model}&strategy_type=AI_GENERATED`);
+    router.push(
+      `/dashboard/d/${ticker}?model=${model}&strategy_type=AI_GENERATED`,
+    );
   };
 
   if (isLoading) {
@@ -68,16 +71,18 @@ const RecommendationByAiCard: FC<{
             {data.signals.map(
               ({ signal: item }, index) =>
                 item.action === "buy" && (
-                  <Badge
+                  <Link
+                    prefetch={false}
                     key={item.ticker + item.ai_model + item.timestamp + index}
-                    variant={"secondary"}
-                    className="cursor-pointer rounded-md border px-3 transition-colors hover:bg-green-100"
-                    onClick={() =>
-                      onClickTicker(item.ticker, item.ai_model || "OPENAI")
-                    }
+                    href={`/dashboard/d/${item.ticker}?model=${item.ai_model || "OPENAI"}&strategy_type=AI_GENERATED`}
                   >
-                    <h3 className="text-xs">{item.ticker}</h3>
-                  </Badge>
+                    <Badge
+                      variant={"secondary"}
+                      className="cursor-pointer rounded-md border px-3 transition-colors hover:bg-green-100"
+                    >
+                      <h3 className="text-xs">{item.ticker}</h3>
+                    </Badge>
+                  </Link>
                 ),
             )}
           </div>

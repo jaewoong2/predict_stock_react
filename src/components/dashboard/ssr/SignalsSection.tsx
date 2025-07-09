@@ -14,7 +14,10 @@ export default async function SignalsSection({ date }: Props) {
   try {
     const [initialSignals] = await Promise.all([
       signalApiService.getSignalsByDate(date),
-      newsService.getMarketNewsSummary({ news_type: "market", news_date: date }),
+      newsService.getMarketNewsSummary({
+        news_type: "market",
+        news_date: date,
+      }),
     ]);
 
     let initialFavorites: string[] = [];
