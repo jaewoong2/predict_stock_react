@@ -1,17 +1,23 @@
+"use client";
 import { SignalDetailView } from "@/components/signal/SignalDetailView";
+import { Suspense, use } from "react";
 
-export default async function ModalPage({
-  params,
+export default function ModalPage({
   searchParams,
+  params,
 }: {
   params: Promise<{ symbol: string }>;
   searchParams: Promise<{ model?: string; date?: string }>;
 }) {
-  const model = (await searchParams).model ?? "OPENAI";
-  const date =
-    (await searchParams).date ?? new Date().toISOString().split("T")[0];
-  const symbol = (await params).symbol;
+  const searchParams_ = use(searchParams);
+  const { model = "OPENAI" } = searchParams_;
+  const params_ = use(params);
+  const { symbol } = params_;
+
+  const { date = new Date().toISOString().split("T")[0] } = use(searchParams);
   return (
-    <SignalDetailView open={true} symbol={symbol} aiModel={model} date={date} />
+    <Suspense>
+      <SignalDetailView symbol={symbol} aiModel={model} date={date} />
+    </Suspense>
   );
 }

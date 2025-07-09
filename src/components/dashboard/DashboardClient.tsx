@@ -137,10 +137,10 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }
   }, [signalApiResponse?.signals]);
 
-
   const handleRowClick = (signal: SignalData) => {
-    router.push(
+    router.replace(
       `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
+      { scroll: true },
     );
   };
 
@@ -383,7 +383,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         }}
         onPaginationChange={handlePaginationChange}
       />
-
     </>
   );
 };

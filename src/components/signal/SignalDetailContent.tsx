@@ -118,7 +118,6 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   const mounted = useMounted();
 
   if (!data || !mounted) {
-    console.error("Data or mounted state is invalid:", { data, mounted });
     return null;
   }
 

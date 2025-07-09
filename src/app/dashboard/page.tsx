@@ -26,10 +26,11 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata> {
   const today = new Date().toISOString().split("T")[0];
-  const params = await searchParams;
-  const date = typeof params?.date === "string" ? params.date : today;
-  const signalId = params?.signalId;
-  const strategyType = params?.strategy_type;
+  const searchParams_ = await searchParams;
+  const date =
+    typeof searchParams_.date === "string" ? searchParams_.date : today;
+  const signalId = searchParams_.signalId;
+  const strategyType = searchParams_.strategy_type || "OPENAI"; // 기본값 설정
 
   // 기본 메타데이터
   const baseMetadata = {
@@ -148,8 +149,7 @@ export default async function DashboardPage({
   }>;
 }) {
   const today = new Date().toISOString().split("T")[0];
-  const params = await searchParams;
-  const date = params?.date || today;
+  const date = (await searchParams)?.date || today;
 
   return (
     <>
