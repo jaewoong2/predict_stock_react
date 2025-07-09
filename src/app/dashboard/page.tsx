@@ -14,23 +14,18 @@ import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
-import { signalApiService } from "@/services/signalService";
 
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: Promise<{
     date?: string;
-    signalId?: string;
-    strategy_type?: string;
   }>;
 }): Promise<Metadata> {
   const today = new Date().toISOString().split("T")[0];
   const searchParams_ = await searchParams;
   const date =
     typeof searchParams_.date === "string" ? searchParams_.date : today;
-  const signalId = searchParams_.signalId;
-  const strategyType = searchParams_.strategy_type || "OPENAI"; // 기본값 설정
 
   // 기본 메타데이터
   const baseMetadata = {
@@ -78,56 +73,6 @@ export async function generateMetadata({
     },
   };
 
-  // 특정 주식 신호에 대한 메타데이터
-  if (signalId) {
-    const [symbol, aiModel] = signalId.split("_");
-    try {
-      const data = await signalApiService.getSignalByNameAndDate(
-        [symbol],
-        date,
-        strategyType,
-      );
-
-      const signal = data.signals.find(
-        (s) => s.signal.ticker === symbol && s.signal.ai_model === aiModel,
-      );
-
-      if (signal) {
-        const title = `Forecast ${signal.signal.ticker} Prices | ${signal.signal.ai_model} Model`;
-        const description =
-          signal.signal.result_description ?? baseMetadata.description;
-
-        return {
-          ...baseMetadata,
-          title,
-          description,
-          keywords: [
-            ...baseMetadata.keywords,
-            symbol,
-            aiModel,
-            `${symbol} forecast`,
-          ],
-          alternates: {
-            canonical: `https://stock.bamtoly.com/dashboard?signalId=${signalId}&date=${date}${strategyType ? `&strategy_type=${strategyType}` : ""}`,
-          },
-          openGraph: {
-            ...baseMetadata.openGraph,
-            title,
-            description,
-            url: `https://stock.bamtoly.com/dashboard?signalId=${signalId}&date=${date}`,
-          },
-          twitter: {
-            ...baseMetadata.twitter,
-            title,
-            description,
-          },
-        };
-      }
-    } catch (error) {
-      console.error("Failed to generate metadata", error);
-    }
-  }
-
   return baseMetadata;
 }
 
@@ -139,13 +84,6 @@ export default async function DashboardPage({
 }: {
   searchParams: Promise<{
     date?: string;
-    signalId?: string;
-    q?: string;
-    models?: string;
-    condition?: string;
-    page?: string;
-    pageSize?: string;
-    strategy_type?: string;
   }>;
 }) {
   const today = new Date().toISOString().split("T")[0];
