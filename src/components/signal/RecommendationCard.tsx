@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
+import Link from "next/link";
 
 const RecommendationCard: FC<{
   title: string;
@@ -28,10 +29,6 @@ const RecommendationCard: FC<{
       enabled: !initialData,
     },
   );
-
-  const onClickTicker = (ticker: string) => {
-    router.push(`/dashboard/d/${ticker}?model=OPENAI`);
-  };
 
   if (isLoading) {
     return (
@@ -61,7 +58,7 @@ const RecommendationCard: FC<{
   }
 
   return (
-    <Card className="h-full shadow-none w-fit max-md:w-full">
+    <Card className="h-full w-fit shadow-none max-md:w-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>{title}</span>
@@ -74,16 +71,20 @@ const RecommendationCard: FC<{
             해당 추천 유형의 종목이 없습니다.
           </p>
         ) : (
-          <div className="gap-2 flex flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {data.results.map((item) => (
-              <Badge
-                key={item.ticker}
-                variant={"secondary"}
-                className="border rounded-md px-3 cursor-pointer hover:bg-green-100 transition-colors"
-                onClick={() => onClickTicker(item.ticker)}
+              <Link
+                href={`/dashboard/d/${item.ticker}?model=OPENAI&date=${date}`}
+                prefetch={false}
+                key={item.ticker + date}
               >
-                <h3 className="text-xs">{item.ticker}</h3>
-              </Badge>
+                <Badge
+                  variant={"secondary"}
+                  className="cursor-pointer rounded-md border px-3 transition-colors hover:bg-green-100"
+                >
+                  <h3 className="text-xs">{item.ticker}</h3>
+                </Badge>
+              </Link>
             ))}
           </div>
         )}

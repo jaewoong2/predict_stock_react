@@ -22,12 +22,6 @@ const RecommendationByAiCard: FC<{
     "AI_GENERATED",
   );
 
-  const onClickTicker = (ticker: string, model: string) => {
-    router.push(
-      `/dashboard/d/${ticker}?model=${model}&strategy_type=AI_GENERATED`,
-    );
-  };
-
   if (isLoading) {
     return (
       <CardSkeleton
@@ -74,7 +68,7 @@ const RecommendationByAiCard: FC<{
                   <Link
                     prefetch={false}
                     key={item.ticker + item.ai_model + item.timestamp + index}
-                    href={`/dashboard/d/${item.ticker}?model=${item.ai_model || "OPENAI"}&strategy_type=AI_GENERATED`}
+                    href={`/dashboard/d/${item.ticker}?model=${item.ai_model || "OPENAI"}&strategy_type=AI_GENERATED&date=${date}`}
                   >
                     <Badge
                       variant={"secondary"}

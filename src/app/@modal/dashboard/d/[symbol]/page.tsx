@@ -1,15 +1,19 @@
 import { SignalDetailView } from "@/components/signal/SignalDetailView";
 import { Suspense } from "react";
 
-export default function ModalPage({
+export default async function ModalPage({
   params,
   searchParams,
 }: {
-  params: { symbol: string };
-  searchParams: { model?: string; date?: string; strategy_type?: string };
+  params: Promise<{ symbol: string }>;
+  searchParams: Promise<{
+    model?: string;
+    date?: string;
+    strategy_type?: string;
+  }>;
 }) {
-  const { symbol } = params;
-  const { model = "OPENAI", date } = searchParams;
+  const { symbol } = await params;
+  const { model = "OPENAI", date } = await searchParams;
 
   return (
     <Suspense>
