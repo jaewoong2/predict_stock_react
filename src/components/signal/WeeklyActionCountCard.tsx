@@ -2,11 +2,15 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyActionCount } from "@/hooks/useSignal";
-import { GetWeeklyActionCountParams, WeeklyActionCountResponse } from "@/types/signal";
+import {
+  GetWeeklyActionCountParams,
+  WeeklyActionCountResponse,
+} from "@/types/signal";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
+import Link from "next/link";
 
 interface WeeklyActionCountCardProps {
   title: string;
@@ -19,8 +23,6 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   params,
   data: initialData,
 }) => {
-  const router = useRouter();
-
   const { data, isLoading, error } = useWeeklyActionCount(params, {
     select(data) {
       return {
@@ -39,10 +41,6 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
     initialData,
     enabled: !initialData,
   });
-
-  const onClickTicker = (ticker: string) => {
-    router.push(`/dashboard/d/${ticker}?model=OPENAI`);
-  };
 
   if (isLoading) {
     return (
@@ -78,22 +76,29 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
         {data?.signals && data.signals.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {data.signals.map(({ ticker, count }) => (
-              <Badge
+              <Link
+                href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
+                prefetch={false}
                 key={ticker + count.join("-")}
-                variant="secondary"
-                className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
-                onClick={() => onClickTicker(ticker)}
               >
-                <span>{ticker}</span>
-                <span
-                  className={cn(
-                    "font-bold",
-                    params.action === "Buy" ? "text-green-600" : "text-red-600",
-                  )}
+                <Badge
+                  key={ticker + count.join("-")}
+                  variant="secondary"
+                  className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
                 >
-                  {count.reduce((sum, val) => sum + (val || 0), 0)}
-                </span>
-              </Badge>
+                  <span>{ticker}</span>
+                  <span
+                    className={cn(
+                      "font-bold",
+                      params.action === "Buy"
+                        ? "text-green-600"
+                        : "text-red-600",
+                    )}
+                  >
+                    {count.reduce((sum, val) => sum + (val || 0), 0)}
+                  </span>
+                </Badge>
+              </Link>
             ))}
           </div>
         ) : (

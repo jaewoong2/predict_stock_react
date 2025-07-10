@@ -249,7 +249,9 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                   ]}
                   value={aiModel}
                   onChange={(value) => {
-                    router.replace(`/dashboard/d/${symbol}?model=${value}`);
+                    router.replace(
+                      `/dashboard/d/${symbol}?model=${value}&date=${date}`,
+                    );
                   }}
                 />
               </div>

@@ -24,6 +24,7 @@ import {
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import { useGetTickerByDiffrences } from "@/hooks/useTicker";
+import Link from "next/link";
 
 type Props = {
   date: string;
@@ -61,6 +62,7 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
     <PopularStocksCard data={data} />
   ) : (
     <PopularStocksTable
+      date={date}
       data={data}
       currentPage={currentPage}
       itemsPerPage={itemsPerPage}
@@ -95,21 +97,18 @@ function PopularStocksTable({
   currentPage,
   itemsPerPage,
   setCurrentPage,
+  date,
 }: {
   data: StockData[];
   currentPage: number;
   itemsPerPage: number;
   setCurrentPage: (page: number) => void;
+  date: string;
 }) {
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
-  const router = useRouter();
-
-  const onClickSymbol = (symbol: string) => {
-    router.push(`/dashboard/d/${symbol}?model=GOOGLE`);
-  };
 
   return (
     <Card className="w-full shadow-none">
@@ -148,26 +147,39 @@ function PopularStocksTable({
               return (
                 <TableRow
                   key={symbol}
-                  onClick={() => onClickSymbol(symbol)}
                   className="cursor-pointer hover:bg-gray-50"
                 >
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{symbol}</span>
+                    <Link
+                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{symbol}</span>
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span>{formattedPrice}</span>
-                      <span className={cn(priceChangeColor, "text-xs")}>
-                        {formattedPriceChange}
-                      </span>
-                    </div>
+                    <Link
+                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                      prefetch={false}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{formattedPrice}</span>
+                        <span className={cn(priceChangeColor, "text-xs")}>
+                          {formattedPriceChange}
+                        </span>
+                      </div>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-right">
-                    {formattedVolumeChange}
+                    <Link
+                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                      prefetch={true}
+                    >
+                      {formattedVolumeChange}
+                    </Link>
                   </TableCell>
                 </TableRow>
               );

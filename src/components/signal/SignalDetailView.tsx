@@ -62,7 +62,7 @@ const formatDate = (
 };
 
 const formatCurrency = (amount: number | undefined | null) => {
-  if (amount == null) return "N/A"; // undefined와 null 모두 체크
+  if (amount == null || isNaN(amount)) return "N/A"; // NaN 체크 추가
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD", // 필요시 변경
@@ -144,7 +144,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="mx-auto w-full max-w-4xl pb-10 !select-text max-sm:max-h-[70vh] max-sm:w-[calc(100%-14px)] sm:max-h-[80vh]">
+      <DrawerContent className="mx-auto w-full max-w-4xl pb-10 !select-text max-sm:m-0 max-sm:max-h-[90vh] max-sm:w-[calc(100%)] sm:max-h-[85vh]">
         <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-8 max-sm:px-1">
           <DrawerHeader className="px-0">
             <DrawerClose asChild>
@@ -355,10 +355,17 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                         <strong className="flex items-center">
                           신뢰도:
                           <span className="ml-2 text-sm">
-                            {confidenceLevel * 100}%
+                            {!isNaN(confidenceLevel)
+                              ? (confidenceLevel * 100).toFixed(1)
+                              : "0"}
+                            %
                           </span>
                         </strong>{" "}
-                        <Progress value={confidenceLevel * 100} />
+                        <Progress
+                          value={
+                            !isNaN(confidenceLevel) ? confidenceLevel * 100 : 0
+                          }
+                        />
                       </div>
                       <div className="md:col-span-2">
                         <strong>차트 설명:</strong>{" "}
@@ -484,11 +491,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   </div>
                   <div>
                     <strong>가격 변화:</strong>{" "}
-                    {data.ticker?.close_price &&
-                      data.ticker?.open_price &&
-                      formatCurrency(
-                        data.ticker.close_price - data.ticker.open_price,
-                      )}
+                    {data.ticker?.close_price != null &&
+                    data.ticker?.open_price != null &&
+                    !isNaN(data.ticker.close_price) &&
+                    !isNaN(data.ticker.open_price)
+                      ? formatCurrency(
+                          data.ticker.close_price - data.ticker.open_price,
+                        )
+                      : "N/A"}
                   </div>
                 </div>
               </section>

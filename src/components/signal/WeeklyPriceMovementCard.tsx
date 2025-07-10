@@ -2,11 +2,15 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
-import { GetWeeklyPriceMovementParams, WeeklyPriceMovementResponse } from "@/types/ticker";
+import {
+  GetWeeklyPriceMovementParams,
+  WeeklyPriceMovementResponse,
+} from "@/types/ticker";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
+import Link from "next/link";
 
 interface WeeklyPriceMovementCardProps {
   title: string;
@@ -36,10 +40,6 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
     initialData,
     enabled: !initialData,
   });
-
-  const onClickTicker = (ticker: string) => {
-    router.push(`/dashboard/d/${ticker}?model=OPENAI`);
-  };
 
   if (isLoading) {
     return (
@@ -75,24 +75,28 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
         {data?.tickers && data.tickers.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {data.tickers.map(({ ticker, count }) => (
-              <Badge
-                key={ticker + count.join("-")}
-                variant="secondary"
-                className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
-                onClick={() => onClickTicker(ticker)}
+              <Link
+                href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
+                prefetch={false}
               >
-                <span>{ticker}</span>
-                <span
-                  className={cn(
-                    "font-bold",
-                    params.direction === "up"
-                      ? "text-green-600"
-                      : "text-red-600",
-                  )}
+                <Badge
+                  key={ticker + count.join("-")}
+                  variant="secondary"
+                  className="flex cursor-pointer gap-2 transition-colors hover:bg-green-100"
                 >
-                  {count.reduce((sum, val) => sum + (val || 0), 0)}
-                </span>
-              </Badge>
+                  <span>{ticker}</span>
+                  <span
+                    className={cn(
+                      "font-bold",
+                      params.direction === "up"
+                        ? "text-green-600"
+                        : "text-red-600",
+                    )}
+                  >
+                    {count.reduce((sum, val) => sum + (val || 0), 0)}
+                  </span>
+                </Badge>
+              </Link>
             ))}
           </div>
         ) : (

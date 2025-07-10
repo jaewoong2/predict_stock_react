@@ -7,12 +7,16 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { symbol: string };
-  searchParams: { model?: string; date?: string; strategy_type?: string };
+  params: Promise<{ symbol: string }>;
+  searchParams: Promise<{
+    model?: string;
+    date?: string;
+    strategy_type?: string;
+  }>;
 }): Promise<Metadata> {
   const today = new Date().toISOString().split("T")[0];
-  const { symbol } = params;
-  const { model = "OPENAI", date = today, strategy_type } = searchParams;
+  const { symbol } = await params;
+  const { model = "OPENAI", date = today, strategy_type } = await searchParams;
 
   const baseMetadata: Metadata = {
     title: `Forecast ${symbol} Prices | ${model} Model`,
@@ -36,7 +40,8 @@ export async function generateMetadata({
     },
     openGraph: {
       title: `Forecast ${symbol} Prices | ${model} Model`,
-      description: "Forecast US stock prices using AI models and market signals.",
+      description:
+        "Forecast US stock prices using AI models and market signals.",
       url: `https://stock.bamtoly.com/dashboard/d/${symbol}?model=${model}&date=${date}`,
       siteName: "Spam Finance",
       locale: "ko_KR",
@@ -53,7 +58,8 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: `Forecast ${symbol} Prices | ${model} Model`,
-      description: "Forecast US stock prices using AI models and market signals.",
+      description:
+        "Forecast US stock prices using AI models and market signals.",
       images: ["https://stock.bamtoly.com/twitter-image.jpg"],
       creator: "@spamfinance",
     },
@@ -88,11 +94,15 @@ export default async function DetailPage({
   params,
   searchParams,
 }: {
-  params: { symbol: string };
-  searchParams: { model?: string; date?: string; strategy_type?: string };
+  params: Promise<{ symbol: string }>;
+  searchParams: Promise<{
+    model?: string;
+    date?: string;
+    strategy_type?: string;
+  }>;
 }) {
-  const { symbol } = params;
-  const { model = "OPENAI", date } = searchParams;
+  const { symbol } = await params;
+  const { model = "OPENAI", date } = await searchParams;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
