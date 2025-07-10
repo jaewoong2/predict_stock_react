@@ -18,7 +18,7 @@ import {
 import { format } from "date-fns";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
-import { cn } from "@/lib/utils";
+import { cn, debounce } from "@/lib/utils";
 import {
   useSignalDataByNameAndDate,
   useWeeklyActionCount,
@@ -91,14 +91,6 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     );
   }, [aiModel, signals.data?.signals, symbol]);
 
-  useEffect(() => {
-    if (signals.isError) {
-      setParams({
-        signalId: undefined,
-      });
-    }
-  }, [data?.signal.ticker, setParams, signals.data?.signals, signals.isError]);
-
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
     ticker: data?.signal.ticker,
@@ -135,12 +127,12 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
       : data.signal.chart_pattern?.confidence_level
     : 0;
 
-  const onOpenChange = (open: boolean) => {
+  const onOpenChange = debounce((open: boolean) => {
     if (!open) {
-      router.push(`/dashboard?date=${date}`);
+      router.back();
     }
     setOpen(open);
-  };
+  }, 300);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -269,8 +261,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     ]}
                     value={aiModel}
                     onChange={(value) => {
-                      const newSignalId = `${data.signal.ticker}_${value}`;
-                      setParams({ signalId: newSignalId });
+                      router.push(
+                        `/dashboard/d/${data.signal.ticker}?date=${date}&model=${value}`,
+                      );
                     }}
                   />
                 </div>

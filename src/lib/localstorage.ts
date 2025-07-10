@@ -81,11 +81,11 @@ export function setStorageItem<T>(
     return false;
   }
 }
-
 /**
- * 스토리지에서 항목을 제거합니다
- * @param key 제거할 키
+ * 스토리지에서 값을 제거합니다
+ * @param key 스토리지 키
  * @param options 스토리지 옵션
+ * @returns 성공 여부
  */
 export function removeStorageItem(
   key: string,
@@ -110,4 +110,29 @@ export function removeStorageItem(
     console.error(`Error removing ${key} from ${storage}:`, error);
     return false;
   }
+}
+
+import { useState, useEffect } from "react";
+
+/**
+ * localStorage와 동기화되는 React state를 관리하는 커스텀 훅
+ * @param key 스토리지 키
+ * @param initialValue 초기값
+ * @param options 스토리지 옵션
+ * @returns [storedValue, setValue] 튜플
+ */
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  options: StorageOptions = {},
+) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    return getStorageItem(key, initialValue, options);
+  });
+
+  useEffect(() => {
+    setStorageItem(key, storedValue, options);
+  }, [key, storedValue, options]);
+
+  return [storedValue, setStoredValue] as const;
 }

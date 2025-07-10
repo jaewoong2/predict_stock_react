@@ -141,7 +141,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -171,13 +171,13 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                       row.toggleSelected();
                     }
                   }}
-                  className="cursor-pointer hover:bg-muted/50 data-[state=selected]:bg-muted"
+                  className="hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -197,11 +197,27 @@ export function SignalDataTable<TData extends SignalData, TValue>({
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2">
-        <div className="flex justify-start w-full items-center gap-4 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex w-full items-center justify-start gap-4 text-sm">
           <span>
-            {table.getState().pagination.pageSize *
-              table.getState().pagination.pageIndex}{" "}
-            / {table.getFilteredRowModel().rows.length}
+            {(() => {
+              const pageSize = table.getState().pagination.pageSize || 0;
+              const pageIndex = table.getState().pagination.pageIndex || 0;
+              const totalRows = table.getFilteredRowModel().rows.length || 0;
+              const currentStart = Math.min(
+                pageSize * pageIndex + 1,
+                totalRows,
+              );
+              const currentEnd = Math.min(
+                pageSize * (pageIndex + 1),
+                totalRows,
+              );
+
+              if (totalRows === 0) {
+                return "0 / 0";
+              }
+
+              return `${currentStart}-${currentEnd} / ${totalRows}`;
+            })()}
           </span>
           <div className="flex items-center py-4">
             <DropdownMenu>
@@ -238,7 +254,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             onPaginationChange &&
             onPaginationChange(
               table.getState().pagination.pageIndex - 1,
-              table.getState().pagination.pageSize
+              table.getState().pagination.pageSize,
             )
           }
           disabled={!table.getCanPreviousPage()}
@@ -253,7 +269,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             onPaginationChange &&
             onPaginationChange(
               table.getState().pagination.pageIndex + 1,
-              table.getState().pagination.pageSize
+              table.getState().pagination.pageSize,
             )
           }
           disabled={!table.getCanNextPage()}

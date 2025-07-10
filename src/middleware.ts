@@ -95,17 +95,6 @@ function handleDashboardValidation(req: NextRequest) {
     needsRedirect = true;
   }
 
-  // Page and pageSize validation
-  if (!searchParams.page) {
-    newParams.set("page", "0");
-    needsRedirect = true;
-  }
-
-  if (!searchParams.pageSize) {
-    newParams.set("pageSize", "20");
-    needsRedirect = true;
-  }
-
   // Model and condition validation
   const models = searchParams.models
     ? searchParams.models.split(",").filter(Boolean)
