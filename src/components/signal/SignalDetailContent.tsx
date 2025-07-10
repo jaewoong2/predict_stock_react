@@ -131,10 +131,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
     <div className="mx-auto w-full max-w-4xl pb-10 select-text">
       <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-8 max-sm:px-1">
         <div className="mb-4 px-0">
-          <button
-            className="absolute top-4 right-4 cursor-pointer text-3xl"
-            onClick={() => router.back()}
-          >
+          <button className="absolute top-4 right-4 cursor-pointer text-3xl">
             &times;
           </button>
           {marketNews?.result && (
@@ -249,7 +246,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                   ]}
                   value={aiModel}
                   onChange={(value) => {
-                    router.replace(
+                    router.push(
                       `/dashboard/d/${symbol}?model=${value}&date=${date}`,
                     );
                   }}

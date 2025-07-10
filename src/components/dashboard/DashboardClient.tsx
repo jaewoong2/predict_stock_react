@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalData, SignalAPIResponse } from "@/types/signal";
 import { signalApiService } from "@/services/signalService";
-
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
@@ -18,68 +17,42 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
+import useMounted from "@/hooks/useMounted";
+import { useLocalStorage } from "@/lib/localstorage";
 
 interface DashboardClientProps {
   initialSignals?: SignalAPIResponse;
-  initialFavorites?: string[];
 }
 
 const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   initialSignals,
-  initialFavorites,
 }) => {
   const {
     date,
     q,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
-    page, // 페이지 인덱스 추가
-    pageSize, // 페이지 크기 추가
     setParams,
   } = useSignalSearchParams();
 
+  const [page, setPage] = useLocalStorage("page", "0");
+  const [pageSize, setPageSize] = useLocalStorage("pageSize", "20");
+
   const router = useRouter();
+  const mounted = useMounted();
 
   const todayString = formatDate(new Date(), "yyyy-MM-dd");
   const submittedDate = date ?? todayString;
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
-  const STORAGE_KEY = "favoriteTickers";
-  const [favorites, setFavorites] = useState<string[]>(initialFavorites ?? []);
+  const { favorites, toggleFavorite } = useFavoriteTickers();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setFavorites(JSON.parse(stored));
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
-    } catch {
-      /* ignore */
-    }
-  }, [favorites]);
-
-  const toggleFavorite = (ticker: string) => {
-    setFavorites((prev) =>
-      prev.includes(ticker)
-        ? prev.filter((t) => t !== ticker)
-        : [...prev, ticker],
-    );
-  };
-
-  // URL의 q 파라미터가 변경되면 currentSelectedTickersArray를 업데이트
   useEffect(() => {
     const tickersFromQ = q
       ? q
@@ -108,7 +81,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }
   };
 
-  // SignalSearchInput에 제공할 전체 티커 목록 (중복 제거)
   const allAvailableTickersForSearch = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
     return [
@@ -138,28 +110,24 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   }, [signalApiResponse?.signals]);
 
   const handleRowClick = (signal: SignalData) => {
-    router.replace(
+    router.push(
       `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
       { scroll: true },
     );
   };
 
-  // SignalSearchInput에서 선택된 티커가 변경될 때 호출
   const handleSelectedTickersChange = (newSelectedTickers: string[]) => {
-    // setCurrentSelectedTickersArray(newSelectedTickers); // useEffect[q]가 이 역할을 함
     const newQ =
       newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
-    setParams({
-      q: newQ, // 새로운 티커 문자열로 q 업데이트
-      page: "0",
-    });
+    setParams({ q: newQ });
+    setPage("0"); // localStorage를 업데이트합니다.
   };
 
   const filteredSignals = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
     let signalsToFilter = signalApiResponse.signals;
 
-    const searchTickersArray = currentSelectedTickersArray; // 이미 q로부터 파싱된 배열 사용
+    const searchTickersArray = currentSelectedTickersArray;
 
     if (searchTickersArray.length > 0) {
       signalsToFilter = signalsToFilter.filter((item) => {
@@ -172,6 +140,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }
 
     if (selectedAiModels.length > 0) {
+      // ... (이하 필터링 로직은 동일)
       if (aiModelFilterConditions.every((c) => c === "OR")) {
         signalsToFilter = signalsToFilter.filter((item) => {
           const model = item.signal.ai_model;
@@ -273,14 +242,12 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
   ]);
 
   const sortedSignals = useMemo(() => {
-    const a = [...filteredSignals].sort((a, b) => {
-      return (
-        a.signal.favorite - b.signal.favorite ||
-        a.signal.ticker.localeCompare(b.signal.ticker)
-      );
+    return [...filteredSignals].sort((a, b) => {
+      if (a.signal.favorite !== b.signal.favorite) {
+        return b.signal.favorite - a.signal.favorite;
+      }
+      return a.signal.ticker.localeCompare(b.signal.ticker);
     });
-
-    return a;
   }, [filteredSignals]);
 
   const columns = useMemo(
@@ -292,10 +259,13 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     newPageIndex: number,
     newPageSize: number,
   ) => {
-    setParams({
-      page: newPageIndex.toString(),
-      pageSize: newPageSize.toString(),
-    });
+    setPage(newPageIndex.toString());
+    setPageSize(newPageSize.toString());
+  };
+
+  const paginationState = {
+    pageIndex: Number(page) || 0,
+    pageSize: Number(pageSize) || 20,
   };
 
   return (
@@ -353,20 +323,18 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
             availableModels={availableAiModels}
             selectedModels={selectedAiModels}
             conditions={aiModelFilterConditions}
-            onModelsChange={(models) =>
-              setParams({
-                models,
-                page: "0",
-              })
-            }
-            onConditionChange={(idx, value) =>
+            onModelsChange={(models) => {
+              setParams({ models });
+              setPage("0");
+            }}
+            onConditionChange={(idx, value) => {
               setParams({
                 conditions: aiModelFilterConditions
                   .map((c, i) => (i === idx ? value : c))
                   .slice(0, Math.max(0, selectedAiModels.length - 1)),
-                page: "0",
-              })
-            }
+              });
+              setPage("0");
+            }}
           />
         </div>
       </div>
@@ -376,11 +344,8 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         columns={columns}
         data={sortedSignals}
         onRowClick={handleRowClick}
-        isLoading={isLoading}
-        pagination={{
-          pageIndex: +`${page}`,
-          pageSize: +`${pageSize}`,
-        }}
+        isLoading={isLoading || !mounted} // 마운트 전에도 로딩 상태로 처리
+        pagination={paginationState}
         onPaginationChange={handlePaginationChange}
       />
     </>

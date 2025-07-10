@@ -29,12 +29,7 @@ export default async function SignalsSection({ date }: Props) {
       initialFavorites = [];
     }
 
-    return (
-      <DashboardClient
-        initialSignals={initialSignals}
-        initialFavorites={initialFavorites}
-      />
-    );
+    return <DashboardClient initialSignals={initialSignals} />;
   } catch (error) {
     console.error("SignalsSection error", error);
     return (
