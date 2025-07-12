@@ -2,6 +2,17 @@ import SignalDetailPage from "@/components/signal/SignalDetailPage";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { signalApiService } from "@/services/signalService";
+import fs from "fs";
+import path from "path";
+
+export async function generateStaticParams() {
+  const logosDirectory = path.join(process.cwd(), "public/logos");
+  const filenames = fs.readdirSync(logosDirectory);
+
+  return filenames.map((filename) => ({
+    symbol: filename.replace(/\.png$/, ""),
+  }));
+}
 
 export async function generateMetadata({
   params,
@@ -88,7 +99,7 @@ export async function generateMetadata({
 }
 
 export const revalidate = 3600;
-export const runtime = "edge";
+
 
 export default async function DetailPage({
   params,

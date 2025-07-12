@@ -75,7 +75,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   date,
 }) => {
   const [open, setOpen] = useState(true);
-  const { setParams, strategy_type } = useSignalSearchParams();
+  const { strategy_type } = useSignalSearchParams();
   const router = useRouter();
 
   const signals = useSignalDataByNameAndDate(
