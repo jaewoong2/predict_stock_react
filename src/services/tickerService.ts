@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   Ticker,
   TickerCreate,
@@ -78,11 +77,25 @@ export const tickerService = {
     reference_date,
     direction,
   }: GetWeeklyPriceMovementParams): Promise<WeeklyPriceMovementResponse> => {
+    const params: {
+      tickers?: string;
+      reference_date?: string;
+      direction?: "up" | "down";
+    } = {};
+
+    if (tickers) {
+      params.tickers = tickers;
+    }
+    if (reference_date) {
+      params.reference_date = reference_date;
+    }
+    if (direction) {
+      params.direction = direction;
+    }
+
     const response = await api.get<WeeklyPriceMovementResponse>(
       "/tickers/weekly/price-movement",
-      {
-        params: { tickers, reference_date, direction },
-      },
+      { params },
     );
     return response.data;
   },

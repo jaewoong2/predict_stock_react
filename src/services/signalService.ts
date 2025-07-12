@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   GetWeeklyActionCountParams,
   SignalAPIResponse,
@@ -55,11 +54,25 @@ export const signalApiService = {
     reference_date,
     action,
   }: GetWeeklyActionCountParams): Promise<WeeklyActionCountResponse> => {
+    const params: {
+      tickers?: string;
+      reference_date?: string;
+      action?: string;
+    } = {};
+
+    if (tickers) {
+      params.tickers = tickers;
+    }
+    if (reference_date) {
+      params.reference_date = reference_date;
+    }
+    if (action) {
+      params.action = action;
+    }
+
     const response = await api.get<WeeklyActionCountResponse>(
       "/signals/weekly/action-count",
-      {
-        params: { tickers, reference_date, action },
-      },
+      { params },
     );
     return response.data;
   },

@@ -78,6 +78,7 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
               <Link
                 href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
                 prefetch={false}
+                key={ticker + count.join("-")}
               >
                 <Badge
                   key={ticker + count.join("-")}

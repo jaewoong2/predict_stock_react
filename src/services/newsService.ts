@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   GetMarketNewsSummaryRequestParams,
   MarketForeCastRequestParams,
@@ -19,11 +18,16 @@ export const newsService = {
     news_date,
   }: GetMarketNewsSummaryRequestParams): Promise<MarketNewsResponse> {
     const url = "/news/";
-    const params = {
-      news_type,
-      ticker,
-      news_date,
-    };
+    const params: GetMarketNewsSummaryRequestParams = {};
+    if (news_type) {
+      params.news_type = news_type;
+    }
+    if (ticker) {
+      params.ticker = ticker;
+    }
+    if (news_date) {
+      params.news_date = news_date;
+    }
     const response = await api.get<MarketNewsResponse>(url, { params });
     return response.data;
   },

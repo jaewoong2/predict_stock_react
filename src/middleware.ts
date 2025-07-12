@@ -17,14 +17,14 @@ export function middleware(req: NextRequest) {
   }
 
   // Dashboard route validation
-  if (req.nextUrl.pathname === "/dashboard") {
-    return handleDashboardValidation(req);
+  if (req.nextUrl.pathname.startsWith("/dashboard")) {
+    return handleDashboardValidation(req, req.nextUrl.pathname);
   }
 
   return response;
 }
 
-function handleDashboardValidation(req: NextRequest) {
+function handleDashboardValidation(req: NextRequest, pathname: string) {
   const url = req.nextUrl.clone();
   const searchParams = Object.fromEntries(url.searchParams.entries());
 
@@ -120,7 +120,7 @@ function handleDashboardValidation(req: NextRequest) {
   if (needsRedirect) {
     const queryString = newParams.toString();
     return NextResponse.redirect(
-      new URL(`/dashboard${queryString ? `?${queryString}` : ""}`, req.url),
+      new URL(`${pathname}${queryString ? `?${queryString}` : ""}`, req.url),
     );
   }
 
