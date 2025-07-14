@@ -49,10 +49,23 @@ export interface SignalData {
   ticker?: SignalTickerInfo | null;
   result?: SignalResult | null;
 }
-export interface SignalAPIResponse {
-  date: string;
-  signals: SignalData[];
+
+export interface PaginationResponse {
+  page: number;
+  page_size: number;
+  total_items: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
 }
+
+export interface PaginatedSignalJoinTickerResponse {
+  data: SignalData[];
+  pagination: PaginationResponse;
+}
+
+export type SignalAPIResponse = PaginatedSignalJoinTickerResponse;
+
 
 // 주간 액션 카운트 타입
 export interface WeeklyActionCount {
@@ -62,7 +75,7 @@ export interface WeeklyActionCount {
 }
 
 export interface WeeklyActionCountResponse {
-  signals: WeeklyActionCount[];
+  data: WeeklyActionCount[];
 }
 
 export interface GetWeeklyActionCountParams {

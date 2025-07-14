@@ -23,10 +23,11 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   params,
   data: initialData,
 }) => {
+  console.log(initialData);
   const { data, isLoading, error } = useWeeklyActionCount(params, {
-    select(data) {
+    select(data: WeeklyActionCountResponse): WeeklyActionCountResponse {
       return {
-        signals: data.signals
+        data: data.data
           .sort((a, b) => {
             if (a.count && b.count) {
               const aCount = a.count.reduce((sum, val) => sum + (val || 0), 0);
@@ -73,9 +74,9 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {data?.signals && data.signals.length > 0 ? (
+        {data?.data && data.data.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {data.signals.map(({ ticker, count }) => (
+            {data.data.map(({ ticker, count }) => (
               <Link
                 href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
                 prefetch={false}

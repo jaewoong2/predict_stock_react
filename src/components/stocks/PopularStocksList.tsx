@@ -163,7 +163,6 @@ function PopularStocksTable({
                   <TableCell>
                     <Link
                       href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
-                      prefetch={false}
                     >
                       <div className="flex items-center gap-2">
                         <span>{formattedPrice}</span>
@@ -176,7 +175,6 @@ function PopularStocksTable({
                   <TableCell className="text-right">
                     <Link
                       href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
-                      prefetch={true}
                     >
                       {formattedVolumeChange}
                     </Link>

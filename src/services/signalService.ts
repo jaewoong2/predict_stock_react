@@ -10,14 +10,13 @@ export const signalApiService = {
    * 특정 날짜의 시그널 데이터를 가져옵니다.
    * @param date 조회할 날짜 (YYYY-MM-DD 형식)
    */
-  getSignalsByDate: async (date: string): Promise<SignalAPIResponse> => {
-    // 실제 API 엔드포인트에 맞게 URL을 수정해야 합니다.
-    // 예시: /signals?date=${date} 또는 /signals/${date}
-    // 현재 제공된 응답은 특정 날짜에 대한 것이므로, 해당 날짜를 파라미터로 받는다고 가정합니다.
-    // 이 예제에서는 '/signals/by-date' 엔드포인트와 'date' 쿼리 파라미터를 사용합니다.
-    // 실제 API 문서를 확인하여 정확한 엔드포인트와 파라미터를 사용하세요.
+  getSignalsByDate: async (
+    date: string,
+    page: number = 1,
+    pageSize: number = 20,
+  ): Promise<SignalAPIResponse> => {
     const response = await api.get<SignalAPIResponse>("/signals/date", {
-      params: { date },
+      params: { date, page, page_size: pageSize },
     });
 
     return response.data;
@@ -27,15 +26,20 @@ export const signalApiService = {
     symbols: string[],
     date: string,
     strategy_type?: string | null,
+    page: number = 1,
+    pageSize: number = 20,
   ): Promise<SignalAPIResponse> => {
-    // 특정 시그널 이름과 날짜에 대한 데이터를 가져오는 API 호출
     const params: {
       symbols: string;
       date: string;
       strategy_type?: string | null;
+      page: number;
+      page_size: number;
     } = {
       symbols: symbols.join(","),
       date,
+      page,
+      page_size: pageSize,
     };
 
     if (strategy_type) {

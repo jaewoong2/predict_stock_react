@@ -21,16 +21,18 @@ export const SIGNAL_KEYS = {
  */
 export const useSignalDataByDate = (
   date: string,
+  page: number = 1,
+  pageSize: number = 20,
   options?: Omit<
     UseQueryOptions<SignalAPIResponse, Error>,
     "queryKey" | "queryFn"
-  > // React Query 옵션 타입
+  >,
 ) => {
   return useQuery<SignalAPIResponse, Error>({
-    queryKey: SIGNAL_KEYS.listByDate(date),
-    queryFn: () => signalApiService.getSignalsByDate(date),
+    queryKey: [...SIGNAL_KEYS.listByDate(date), { page, pageSize }],
+    queryFn: () => signalApiService.getSignalsByDate(date, page, pageSize),
     ...options,
-    enabled: !!date && (options?.enabled === undefined || options.enabled), // 날짜가 있고, enabled 옵션이 true일 때만 실행
+    enabled: !!date && (options?.enabled === undefined || options.enabled),
   });
 };
 
@@ -38,10 +40,12 @@ export const useSignalDataByNameAndDate = (
   symbols: string[],
   date: string,
   strategy_type?: string | null,
+  page: number = 1,
+  pageSize: number = 20,
   options?: Omit<
     UseQueryOptions<SignalAPIResponse, Error>,
     "queryKey" | "queryFn"
-  > // React Query 옵션 타입
+  >,
 ) => {
   return useQuery<SignalAPIResponse, Error>({
     queryKey: [
@@ -50,11 +54,18 @@ export const useSignalDataByNameAndDate = (
       symbols.join(","),
       date,
       strategy_type,
+      { page, pageSize },
     ],
     queryFn: () =>
-      signalApiService.getSignalByNameAndDate(symbols, date, strategy_type),
+      signalApiService.getSignalByNameAndDate(
+        symbols,
+        date,
+        strategy_type,
+        page,
+        pageSize,
+      ),
     ...options,
-    enabled: !!date && (options?.enabled === undefined || options.enabled), // 심볼과 날짜가 모두 있고, enabled 옵션이 true일 때만 실행
+    enabled: !!date && (options?.enabled === undefined || options.enabled),
   });
 };
 

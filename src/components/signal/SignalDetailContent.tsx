@@ -81,7 +81,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 
   const data = useMemo(() => {
     try {
-      return signals.data?.signals.find(
+      return signals.data?.data.find(
         (value) =>
           value.signal.ai_model === aiModel && value.signal.ticker === symbol,
       );
@@ -89,7 +89,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
       console.error("Error in useMemo:", error);
       return null;
     }
-  }, [aiModel, signals.data?.signals, symbol]);
+  }, [aiModel, signals.data?.data, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -193,12 +193,12 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
             </div>
 
             <div className="flex flex-col">
-              {weeklySignalData.data?.signals[0].count?.length && (
+              {weeklySignalData.data?.data[0].count?.length && (
                 <strong>7일간 상승 시그널</strong>
               )}
               <div className="flex flex-wrap gap-1">
-                {weeklySignalData.data?.signals[0].count.map((count, index) => (
-                  <Tooltip key={weeklySignalData.data?.signals[0].date[index]}>
+                {weeklySignalData.data?.data[0].count.map((count, index) => (
+                  <Tooltip key={weeklySignalData.data?.data[0].date[index]}>
                     <TooltipTrigger className="cursor-pointer">
                       <Badge
                         key={count}
@@ -239,7 +239,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 <AiModelSelect
                   options={[
                     ...new Set(
-                      signals.data?.signals.map(
+                      signals.data?.data.map(
                         (signal) => signal.signal.ai_model ?? "",
                       ),
                     ),
