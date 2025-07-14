@@ -74,7 +74,7 @@ export const useWeeklyActionCount = (
   options?: Omit<
     UseQueryOptions<WeeklyActionCountResponse, Error>,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   return useQuery<WeeklyActionCountResponse, Error>({
     queryKey: SIGNAL_KEYS.weeklyActionCount(params),
@@ -82,5 +82,33 @@ export const useWeeklyActionCount = (
     ...options,
     enabled:
       !!params.action && (options?.enabled === undefined || options.enabled),
+  });
+};
+
+export const useTranslatedSignalDataByTickerAndDate = (
+  ticker: string,
+  date: string,
+  strategy_type?: string | null,
+  options?: Omit<
+    UseQueryOptions<SignalAPIResponse["data"][0]["signal"][], Error>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  return useQuery<SignalAPIResponse["data"][0]["signal"][], Error>({
+    queryKey: [
+      ...SIGNAL_KEYS.all,
+      "translatedByTickerAndDate",
+      ticker,
+      date,
+      strategy_type,
+    ],
+    queryFn: () =>
+      signalApiService.getTranslatedSignalDataByTickerAndDate(
+        ticker,
+        date,
+        strategy_type,
+      ),
+    ...options,
+    enabled: !!date && (options?.enabled === undefined || options.enabled),
   });
 };

@@ -66,7 +66,6 @@ export interface PaginatedSignalJoinTickerResponse {
 
 export type SignalAPIResponse = PaginatedSignalJoinTickerResponse;
 
-
 // 주간 액션 카운트 타입
 export interface WeeklyActionCount {
   ticker: string;

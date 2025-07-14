@@ -80,4 +80,31 @@ export const signalApiService = {
     );
     return response.data;
   },
+
+  // /translate/signals/ticker
+  getTranslatedSignalDataByTickerAndDate: async (
+    ticker: string,
+    date: string,
+    strategy_type?: string | null,
+  ): Promise<SignalAPIResponse["data"][0]["signal"][]> => {
+    const params: {
+      ticker: string;
+      date: string;
+      strategy_type?: string | null;
+    } = {
+      ticker,
+      date,
+    };
+
+    if (strategy_type) {
+      params.strategy_type = strategy_type;
+    }
+
+    const response = await api.get<SignalAPIResponse["data"][0]["signal"][]>(
+      "/translate/signals/ticker",
+      { params },
+    );
+
+    return response.data;
+  },
 };

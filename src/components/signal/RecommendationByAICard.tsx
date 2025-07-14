@@ -15,7 +15,7 @@ const RecommendationByAiCard: FC<{
   data?: SignalAPIResponse;
 }> = ({ title, data: initialData }) => {
   const { date } = useSignalSearchParams();
-  const router = useRouter();
+
   const { data, isLoading, error } = useSignalDataByNameAndDate(
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),

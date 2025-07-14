@@ -16,6 +16,7 @@ export default async function RecommendationAiSection({ date, title }: Props) {
       date,
       "AI_GENERATED",
     );
+
     return (
       <RecommendationByAiCard
         title={title ?? "AI Generated Recommendations"}
