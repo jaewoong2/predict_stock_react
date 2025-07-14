@@ -85,11 +85,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   );
 
   const data = useMemo(() => {
-    return signals.data?.signals.find(
+    return signals.data?.data.find(
       (value) =>
         value.signal.ai_model === aiModel && value.signal.ticker === symbol,
     );
-  }, [aiModel, signals.data?.signals, symbol]);
+  }, [aiModel, signals.data?.data, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -203,14 +203,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </div>
 
               <div className="flex flex-col">
-                {weeklySignalData.data?.signals[0].count?.length && (
+                {weeklySignalData.data?.data[0].count?.length && (
                   <strong>7일간 상승 시그널</strong>
                 )}
                 <div className="flex flex-wrap gap-1">
-                  {weeklySignalData.data?.signals[0].count.map(
+                  {weeklySignalData.data?.data[0].count.map(
                     (count, index) => (
                       <Tooltip
-                        key={weeklySignalData.data?.signals[0].date[index]}
+                        key={weeklySignalData.data?.data[0].date[index]}
                       >
                         <TooltipTrigger className="cursor-pointer">
                           <Badge
@@ -254,7 +254,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   <AiModelSelect
                     options={[
                       ...new Set(
-                        signals.data?.signals.map(
+                        signals.data?.data.map(
                           (signal) => signal.signal.ai_model ?? "",
                         ),
                       ),

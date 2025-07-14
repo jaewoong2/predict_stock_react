@@ -20,6 +20,7 @@ export default async function WeeklyActionCountSection({
       action: "Buy",
       reference_date: date,
     });
+
     return (
       <WeeklyActionCountCard
         title={title ?? "Weekly Action Count"}

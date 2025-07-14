@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
-import { useLocalStorage } from "@/lib/localstorage";
+import { useSignalDataByDate } from "@/hooks/useSignal";
 
 interface DashboardClientProps {
   initialSignals?: SignalAPIResponse;
@@ -33,11 +33,10 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     q,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
+    page,
+    pageSize,
     setParams,
   } = useSignalSearchParams();
-
-  const [page, setPage] = useLocalStorage("page", "0");
-  const [pageSize, setPageSize] = useLocalStorage("pageSize", "20");
 
   const router = useRouter();
   const mounted = useMounted();
@@ -47,8 +46,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const { favorites, toggleFavorite } = useFavoriteTickers();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
     useState<string[]>([]);
@@ -63,51 +60,38 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
-  const [signalApiResponse, setSignalApiResponse] = useState<SignalAPIResponse>(
-    initialSignals ?? { date: submittedDate, signals: [] },
+  const { data: signalApiResponse, isLoading } = useSignalDataByDate(
+    submittedDate,
+    page,
+    pageSize,
+    {
+      initialData: initialSignals,
+    },
   );
 
-  const fetchSignals = async () => {
-    if (!submittedDate) return;
-    setIsLoading(true);
-    try {
-      const data = await signalApiService.getSignalsByDate(submittedDate);
-      setSignalApiResponse(data);
-      setError(null);
-    } catch (err) {
-      setError(err as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const allAvailableTickersForSearch = useMemo(() => {
-    if (!signalApiResponse?.signals) return [];
+    if (!signalApiResponse?.data) return [];
     return [
       ...new Set(
-        signalApiResponse.signals
+        signalApiResponse.data
           .map((s) => s.signal.ticker)
           .filter(Boolean) as string[],
       ),
     ].sort();
-  }, [signalApiResponse?.signals]);
+  }, [signalApiResponse?.data]);
 
   useEffect(() => {
-    fetchSignals();
-  }, [submittedDate]);
-
-  useEffect(() => {
-    if (signalApiResponse?.signals) {
+    if (signalApiResponse?.data) {
       const models = Array.from(
         new Set(
-          signalApiResponse.signals
+          signalApiResponse.data
             .map((s) => s.signal.ai_model)
             .filter(Boolean) as string[],
         ),
       ).sort();
       setAvailableAiModels(models);
     }
-  }, [signalApiResponse?.signals]);
+  }, [signalApiResponse?.data]);
 
   const handleRowClick = (signal: SignalData) => {
     router.push(
@@ -120,12 +104,12 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     const newQ =
       newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
     setParams({ q: newQ });
-    setPage("0"); // localStorage를 업데이트합니다.
+    setParams({ page: 1 }); // 페이지를 1로 리셋합니다.
   };
 
   const filteredSignals = useMemo(() => {
-    if (!signalApiResponse?.signals) return [];
-    let signalsToFilter = signalApiResponse.signals;
+    if (!signalApiResponse?.data) return [];
+    let signalsToFilter = signalApiResponse.data;
 
     const searchTickersArray = currentSelectedTickersArray;
 
@@ -234,7 +218,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       },
     }));
   }, [
-    signalApiResponse?.signals,
+    signalApiResponse?.data,
     currentSelectedTickersArray,
     selectedAiModels,
     aiModelFilterConditions,
@@ -259,13 +243,12 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     newPageIndex: number,
     newPageSize: number,
   ) => {
-    setPage(newPageIndex.toString());
-    setPageSize(newPageSize.toString());
+    setParams({ page: newPageIndex + 1, pageSize: newPageSize });
   };
 
   const paginationState = {
-    pageIndex: Number(page) || 0,
-    pageSize: Number(pageSize) || 20,
+    pageIndex: page - 1,
+    pageSize: pageSize,
   };
 
   return (
@@ -324,16 +307,15 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
             selectedModels={selectedAiModels}
             conditions={aiModelFilterConditions}
             onModelsChange={(models) => {
-              setParams({ models });
-              setPage("0");
+              setParams({ models, page: 1 });
             }}
             onConditionChange={(idx, value) => {
               setParams({
                 conditions: aiModelFilterConditions
                   .map((c, i) => (i === idx ? value : c))
                   .slice(0, Math.max(0, selectedAiModels.length - 1)),
+                page: 1,
               });
-              setPage("0");
             }}
           />
         </div>

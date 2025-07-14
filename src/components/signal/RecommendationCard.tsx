@@ -75,7 +75,6 @@ const RecommendationCard: FC<{
             {data.results.map((item) => (
               <Link
                 href={`/dashboard/d/${item.ticker}?model=OPENAI&date=${date}`}
-                prefetch={false}
                 key={item.ticker + date}
               >
                 <Badge
