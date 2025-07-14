@@ -41,6 +41,7 @@ interface DataTableProps<TData, TValue> {
     pageIndex: number;
     pageSize: number;
   };
+  paginationInfo?: import("@/types/signal").PaginationResponse;
   // 페이지네이션 변경 이벤트 핸들러
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
@@ -51,6 +52,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   onRowClick,
   isLoading,
   pagination,
+  paginationInfo,
   onPaginationChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -202,7 +204,9 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             {(() => {
               const pageSize = table.getState().pagination.pageSize || 0;
               const pageIndex = table.getState().pagination.pageIndex || 0;
-              const totalRows = table.getFilteredRowModel().rows.length || 0;
+              const totalRows = paginationInfo
+                ? paginationInfo.total_items
+                : table.getFilteredRowModel().rows.length || 0;
               const currentStart = Math.min(
                 pageSize * pageIndex + 1,
                 totalRows,
@@ -257,7 +261,11 @@ export function SignalDataTable<TData extends SignalData, TValue>({
               table.getState().pagination.pageSize,
             )
           }
-          disabled={!table.getCanPreviousPage()}
+          disabled={
+            paginationInfo
+              ? !paginationInfo.has_previous
+              : !table.getCanPreviousPage()
+          }
         >
           <ChevronLeft className="h-4 w-4 transform" />
         </Button>
@@ -272,7 +280,9 @@ export function SignalDataTable<TData extends SignalData, TValue>({
               table.getState().pagination.pageSize,
             )
           }
-          disabled={!table.getCanNextPage()}
+          disabled={
+            paginationInfo ? !paginationInfo.has_next : !table.getCanNextPage()
+          }
         >
           <ChevronRight className="h-4 w-4" />
         </Button>

@@ -10,17 +10,21 @@ interface Props {
 }
 
 export default async function RecommendationAiSection({ date, title }: Props) {
+  const PAGE_SIZE = 10;
   try {
     const data = await signalApiService.getSignalByNameAndDate(
       [],
       date,
       "AI_GENERATED",
+      1,
+      PAGE_SIZE,
     );
 
     return (
       <RecommendationByAiCard
         title={title ?? "AI Generated Recommendations"}
         data={data}
+        pageSize={PAGE_SIZE}
       />
     );
   } catch (error) {
