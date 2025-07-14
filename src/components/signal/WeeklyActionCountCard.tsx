@@ -23,7 +23,6 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   params,
   data: initialData,
 }) => {
-  console.log(initialData);
   const { data, isLoading, error } = useWeeklyActionCount(params, {
     select(data: WeeklyActionCountResponse): WeeklyActionCountResponse {
       return {

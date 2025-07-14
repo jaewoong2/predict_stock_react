@@ -203,14 +203,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </div>
 
               <div className="flex flex-col">
-                {weeklySignalData.data?.data[0].count?.length && (
+                {weeklySignalData.data?.data?.[0].count?.length && (
                   <strong>7일간 상승 시그널</strong>
                 )}
                 <div className="flex flex-wrap gap-1">
-                  {weeklySignalData.data?.data[0].count.map(
+                  {weeklySignalData.data?.data?.[0].count.map(
                     (count, index) => (
                       <Tooltip
-                        key={weeklySignalData.data?.data[0].date[index]}
+                        key={weeklySignalData.data?.data?.[0].date[index]}
                       >
                         <TooltipTrigger className="cursor-pointer">
                           <Badge
