@@ -29,7 +29,12 @@ export const useSignalDataByDate = (
   >,
 ) => {
   return useQuery<SignalAPIResponse, Error>({
-    queryKey: [...SIGNAL_KEYS.listByDate(date), { page, pageSize }],
+    queryKey: [
+      ...SIGNAL_KEYS.listByDate(date),
+      { page, pageSize },
+      page,
+      pageSize,
+    ],
     queryFn: () => signalApiService.getSignalsByDate(date, page, pageSize),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
@@ -54,7 +59,8 @@ export const useSignalDataByNameAndDate = (
       symbols.join(","),
       date,
       strategy_type,
-      { page, pageSize },
+      page,
+      pageSize,
     ],
     queryFn: () =>
       signalApiService.getSignalByNameAndDate(

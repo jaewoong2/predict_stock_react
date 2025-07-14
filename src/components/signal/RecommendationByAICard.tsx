@@ -30,6 +30,12 @@ const RecommendationByAiCard: FC<{
     },
   );
 
+  // 페이지네이션 정보 계산
+  const paginationInfo = data?.pagination;
+  const totalItems = paginationInfo?.total_items || 0;
+  const currentStart = totalItems > 0 ? (page - 1) * pageSize + 1 : 0;
+  const currentEnd = Math.min(page * pageSize, totalItems);
+
   if (isLoading) {
     return (
       <CardSkeleton
@@ -88,32 +94,29 @@ const RecommendationByAiCard: FC<{
             )}
           </div>
         )}
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <span className="text-muted-foreground text-sm">
-            {(() => {
-              const total = data.pagination.total_items;
-              const start = (page - 1) * pageSize + 1;
-              const end = Math.min(page * pageSize, total);
-              return `${start}-${end} / ${total}`;
-            })()}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={!data.pagination.has_previous}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={!data.pagination.has_next}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        {totalItems > 0 && (
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <span className="text-muted-foreground text-sm">
+              {`${currentStart}-${currentEnd} / ${totalItems}`}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={!paginationInfo?.has_previous}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!paginationInfo?.has_next}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
