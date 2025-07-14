@@ -250,6 +250,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     pageIndex: page - 1,
     pageSize: pageSize,
   };
+  const paginationInfo = signalApiResponse?.pagination;
 
   return (
     <>
@@ -328,6 +329,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         onRowClick={handleRowClick}
         isLoading={isLoading || !mounted} // 마운트 전에도 로딩 상태로 처리
         pagination={paginationState}
+        paginationInfo={paginationInfo}
         onPaginationChange={handlePaginationChange}
       />
     </>

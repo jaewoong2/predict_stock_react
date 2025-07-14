@@ -15,6 +15,7 @@ interface SignalListWrapperProps {
     pageIndex: number;
     pageSize: number;
   };
+  paginationInfo?: import("@/types/signal").PaginationResponse;
   // 페이지네이션 변경 이벤트 핸들러 추가
   onPaginationChange?: (pageIndex: number, pageSize: number) => void;
 }
@@ -26,6 +27,7 @@ export function SignalListWrapper({
   isLoading,
   children,
   pagination,
+  paginationInfo,
   onPaginationChange,
 }: PropsWithChildren<SignalListWrapperProps>) {
   return (
@@ -37,6 +39,7 @@ export function SignalListWrapper({
         onRowClick={onRowClick}
         isLoading={isLoading}
         pagination={pagination}
+        paginationInfo={paginationInfo}
         onPaginationChange={onPaginationChange}
       />
     </div>
