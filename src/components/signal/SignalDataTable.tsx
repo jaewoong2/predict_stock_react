@@ -86,6 +86,16 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: (updater) => {
+      const newPagination = typeof updater === 'function' 
+        ? updater(activePagination)
+        : updater;
+      
+      if (onPaginationChange) {
+        onPaginationChange(newPagination.pageIndex, newPagination.pageSize);
+      }
+    },
+    manualPagination: true,
 
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -119,6 +129,12 @@ export function SignalDataTable<TData extends SignalData, TValue>({
         .includes(String(filterValue).toLowerCase());
     },
   });
+
+  // 테이블 페이지네이션 상태 업데이트
+  React.useEffect(() => {
+    table.setPageIndex(activePagination.pageIndex);
+    table.setPageSize(activePagination.pageSize);
+  }, [activePagination.pageIndex, activePagination.pageSize, table]);
 
   if (isLoading) {
     return (
@@ -202,8 +218,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
         <div className="text-muted-foreground flex w-full items-center justify-start gap-4 text-sm">
           <span>
             {(() => {
-              const pageSize = table.getState().pagination.pageSize || 0;
-              const pageIndex = table.getState().pagination.pageIndex || 0;
+              const pageSize = activePagination.pageSize || 0;
+              const pageIndex = activePagination.pageIndex || 0;
               const totalRows = paginationInfo
                 ? paginationInfo.total_items
                 : table.getFilteredRowModel().rows.length || 0;
@@ -227,7 +243,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
-                  {table.getState().pagination.pageSize}
+                  {activePagination.pageSize}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -235,9 +251,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                   <DropdownMenuCheckboxItem
                     key={size}
                     className="capitalize"
-                    checked={table.getState().pagination.pageSize === size}
+                    checked={activePagination.pageSize === size}
                     onCheckedChange={() => {
-                      table.setPageSize(size);
                       if (onPaginationChange) {
                         onPaginationChange(0, size);
                       }
@@ -257,8 +272,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           onClick={() =>
             onPaginationChange &&
             onPaginationChange(
-              table.getState().pagination.pageIndex - 1,
-              table.getState().pagination.pageSize,
+              Math.max(0, activePagination.pageIndex - 1),
+              activePagination.pageSize,
             )
           }
           disabled={
@@ -276,8 +291,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           onClick={() =>
             onPaginationChange &&
             onPaginationChange(
-              table.getState().pagination.pageIndex + 1,
-              table.getState().pagination.pageSize,
+              activePagination.pageIndex + 1,
+              activePagination.pageSize,
             )
           }
           disabled={
