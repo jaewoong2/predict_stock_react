@@ -1,5 +1,5 @@
 "use client";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +17,7 @@ const RecommendationByAiCard: FC<{
   pageSize?: number;
 }> = ({ title, data: initialData, pageSize = 10 }) => {
   const { date } = useSignalSearchParams();
-  const [page, setPage] = React.useState(initialData?.pagination.page ?? 1);
+  const [page, setPage] = useState(initialData?.pagination.page ?? 1);
 
   const { data, isLoading, error } = useSignalDataByNameAndDate(
     [],
@@ -27,7 +27,6 @@ const RecommendationByAiCard: FC<{
     pageSize,
     {
       initialData,
-      keepPreviousData: true,
     },
   );
 
@@ -90,7 +89,7 @@ const RecommendationByAiCard: FC<{
           </div>
         )}
         <div className="mt-4 flex items-center justify-end gap-2">
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             {(() => {
               const total = data.pagination.total_items;
               const start = (page - 1) * pageSize + 1;
