@@ -85,11 +85,11 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   );
 
   const data = useMemo(() => {
-    return signals.data?.data.find(
+    return signals.data?.signals.find(
       (value) =>
         value.signal.ai_model === aiModel && value.signal.ticker === symbol,
     );
-  }, [aiModel, signals.data?.data, symbol]);
+  }, [aiModel, signals.data?.signals, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -252,9 +252,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 <div className="flex items-center gap-2">
                   <strong>LLM 모델:</strong>
                   <AiModelSelect
-                    options={[
+                  options={[
                       ...new Set(
-                        signals.data?.data.map(
+                        signals.data?.signals.map(
                           (signal) => signal.signal.ai_model ?? "",
                         ),
                       ),

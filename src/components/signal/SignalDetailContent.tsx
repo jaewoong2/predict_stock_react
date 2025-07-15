@@ -81,7 +81,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 
   const data = useMemo(() => {
     try {
-      return signals.data?.data.find(
+      return signals.data?.signals.find(
         (value) =>
           value.signal.ai_model === aiModel && value.signal.ticker === symbol,
       );
@@ -89,7 +89,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
       console.error("Error in useMemo:", error);
       return null;
     }
-  }, [aiModel, signals.data?.data, symbol]);
+  }, [aiModel, signals.data?.signals, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -243,7 +243,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 <AiModelSelect
                   options={[
                     ...new Set(
-                      signals.data?.data.map(
+                      signals.data?.signals.map(
                         (signal) => signal.signal.ai_model ?? "",
                       ),
                     ),

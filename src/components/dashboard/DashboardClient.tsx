@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
-import { SignalData, SignalAPIResponse } from "@/types/signal";
+import { SignalData } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
-import { useInfiniteSignalDataByDate } from "@/hooks/useSignal";
+import { useSignalDataByDate } from "@/hooks/useSignal";
 
 const DashboardClient = () => {
   const {
@@ -51,58 +51,36 @@ const DashboardClient = () => {
     setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
-  const { data: infiniteData, isLoading } = useInfiniteSignalDataByDate(
+  const { data: signalApiResponse, isLoading } = useSignalDataByDate(
     submittedDate,
-    200, // pageSize
     {
       enabled: !!submittedDate,
     },
   );
 
-  // 무한 스크롤 데이터를 평면화
-  const signalApiResponse = useMemo(() => {
-    if (!(infiniteData as any)?.pages) return null;
-
-    const allData = (infiniteData as any).pages.flatMap(
-      (page: any) => page.data || [],
-    );
-    const firstPage = (infiniteData as any).pages[0];
-
-    return {
-      data: allData,
-      pagination: {
-        ...firstPage?.pagination,
-        total_items: (infiniteData as any).pages.reduce(
-          (total: number, page: any) => total + (page.data?.length || 0),
-          0,
-        ),
-      },
-    };
-  }, [infiniteData]);
-
   const allAvailableTickersForSearch = useMemo(() => {
-    if (!signalApiResponse?.data) return [];
+    if (!signalApiResponse?.signals) return [];
     return [
       ...new Set(
-        signalApiResponse.data
+        signalApiResponse.signals
           .map((s: any) => s.signal.ticker)
           .filter(Boolean) as string[],
       ),
     ].sort();
-  }, [signalApiResponse?.data]);
+  }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    if (signalApiResponse?.data) {
+    if (signalApiResponse?.signals) {
       const models = Array.from(
         new Set(
-          signalApiResponse.data
+          signalApiResponse.signals
             .map((s: any) => s.signal.ai_model)
             .filter(Boolean) as string[],
         ),
       ).sort();
       setAvailableAiModels(models);
     }
-  }, [signalApiResponse?.data]);
+  }, [signalApiResponse?.signals]);
 
   const handleRowClick = useCallback(
     (signal: SignalData) => {
@@ -124,8 +102,8 @@ const DashboardClient = () => {
   );
 
   const filteredSignals = useMemo(() => {
-    if (!signalApiResponse?.data) return [];
-    let signalsToFilter = signalApiResponse.data;
+    if (!signalApiResponse?.signals) return [];
+    let signalsToFilter = signalApiResponse.signals;
 
     const searchTickersArray = currentSelectedTickersArray;
 
@@ -234,7 +212,7 @@ const DashboardClient = () => {
       },
     }));
   }, [
-    signalApiResponse?.data,
+    signalApiResponse?.signals,
     currentSelectedTickersArray.join(","),
     selectedAiModels.join(","),
     aiModelFilterConditions.join(","),
@@ -329,9 +307,7 @@ const DashboardClient = () => {
         data={sortedSignals}
         onRowClick={handleRowClick}
         isLoading={isLoading || !mounted}
-        totalItems={
-          signalApiResponse?.pagination?.total_items || sortedSignals.length
-        }
+        totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
         storageKey="dashboard_signals_pagination"
       />
     </>
