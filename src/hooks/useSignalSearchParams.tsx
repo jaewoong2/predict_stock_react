@@ -18,8 +18,6 @@ export interface SignalURLSearchParams {
   models: string[];
   conditions: ("OR" | "AND")[];
   strategy_type: string | null;
-  page: number;
-  pageSize: number;
   setParams: (updates: Partial<SignalURLSearchParams>) => void;
 }
 
@@ -55,12 +53,6 @@ export function SignalSearchParamsProvider({
         }
       };
 
-      if (Object.prototype.hasOwnProperty.call(updates, "page")) {
-        apply("page", updates.page);
-      }
-      if (Object.prototype.hasOwnProperty.call(updates, "pageSize")) {
-        apply("pageSize", updates.pageSize);
-      }
       if (Object.prototype.hasOwnProperty.call(updates, "date")) {
         apply("date", updates.date);
       }
@@ -101,8 +93,6 @@ export function SignalSearchParamsProvider({
       models: modelsParam ? modelsParam.split(",").filter(Boolean) : [],
       conditions: parsedConditions,
       strategy_type: searchParams.get("strategy_type"),
-      page: Number(searchParams.get("page")) || 1,
-      pageSize: Number(searchParams.get("pageSize")) || 20,
       setParams,
     };
   }, [searchParams, pathname, router, setParams]);

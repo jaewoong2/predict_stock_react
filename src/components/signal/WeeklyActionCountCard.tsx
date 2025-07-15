@@ -8,7 +8,6 @@ import {
 } from "@/types/signal";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import Link from "next/link";
 

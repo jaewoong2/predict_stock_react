@@ -1,5 +1,6 @@
 "use client";
-import * as React from "react";
+import { useState } from "react";
+import { useLocalPagination } from "@/hooks/useLocalPagination";
 import {
   ColumnDef,
   SortingState,
@@ -34,15 +35,14 @@ import { TableSkeleton } from "../ui/skeletons";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
+  onRowClick?: (row: TData) => void;
   isLoading?: boolean;
-  // 페이지네이션 상태를 외부에서 주입받기 위한 props
-  pagination: {
-    pageIndex: number;
-    pageSize: number;
-  };
-  // 페이지네이션 변경 이벤트 핸들러
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  totalItems?: number;
+  totalPages?: number;
+  onLoadMore?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  storageKey?: string;
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -50,22 +50,34 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
-  pagination,
-  onPaginationChange,
+  totalItems = 0,
+  totalPages = 0,
+  onLoadMore,
+  hasNextPage,
+  isFetchingNextPage,
+  storageKey,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([
+  const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: "signal.favorite" }, // 제출일 기준 내림차순 정렬
     { desc: true, id: "take_profit_buy" },
   ]); // 기본 정렬 상태 설정 (제출일 기준 내림차순)
-  const [columnFilters, setColumnFilters] = React.useState<
+  const [columnFilters, setColumnFilters] = useState<
     { id: string; value: unknown }[]
   >([]);
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
-  // 실제 사용할 페이지네이션 상태 (외부 또는 내부)
-  const activePagination = pagination;
+  const {
+    page,
+    pageSize,
+    pageIndex,
+    setPage,
+    setPageSize,
+  } = useLocalPagination({
+    storageKey: storageKey || "signal_table_pagination",
+    defaultPage: 1,
+    defaultPageSize: 20,
+  });
 
   const table = useReactTable({
     data,
@@ -76,14 +88,17 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       columnVisibility,
       rowSelection,
       pagination: {
-        pageIndex: activePagination.pageIndex,
-        pageSize: activePagination.pageSize,
+        pageIndex,
+        pageSize,
       },
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    manualPagination: true, // 외부 페이지네이션 사용 설정
+    pageCount:
+      totalPages || Math.ceil(totalItems / pageSize || 1),
 
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -122,7 +137,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     return (
       <TableSkeleton
         columnCount={columns.length}
-        rowCount={pagination.pageSize}
+        rowCount={pageSize}
       />
     );
   }
@@ -202,21 +217,20 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             {(() => {
               const pageSize = table.getState().pagination.pageSize || 0;
               const pageIndex = table.getState().pagination.pageIndex || 0;
-              const totalRows = table.getFilteredRowModel().rows.length || 0;
               const currentStart = Math.min(
                 pageSize * pageIndex + 1,
-                totalRows,
+                totalItems,
               );
               const currentEnd = Math.min(
                 pageSize * (pageIndex + 1),
-                totalRows,
+                totalItems,
               );
 
-              if (totalRows === 0) {
+              if (totalItems === 0) {
                 return "0 / 0";
               }
 
-              return `${currentStart}-${currentEnd} / ${totalRows}`;
+              return `${currentStart}-${currentEnd} / ${totalItems}`;
             })()}
           </span>
           <div className="flex items-center py-4">
@@ -233,10 +247,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                     className="capitalize"
                     checked={table.getState().pagination.pageSize === size}
                     onCheckedChange={() => {
-                      table.setPageSize(size);
-                      if (onPaginationChange) {
-                        onPaginationChange(0, size);
-                      }
+                      setPageSize(size);
+                      setPage(1);
                     }}
                   >
                     {size}줄
@@ -250,14 +262,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() =>
-            onPaginationChange &&
-            onPaginationChange(
-              table.getState().pagination.pageIndex - 1,
-              table.getState().pagination.pageSize,
-            )
-          }
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => setPage(page - 1)}
+          disabled={page <= 1}
         >
           <ChevronLeft className="h-4 w-4 transform" />
         </Button>
@@ -265,17 +271,22 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() =>
-            onPaginationChange &&
-            onPaginationChange(
-              table.getState().pagination.pageIndex + 1,
-              table.getState().pagination.pageSize,
-            )
-          }
-          disabled={!table.getCanNextPage()}
+          onClick={() => setPage(page + 1)}
+          disabled={!hasNextPage}
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
+        {hasNextPage && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-pointer ml-2"
+            onClick={onLoadMore}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? "로딩 중..." : "더 보기"}
+          </Button>
+        )}
       </div>
     </div>
   );
