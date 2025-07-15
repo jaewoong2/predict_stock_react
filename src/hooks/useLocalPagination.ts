@@ -17,22 +17,27 @@ export function useLocalPagination({
   defaultPageSize = 20,
 }: UseLocalPaginationProps = {}) {
   // 초기 상태를 로컬 스토리지에서 가져오거나 기본값 사용
-  const [paginationState, setPaginationState] = useState<PaginationState>(() => {
-    if (typeof window === "undefined") {
-      return { page: defaultPage, pageSize: defaultPageSize };
-    }
-    
-    const savedState = localStorage.getItem(storageKey);
-    if (savedState) {
-      try {
-        return JSON.parse(savedState) as PaginationState;
-      } catch (e) {
-        console.error("Failed to parse pagination state from local storage", e);
+  const [paginationState, setPaginationState] = useState<PaginationState>(
+    () => {
+      if (typeof window === "undefined") {
+        return { page: defaultPage, pageSize: defaultPageSize };
       }
-    }
-    
-    return { page: defaultPage, pageSize: defaultPageSize };
-  });
+
+      const savedState = localStorage.getItem(storageKey);
+      if (savedState) {
+        try {
+          return JSON.parse(savedState) as PaginationState;
+        } catch (e) {
+          console.error(
+            "Failed to parse pagination state from local storage",
+            e,
+          );
+        }
+      }
+
+      return { page: defaultPage, pageSize: defaultPageSize };
+    },
+  );
 
   // 페이지네이션 상태 변경 함수
   const updatePagination = (newPage: number, newPageSize: number) => {
@@ -51,9 +56,9 @@ export function useLocalPagination({
     pageSize: paginationState.pageSize,
     pageIndex: paginationState.page - 1, // TanStack Table은 0-based index 사용
     updatePagination,
-    setPage: (newPage: number) => 
+    setPage: (newPage: number) =>
       updatePagination(newPage, paginationState.pageSize),
-    setPageSize: (newPageSize: number) => 
+    setPageSize: (newPageSize: number) =>
       updatePagination(paginationState.page, newPageSize),
     reset: () => updatePagination(defaultPage, defaultPageSize),
   };

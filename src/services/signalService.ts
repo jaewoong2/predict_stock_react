@@ -57,11 +57,15 @@ export const signalApiService = {
     tickers,
     reference_date,
     action,
+    order_by,
+    limit,
   }: GetWeeklyActionCountParams): Promise<WeeklyActionCountResponse> => {
     const params: {
       tickers?: string;
       reference_date?: string;
       action?: string;
+      order_by?: "counts" | null;
+      limit?: number | null;
     } = {};
 
     if (tickers) {
@@ -72,6 +76,12 @@ export const signalApiService = {
     }
     if (action) {
       params.action = action;
+    }
+    if (order_by) {
+      params.order_by = order_by;
+    }
+    if (limit) {
+      params.limit = limit;
     }
 
     const response = await api.get<WeeklyActionCountResponse>(

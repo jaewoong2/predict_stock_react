@@ -11,9 +11,6 @@ interface SignalListWrapperProps {
   isLoading?: boolean;
   totalItems?: number;
   totalPages?: number;
-  onLoadMore?: () => void;
-  hasNextPage?: boolean;
-  isFetchingNextPage?: boolean;
   storageKey?: string;
 }
 
@@ -24,9 +21,6 @@ export function SignalListWrapper({
   isLoading = false,
   totalItems = 0,
   totalPages = 0,
-  onLoadMore,
-  hasNextPage,
-  isFetchingNextPage,
   storageKey,
   children,
 }: PropsWithChildren<SignalListWrapperProps>) {
@@ -40,9 +34,6 @@ export function SignalListWrapper({
         isLoading={isLoading}
         totalItems={totalItems}
         totalPages={totalPages}
-        onLoadMore={onLoadMore}
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
         storageKey={storageKey}
       />
     </div>

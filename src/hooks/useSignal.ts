@@ -1,4 +1,9 @@
-import { useQuery, useInfiniteQuery, UseQueryOptions, UseInfiniteQueryOptions } from "@tanstack/react-query";
+import {
+  useQuery,
+  useInfiniteQuery,
+  UseQueryOptions,
+  UseInfiniteQueryOptions,
+} from "@tanstack/react-query";
 import {
   GetWeeklyActionCountParams,
   SignalAPIResponse,
@@ -29,16 +34,16 @@ export const useInfiniteSignalDataByDate = (
   >,
 ) => {
   return useInfiniteQuery({
-    queryKey: [...SIGNAL_KEYS.listByDate(date), { pageSize }],
-    queryFn: ({ pageParam = 1 }) => signalApiService.getSignalsByDate(date, pageParam as number, pageSize),
+    queryKey: [...SIGNAL_KEYS.listByDate(date), pageSize],
+    queryFn: ({ pageParam = 0 }) =>
+      signalApiService.getSignalsByDate(date, pageParam as number, pageSize),
     getNextPageParam: (lastPage) => {
       if (!lastPage.pagination?.has_next) return undefined;
       return lastPage.pagination.page + 1;
     },
-    initialPageParam: 1,
+    initialPageParam: 0,
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
-    staleTime: 1000 * 60 * 5, // 5분간 캐시 데이터 사용
   });
 };
 
