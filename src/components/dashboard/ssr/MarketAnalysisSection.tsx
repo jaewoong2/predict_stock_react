@@ -9,11 +9,11 @@ interface Props {
 }
 
 export default function MarketAnalysisSection({ date }: Props) {
-  const { data } = useMarketAnalysis(date, {
+  const { data, isLoading } = useMarketAnalysis(date, {
     enabled: !!date,
   });
 
-  if (!data) {
+  if (!data || !data.top_momentum_sectors || isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-gray-500">데이터를 불러오는 중입니다...</p>
@@ -25,7 +25,7 @@ export default function MarketAnalysisSection({ date }: Props) {
     <div className="grid grid-cols-1 gap-6 space-y-4 md:grid-cols-2">
       <MomentumSectorsCard
         sectors={data.top_momentum_sectors}
-        defaultValue={data.top_momentum_sectors[0].sector}
+        defaultValue={data.top_momentum_sectors[0]?.sector}
       />
       <div className="flex flex-col space-y-4">
         <MarketOverviewCard data={data.market_overview} date={date} />

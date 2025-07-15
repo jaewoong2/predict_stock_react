@@ -1,12 +1,12 @@
 export interface MarketAnalysis {
   analysis_date_est: string;
   market_overview: MarketOverview;
-  top_momentum_sectors: MomentumSector[];
+  top_momentum_sectors?: MomentumSector[];
 }
 
 export interface MarketOverview {
-  summary: string;
-  major_catalysts: string[];
+  summary?: string;
+  major_catalysts?: string[];
 }
 
 export interface MomentumSector {

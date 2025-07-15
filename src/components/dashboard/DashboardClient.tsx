@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalData, SignalAPIResponse } from "@/types/signal";
-import { signalApiService } from "@/services/signalService";
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
@@ -33,8 +32,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     q,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
-    page,
-    pageSize,
     setParams,
   } = useSignalSearchParams();
 
@@ -62,8 +59,8 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   const { data: signalApiResponse, isLoading } = useSignalDataByDate(
     submittedDate,
-    page,
-    pageSize,
+    1,
+    100,
     {
       initialData: initialSignals,
     },
@@ -104,7 +101,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     const newQ =
       newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
     setParams({ q: newQ });
-    setParams({ page: 1 }); // 페이지를 1로 리셋합니다.
   };
 
   const filteredSignals = useMemo(() => {
@@ -239,17 +235,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     [favorites, toggleFavorite],
   );
 
-  const handlePaginationChange = (
-    newPageIndex: number,
-    newPageSize: number,
-  ) => {
-    setParams({ page: newPageIndex + 1, pageSize: newPageSize });
-  };
-
-  const paginationState = {
-    pageIndex: page - 1,
-    pageSize: pageSize,
-  };
 
   return (
     <>
@@ -307,14 +292,13 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
             selectedModels={selectedAiModels}
             conditions={aiModelFilterConditions}
             onModelsChange={(models) => {
-              setParams({ models, page: 1 });
+              setParams({ models });
             }}
             onConditionChange={(idx, value) => {
               setParams({
                 conditions: aiModelFilterConditions
                   .map((c, i) => (i === idx ? value : c))
                   .slice(0, Math.max(0, selectedAiModels.length - 1)),
-                page: 1,
               });
             }}
           />
@@ -322,13 +306,11 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       </div>
 
       <SignalListWrapper
-        submittedDate={submittedDate}
         columns={columns}
         data={sortedSignals}
         onRowClick={handleRowClick}
-        isLoading={isLoading || !mounted} // 마운트 전에도 로딩 상태로 처리
-        pagination={paginationState}
-        onPaginationChange={handlePaginationChange}
+        isLoading={isLoading || !mounted}
+        storageKey="dashboard_signals_pagination"
       />
     </>
   );

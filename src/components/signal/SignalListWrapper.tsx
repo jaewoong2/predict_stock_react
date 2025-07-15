@@ -5,28 +5,30 @@ import { SignalDataTable } from "./SignalDataTable";
 import { PropsWithChildren } from "react";
 
 interface SignalListWrapperProps {
-  submittedDate: string;
   columns: ColumnDef<SignalData, unknown>[];
   data: SignalData[];
   onRowClick: (signal: SignalData) => void;
   isLoading?: boolean;
-  // 페이지네이션 상태 추가
-  pagination: {
-    pageIndex: number;
-    pageSize: number;
-  };
-  // 페이지네이션 변경 이벤트 핸들러 추가
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  totalItems?: number;
+  totalPages?: number;
+  onLoadMore?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  storageKey?: string;
 }
 
 export function SignalListWrapper({
   columns,
   data,
   onRowClick,
-  isLoading,
+  isLoading = false,
+  totalItems = 0,
+  totalPages = 0,
+  onLoadMore,
+  hasNextPage,
+  isFetchingNextPage,
+  storageKey,
   children,
-  pagination,
-  onPaginationChange,
 }: PropsWithChildren<SignalListWrapperProps>) {
   return (
     <div className="mb-8">
@@ -36,8 +38,12 @@ export function SignalListWrapper({
         data={data}
         onRowClick={onRowClick}
         isLoading={isLoading}
-        pagination={pagination}
-        onPaginationChange={onPaginationChange}
+        totalItems={totalItems}
+        totalPages={totalPages}
+        onLoadMore={onLoadMore}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+        storageKey={storageKey}
       />
     </div>
   );
