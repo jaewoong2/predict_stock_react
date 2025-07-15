@@ -17,7 +17,6 @@ const RecommendationCard: FC<{
   data?: NewsRecommendationsResponse;
 }> = ({ title, recommendation, badgeColor, data: initialData }) => {
   const { date } = useSignalSearchParams();
-  const router = useRouter();
   const { data, isLoading, error } = useNewsRecommendations(
     {
       recommendation,

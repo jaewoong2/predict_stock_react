@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalData, SignalAPIResponse } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
@@ -18,15 +18,9 @@ import {
 } from "@/components/ui/tooltip";
 import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
-import { useSignalDataByDate } from "@/hooks/useSignal";
+import { useInfiniteSignalDataByDate } from "@/hooks/useSignal";
 
-interface DashboardClientProps {
-  initialSignals?: SignalAPIResponse;
-}
-
-const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
-  initialSignals,
-}) => {
+const DashboardClient = () => {
   const {
     date,
     q,
@@ -57,21 +51,41 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
-  const { data: signalApiResponse, isLoading } = useSignalDataByDate(
+  const { data: infiniteData, isLoading } = useInfiniteSignalDataByDate(
     submittedDate,
-    1,
-    100,
+    200, // pageSize
     {
-      initialData: initialSignals,
+      enabled: !!submittedDate,
     },
   );
+
+  // 무한 스크롤 데이터를 평면화
+  const signalApiResponse = useMemo(() => {
+    if (!(infiniteData as any)?.pages) return null;
+
+    const allData = (infiniteData as any).pages.flatMap(
+      (page: any) => page.data || [],
+    );
+    const firstPage = (infiniteData as any).pages[0];
+
+    return {
+      data: allData,
+      pagination: {
+        ...firstPage?.pagination,
+        total_items: (infiniteData as any).pages.reduce(
+          (total: number, page: any) => total + (page.data?.length || 0),
+          0,
+        ),
+      },
+    };
+  }, [infiniteData]);
 
   const allAvailableTickersForSearch = useMemo(() => {
     if (!signalApiResponse?.data) return [];
     return [
       ...new Set(
         signalApiResponse.data
-          .map((s) => s.signal.ticker)
+          .map((s: any) => s.signal.ticker)
           .filter(Boolean) as string[],
       ),
     ].sort();
@@ -82,7 +96,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       const models = Array.from(
         new Set(
           signalApiResponse.data
-            .map((s) => s.signal.ai_model)
+            .map((s: any) => s.signal.ai_model)
             .filter(Boolean) as string[],
         ),
       ).sort();
@@ -90,18 +104,24 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }
   }, [signalApiResponse?.data]);
 
-  const handleRowClick = (signal: SignalData) => {
-    router.push(
-      `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
-      { scroll: true },
-    );
-  };
+  const handleRowClick = useCallback(
+    (signal: SignalData) => {
+      router.push(
+        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
+        { scroll: true },
+      );
+    },
+    [router],
+  );
 
-  const handleSelectedTickersChange = (newSelectedTickers: string[]) => {
-    const newQ =
-      newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
-    setParams({ q: newQ });
-  };
+  const handleSelectedTickersChange = useCallback(
+    (newSelectedTickers: string[]) => {
+      const newQ =
+        newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
+      setParams({ q: newQ });
+    },
+    [setParams],
+  );
 
   const filteredSignals = useMemo(() => {
     if (!signalApiResponse?.data) return [];
@@ -110,7 +130,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     const searchTickersArray = currentSelectedTickersArray;
 
     if (searchTickersArray.length > 0) {
-      signalsToFilter = signalsToFilter.filter((item) => {
+      signalsToFilter = signalsToFilter.filter((item: any) => {
         const ticker = item.signal.ticker?.toLowerCase();
         if (!ticker) return false;
         return searchTickersArray.some((st) =>
@@ -122,7 +142,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     if (selectedAiModels.length > 0) {
       // ... (이하 필터링 로직은 동일)
       if (aiModelFilterConditions.every((c) => c === "OR")) {
-        signalsToFilter = signalsToFilter.filter((item) => {
+        signalsToFilter = signalsToFilter.filter((item: any) => {
           const model = item.signal.ai_model;
           return model && selectedAiModels.includes(model);
         });
@@ -131,7 +151,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
           string,
           { models: Set<string>; items: SignalData[] }
         > = {};
-        signalsToFilter.forEach((item) => {
+        signalsToFilter.forEach((item: any) => {
           const ticker = item.signal.ticker;
           const model = item.signal.ai_model;
           if (!ticker) return;
@@ -165,7 +185,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
           string,
           { models: Set<string>; items: SignalData[] }
         > = {};
-        signalsToFilter.forEach((item) => {
+        signalsToFilter.forEach((item: any) => {
           const ticker = item.signal.ticker;
           const model = item.signal.ai_model;
           if (!ticker) return;
@@ -206,7 +226,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         signalsToFilter = resultSignals;
       }
     }
-    return signalsToFilter.map((signalData) => ({
+    return signalsToFilter.map((signalData: any) => ({
       ...signalData,
       signal: {
         ...signalData.signal,
@@ -215,10 +235,10 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     }));
   }, [
     signalApiResponse?.data,
-    currentSelectedTickersArray,
-    selectedAiModels,
-    aiModelFilterConditions,
-    favorites,
+    currentSelectedTickersArray.join(","),
+    selectedAiModels.join(","),
+    aiModelFilterConditions.join(","),
+    favorites.join(","),
   ]);
 
   const sortedSignals = useMemo(() => {
@@ -234,7 +254,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     () => createColumns(favorites, toggleFavorite),
     [favorites, toggleFavorite],
   );
-
 
   return (
     <>
@@ -310,10 +329,13 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         data={sortedSignals}
         onRowClick={handleRowClick}
         isLoading={isLoading || !mounted}
+        totalItems={
+          signalApiResponse?.pagination?.total_items || sortedSignals.length
+        }
         storageKey="dashboard_signals_pagination"
       />
     </>
   );
 };
 
-export default SignalAnalysisPage;
+export default DashboardClient;

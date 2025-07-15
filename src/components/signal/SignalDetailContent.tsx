@@ -193,28 +193,32 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
             </div>
 
             <div className="flex flex-col">
-              {weeklySignalData.data?.data?.[0].count?.length && (
+              {weeklySignalData.data?.signals?.[0].count?.length && (
                 <strong>7일간 상승 시그널</strong>
               )}
               <div className="flex flex-wrap gap-1">
-                {weeklySignalData.data?.data?.[0].count.map((count, index) => (
-                  <Tooltip key={weeklySignalData.data?.data?.[0].date[index]}>
-                    <TooltipTrigger className="cursor-pointer">
-                      <Badge
-                        key={count}
-                        className={cn(
-                          "in-checked: justify-center bg-blue-500 text-xs text-white",
-                          count > 0 ? "bg-green-600" : "bg-red-400",
-                        )}
-                      >
-                        {count}개
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {weeklySignalData.data?.signals?.[0].count.map(
+                  (count, index) => (
+                    <Tooltip
+                      key={weeklySignalData.data?.signals?.[0].date[index]}
+                    >
+                      <TooltipTrigger className="cursor-pointer">
+                        <Badge
+                          key={count}
+                          className={cn(
+                            "in-checked: justify-center bg-blue-500 text-xs text-white",
+                            count > 0 ? "bg-green-600" : "bg-red-400",
+                          )}
+                        >
+                          {count}개
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
+                      </TooltipContent>
+                    </Tooltip>
+                  ),
+                )}
               </div>
             </div>
           </section>

@@ -74,11 +74,14 @@ export interface WeeklyActionCount {
 }
 
 export interface WeeklyActionCountResponse {
-  data: WeeklyActionCount[];
+  signals: WeeklyActionCount[];
 }
 
 export interface GetWeeklyActionCountParams {
   tickers?: string;
   reference_date?: string;
   action: "Buy" | "Sell";
+
+  order_by?: "counts" | null;
+  limit?: number | null;
 }

@@ -30,7 +30,7 @@ export function MarketOverviewCard({ data, date }: MarketOverviewCardProps) {
           </h4>
           <Separator className="my-2" />
           <ul className="space-y-2">
-            {data.major_catalysts.map((catalyst, idx) => (
+            {data.major_catalysts?.map((catalyst, idx) => (
               <li key={idx} className="flex gap-2 text-sm">
                 <span className="text-primary shrink-0 font-medium">•</span>
                 <span>{catalyst}</span>
