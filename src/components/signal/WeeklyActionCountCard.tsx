@@ -58,7 +58,7 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {data?.signals && data.signals.length > 0 ? (
+        {data?.signals && data.signals?.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {data.signals.map(({ ticker, count }) => (
               <Link

@@ -180,7 +180,7 @@ export default async function DashboardPage({
           <MarketAnalysisSection date={date} />
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
-          <SignalsSection />
+          <SignalsSection date={date} />
         </Suspense>
       </div>
       <DashboardFooter />

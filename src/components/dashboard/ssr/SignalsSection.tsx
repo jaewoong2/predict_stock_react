@@ -1,11 +1,18 @@
 import DashboardClient from "@/components/dashboard/DashboardClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { signalApiService } from "@/services/signalService";
 
 export const revalidate = 3600;
 
-export default async function SignalsSection() {
+type Props = {
+  date: string;
+};
+
+export default async function SignalsSection({ date }: Props) {
+  const data = await signalApiService.getSignalsByDate(date);
+
   try {
-    return <DashboardClient />;
+    return <DashboardClient initialData={data} />;
   } catch (error) {
     console.error("SignalsSection error", error);
     return (
