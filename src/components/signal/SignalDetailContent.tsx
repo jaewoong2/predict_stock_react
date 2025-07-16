@@ -31,7 +31,7 @@ import useMounted from "@/hooks/useMounted";
 interface SignalDetailContentProps {
   symbol: string;
   aiModel: string;
-  date?: string;
+  date: string;
 }
 
 const formatDate = (
@@ -73,11 +73,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   const router = useRouter();
   const { strategy_type } = useSignalSearchParams();
 
-  const signals = useSignalDataByNameAndDate(
-    [symbol],
-    date ?? new Date().toISOString().split("T")[0],
-    strategy_type,
-  );
+  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
 
   const data = useMemo(() => {
     try {

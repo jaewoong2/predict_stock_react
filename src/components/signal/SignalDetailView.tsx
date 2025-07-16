@@ -33,7 +33,7 @@ import useMounted from "@/hooks/useMounted";
 import { useRouter } from "next/navigation";
 
 interface SignalDetailViewProps {
-  date?: string;
+  date: string;
   symbol: string;
   aiModel: string;
 }
@@ -78,11 +78,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   const { strategy_type } = useSignalSearchParams();
   const router = useRouter();
 
-  const signals = useSignalDataByNameAndDate(
-    [symbol],
-    date ?? new Date().toISOString().split("T")[0],
-    strategy_type,
-  );
+  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
 
   const data = useMemo(() => {
     return signals.data?.signals.find(
@@ -252,7 +248,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 <div className="flex items-center gap-2">
                   <strong>LLM 모델:</strong>
                   <AiModelSelect
-                  options={[
+                    options={[
                       ...new Set(
                         signals.data?.signals.map(
                           (signal) => signal.signal.ai_model ?? "",
