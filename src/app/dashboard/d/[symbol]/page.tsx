@@ -82,6 +82,7 @@ export async function generateMetadata({
       date,
       strategy_type,
     );
+
     const signal = data.signals.find(
       (s) => s.signal.ticker === symbol && s.signal.ai_model === model,
     );

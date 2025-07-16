@@ -1,8 +1,8 @@
 "use client";
+import React, { PropsWithChildren } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { SignalData } from "@/types/signal";
 import { SignalDataTable } from "./SignalDataTable";
-import { PropsWithChildren } from "react";
 
 interface SignalListWrapperProps {
   columns: ColumnDef<SignalData, unknown>[];
@@ -14,7 +14,7 @@ interface SignalListWrapperProps {
   storageKey?: string;
 }
 
-export function SignalListWrapper({
+export const SignalListWrapper = React.memo(({
   columns,
   data,
   onRowClick,
@@ -23,7 +23,7 @@ export function SignalListWrapper({
   totalPages = 0,
   storageKey,
   children,
-}: PropsWithChildren<SignalListWrapperProps>) {
+}: PropsWithChildren<SignalListWrapperProps>) => {
   return (
     <div className="mb-8">
       {children}
@@ -38,4 +38,6 @@ export function SignalListWrapper({
       />
     </div>
   );
-}
+});
+
+SignalListWrapper.displayName = 'SignalListWrapper';

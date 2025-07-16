@@ -24,7 +24,6 @@ export const createColumns = (
   {
     id: "signal.favorite",
     accessorKey: "signal.favorite",
-    header: "",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;
       const isFav = favorites.includes(ticker);

@@ -24,7 +24,6 @@ export default async function RecommendationAiSection({ date, title }: Props) {
       />
     );
   } catch (error) {
-    console.error("RecommendationAiSection error", error);
     return (
       <Card className="h-full shadow-none">
         <CardHeader>

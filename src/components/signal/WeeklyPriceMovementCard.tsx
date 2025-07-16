@@ -38,8 +38,6 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
     enabled: !initialData,
   });
 
-  console.log(data);
-
   if (isLoading) {
     return (
       <CardSkeleton
