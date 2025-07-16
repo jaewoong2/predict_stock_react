@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
-import { SignalData, SignalAPIResponse } from "@/types/signal";
-import { signalApiService } from "@/services/signalService";
+import { SignalAPIResponse, SignalData } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
@@ -21,20 +20,16 @@ import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 
-interface DashboardClientProps {
-  initialSignals?: SignalAPIResponse;
-}
+type Props = {
+  initialData?: SignalAPIResponse;
+};
 
-const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
-  initialSignals,
-}) => {
+const DashboardClient = ({ initialData }: Props) => {
   const {
     date,
     q,
     models: selectedAiModels,
     conditions: aiModelFilterConditions,
-    page,
-    pageSize,
     setParams,
   } = useSignalSearchParams();
 
@@ -62,59 +57,62 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
 
   const { data: signalApiResponse, isLoading } = useSignalDataByDate(
     submittedDate,
-    page,
-    pageSize,
     {
-      initialData: initialSignals,
+      initialData: initialData,
     },
   );
 
   const allAvailableTickersForSearch = useMemo(() => {
-    if (!signalApiResponse?.data) return [];
+    if (!signalApiResponse?.signals) return [];
     return [
       ...new Set(
-        signalApiResponse.data
-          .map((s) => s.signal.ticker)
+        signalApiResponse.signals
+          .map((s: any) => s.signal.ticker)
           .filter(Boolean) as string[],
       ),
     ].sort();
-  }, [signalApiResponse?.data]);
+  }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    if (signalApiResponse?.data) {
+    if (signalApiResponse?.signals) {
       const models = Array.from(
         new Set(
-          signalApiResponse.data
-            .map((s) => s.signal.ai_model)
+          signalApiResponse.signals
+            .map((s: any) => s.signal.ai_model)
             .filter(Boolean) as string[],
         ),
       ).sort();
       setAvailableAiModels(models);
     }
-  }, [signalApiResponse?.data]);
+  }, [signalApiResponse?.signals]);
 
-  const handleRowClick = (signal: SignalData) => {
-    router.push(
-      `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
-      { scroll: true },
-    );
-  };
+  const handleRowClick = useCallback(
+    (signal: SignalData) => {
+      router.push(
+        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${submittedDate}`,
+        { scroll: true },
+      );
+    },
+    [router],
+  );
 
-  const handleSelectedTickersChange = (newSelectedTickers: string[]) => {
-    const newQ =
-      newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
-    setParams({ q: newQ });
-    setParams({ page: 1 }); // 페이지를 1로 리셋합니다.
-  };
+  const handleSelectedTickersChange = useCallback(
+    (newSelectedTickers: string[]) => {
+      const newQ =
+        newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
+      setParams({ q: newQ });
+    },
+    [setParams],
+  );
 
   const filteredSignals = useMemo(() => {
-    if (!signalApiResponse?.data) return [];
-    let signalsToFilter = signalApiResponse.data;
+    if (!signalApiResponse?.signals) return [];
+    let signalsToFilter = signalApiResponse.signals;
 
     const searchTickersArray = currentSelectedTickersArray;
 
     if (searchTickersArray.length > 0) {
-      signalsToFilter = signalsToFilter.filter((item) => {
+      signalsToFilter = signalsToFilter.filter((item: any) => {
         const ticker = item.signal.ticker?.toLowerCase();
         if (!ticker) return false;
         return searchTickersArray.some((st) =>
@@ -126,7 +124,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     if (selectedAiModels.length > 0) {
       // ... (이하 필터링 로직은 동일)
       if (aiModelFilterConditions.every((c) => c === "OR")) {
-        signalsToFilter = signalsToFilter.filter((item) => {
+        signalsToFilter = signalsToFilter.filter((item: any) => {
           const model = item.signal.ai_model;
           return model && selectedAiModels.includes(model);
         });
@@ -135,7 +133,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
           string,
           { models: Set<string>; items: SignalData[] }
         > = {};
-        signalsToFilter.forEach((item) => {
+        signalsToFilter.forEach((item: any) => {
           const ticker = item.signal.ticker;
           const model = item.signal.ai_model;
           if (!ticker) return;
@@ -169,7 +167,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
           string,
           { models: Set<string>; items: SignalData[] }
         > = {};
-        signalsToFilter.forEach((item) => {
+        signalsToFilter.forEach((item: any) => {
           const ticker = item.signal.ticker;
           const model = item.signal.ai_model;
           if (!ticker) return;
@@ -210,7 +208,7 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
         signalsToFilter = resultSignals;
       }
     }
-    return signalsToFilter.map((signalData) => ({
+    return signalsToFilter.map((signalData: any) => ({
       ...signalData,
       signal: {
         ...signalData.signal,
@@ -218,11 +216,11 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       },
     }));
   }, [
-    signalApiResponse?.data,
-    currentSelectedTickersArray,
-    selectedAiModels,
-    aiModelFilterConditions,
-    favorites,
+    signalApiResponse?.signals,
+    currentSelectedTickersArray.join(","),
+    selectedAiModels.join(","),
+    aiModelFilterConditions.join(","),
+    favorites.join(","),
   ]);
 
   const sortedSignals = useMemo(() => {
@@ -238,19 +236,6 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
     () => createColumns(favorites, toggleFavorite),
     [favorites, toggleFavorite],
   );
-
-  const handlePaginationChange = (
-    newPageIndex: number,
-    newPageSize: number,
-  ) => {
-    setParams({ page: newPageIndex + 1, pageSize: newPageSize });
-  };
-
-  const paginationState = {
-    pageIndex: page - 1,
-    pageSize: pageSize,
-  };
-  const paginationInfo = signalApiResponse?.pagination;
 
   return (
     <>
@@ -308,14 +293,13 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
             selectedModels={selectedAiModels}
             conditions={aiModelFilterConditions}
             onModelsChange={(models) => {
-              setParams({ models, page: 1 });
+              setParams({ models });
             }}
             onConditionChange={(idx, value) => {
               setParams({
                 conditions: aiModelFilterConditions
                   .map((c, i) => (i === idx ? value : c))
                   .slice(0, Math.max(0, selectedAiModels.length - 1)),
-                page: 1,
               });
             }}
           />
@@ -323,17 +307,15 @@ const SignalAnalysisPage: React.FC<DashboardClientProps> = ({
       </div>
 
       <SignalListWrapper
-        submittedDate={submittedDate}
         columns={columns}
         data={sortedSignals}
         onRowClick={handleRowClick}
-        isLoading={isLoading || !mounted} // 마운트 전에도 로딩 상태로 처리
-        pagination={paginationState}
-        paginationInfo={paginationInfo}
-        onPaginationChange={handlePaginationChange}
+        isLoading={isLoading || !mounted}
+        totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
+        storageKey="dashboard_signals_pagination"
       />
     </>
   );
 };
 
-export default SignalAnalysisPage;
+export default DashboardClient;

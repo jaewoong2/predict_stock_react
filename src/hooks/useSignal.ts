@@ -3,6 +3,7 @@ import {
   GetWeeklyActionCountParams,
   SignalAPIResponse,
   WeeklyActionCountResponse,
+  Signal,
 } from "../types/signal";
 import { signalApiService } from "@/services/signalService";
 
@@ -21,32 +22,27 @@ export const SIGNAL_KEYS = {
  */
 export const useSignalDataByDate = (
   date: string,
-  page: number = 1,
-  pageSize: number = 20,
   options?: Omit<
     UseQueryOptions<SignalAPIResponse, Error>,
     "queryKey" | "queryFn"
   >,
 ) => {
   return useQuery<SignalAPIResponse, Error>({
-    queryKey: [
-      ...SIGNAL_KEYS.listByDate(date),
-      { page, pageSize },
-      page,
-      pageSize,
-    ],
-    queryFn: () => signalApiService.getSignalsByDate(date, page, pageSize),
+    queryKey: [...SIGNAL_KEYS.listByDate(date)],
+    queryFn: () => signalApiService.getSignalsByDate(date),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
   });
 };
 
+/**
+ * 심볼과 날짜로 시그널 데이터를 가져오는 커스텀 훅
+ */
+
 export const useSignalDataByNameAndDate = (
   symbols: string[],
   date: string,
   strategy_type?: string | null,
-  page: number = 1,
-  pageSize: number = 20,
   options?: Omit<
     UseQueryOptions<SignalAPIResponse, Error>,
     "queryKey" | "queryFn"
@@ -59,19 +55,12 @@ export const useSignalDataByNameAndDate = (
       symbols.join(","),
       date,
       strategy_type,
-      page,
-      pageSize,
     ],
     queryFn: () =>
-      signalApiService.getSignalByNameAndDate(
-        symbols,
-        date,
-        strategy_type,
-        page,
-        pageSize,
-      ),
+      signalApiService.getSignalByNameAndDate(symbols, date, strategy_type),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
+    staleTime: 1000 * 60 * 5, // 5분간 캐시 데이터 사용
   });
 };
 
@@ -95,12 +84,9 @@ export const useTranslatedSignalDataByTickerAndDate = (
   ticker: string,
   date: string,
   strategy_type?: string | null,
-  options?: Omit<
-    UseQueryOptions<SignalAPIResponse["data"][0]["signal"][], Error>,
-    "queryKey" | "queryFn"
-  >,
+  options?: Omit<UseQueryOptions<Signal[], Error>, "queryKey" | "queryFn">,
 ) => {
-  return useQuery<SignalAPIResponse["data"][0]["signal"][], Error>({
+  return useQuery<Signal[], Error>({
     queryKey: [
       ...SIGNAL_KEYS.all,
       "translatedByTickerAndDate",

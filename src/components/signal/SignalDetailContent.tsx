@@ -31,7 +31,7 @@ import useMounted from "@/hooks/useMounted";
 interface SignalDetailContentProps {
   symbol: string;
   aiModel: string;
-  date?: string;
+  date: string;
 }
 
 const formatDate = (
@@ -73,15 +73,11 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   const router = useRouter();
   const { strategy_type } = useSignalSearchParams();
 
-  const signals = useSignalDataByNameAndDate(
-    [symbol],
-    date ?? new Date().toISOString().split("T")[0],
-    strategy_type,
-  );
+  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
 
   const data = useMemo(() => {
     try {
-      return signals.data?.data.find(
+      return signals.data?.signals.find(
         (value) =>
           value.signal.ai_model === aiModel && value.signal.ticker === symbol,
       );
@@ -89,7 +85,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
       console.error("Error in useMemo:", error);
       return null;
     }
-  }, [aiModel, signals.data?.data, symbol]);
+  }, [aiModel, signals.data?.signals, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -193,28 +189,32 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
             </div>
 
             <div className="flex flex-col">
-              {weeklySignalData.data?.data?.[0].count?.length && (
+              {weeklySignalData.data?.signals?.[0].count?.length && (
                 <strong>7일간 상승 시그널</strong>
               )}
               <div className="flex flex-wrap gap-1">
-                {weeklySignalData.data?.data?.[0].count.map((count, index) => (
-                  <Tooltip key={weeklySignalData.data?.data?.[0].date[index]}>
-                    <TooltipTrigger className="cursor-pointer">
-                      <Badge
-                        key={count}
-                        className={cn(
-                          "in-checked: justify-center bg-blue-500 text-xs text-white",
-                          count > 0 ? "bg-green-600" : "bg-red-400",
-                        )}
-                      >
-                        {count}개
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+                {weeklySignalData.data?.signals?.[0].count.map(
+                  (count, index) => (
+                    <Tooltip
+                      key={weeklySignalData.data?.signals?.[0].date[index]}
+                    >
+                      <TooltipTrigger className="cursor-pointer">
+                        <Badge
+                          key={count}
+                          className={cn(
+                            "in-checked: justify-center bg-blue-500 text-xs text-white",
+                            count > 0 ? "bg-green-600" : "bg-red-400",
+                          )}
+                        >
+                          {count}개
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
+                      </TooltipContent>
+                    </Tooltip>
+                  ),
+                )}
               </div>
             </div>
           </section>
@@ -239,7 +239,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 <AiModelSelect
                   options={[
                     ...new Set(
-                      signals.data?.data.map(
+                      signals.data?.signals.map(
                         (signal) => signal.signal.ai_model ?? "",
                       ),
                     ),

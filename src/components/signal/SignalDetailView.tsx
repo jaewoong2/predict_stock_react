@@ -33,7 +33,7 @@ import useMounted from "@/hooks/useMounted";
 import { useRouter } from "next/navigation";
 
 interface SignalDetailViewProps {
-  date?: string;
+  date: string;
   symbol: string;
   aiModel: string;
 }
@@ -78,18 +78,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   const { strategy_type } = useSignalSearchParams();
   const router = useRouter();
 
-  const signals = useSignalDataByNameAndDate(
-    [symbol],
-    date ?? new Date().toISOString().split("T")[0],
-    strategy_type,
-  );
+  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
 
   const data = useMemo(() => {
-    return signals.data?.data.find(
+    return signals.data?.signals.find(
       (value) =>
         value.signal.ai_model === aiModel && value.signal.ticker === symbol,
     );
-  }, [aiModel, signals.data?.data, symbol]);
+  }, [aiModel, signals.data?.signals, symbol]);
 
   const { data: marketNews } = useMarketNewsSummary({
     news_type: "ticker",
@@ -203,14 +199,14 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
               </div>
 
               <div className="flex flex-col">
-                {weeklySignalData.data?.data?.[0].count?.length && (
+                {weeklySignalData.data?.signals?.[0].count?.length && (
                   <strong>7일간 상승 시그널</strong>
                 )}
                 <div className="flex flex-wrap gap-1">
-                  {weeklySignalData.data?.data?.[0].count.map(
+                  {weeklySignalData.data?.signals?.[0].count.map(
                     (count, index) => (
                       <Tooltip
-                        key={weeklySignalData.data?.data?.[0].date[index]}
+                        key={weeklySignalData.data?.signals?.[0].date[index]}
                       >
                         <TooltipTrigger className="cursor-pointer">
                           <Badge
@@ -254,7 +250,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                   <AiModelSelect
                     options={[
                       ...new Set(
-                        signals.data?.data.map(
+                        signals.data?.signals.map(
                           (signal) => signal.signal.ai_model ?? "",
                         ),
                       ),
