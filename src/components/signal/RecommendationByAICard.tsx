@@ -23,10 +23,9 @@ const RecommendationByAiCard: FC<{
     [],
     date ? date : format(new Date(), "yyyy-MM-dd"),
     "AI_GENERATED",
-    page,
-    pageSize,
     {
       initialData,
+      enabled: !initialData,
     },
   );
 
@@ -70,13 +69,13 @@ const RecommendationByAiCard: FC<{
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {data.data.length === 0 ? (
+        {data.signals?.length === 0 ? (
           <p className="text-muted-foreground">
             해당 추천 유형의 종목이 없습니다.
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {data.data.map(
+            {data.signals?.map(
               ({ signal: item }, index) =>
                 item.action === "buy" && (
                   <Link

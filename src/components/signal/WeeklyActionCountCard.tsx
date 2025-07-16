@@ -8,7 +8,6 @@ import {
 } from "@/types/signal";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import Link from "next/link";
 
@@ -24,20 +23,6 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
   data: initialData,
 }) => {
   const { data, isLoading, error } = useWeeklyActionCount(params, {
-    select(data: WeeklyActionCountResponse): WeeklyActionCountResponse {
-      return {
-        data: data.data
-          .sort((a, b) => {
-            if (a.count && b.count) {
-              const aCount = a.count.reduce((sum, val) => sum + (val || 0), 0);
-              const bCount = b.count.reduce((sum, val) => sum + (val || 0), 0);
-              return bCount - aCount;
-            }
-            return 0;
-          })
-          .slice(0, 10),
-      };
-    },
     initialData,
     enabled: !initialData,
   });
@@ -73,9 +58,9 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {data?.data && data.data.length > 0 ? (
+        {data?.signals && data.signals?.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {data.data.map(({ ticker, count }) => (
+            {data.signals.map(({ ticker, count }) => (
               <Link
                 href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
                 prefetch={false}

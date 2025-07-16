@@ -19,12 +19,19 @@ export default async function WeeklyActionCountSection({
     const data = await signalApiService.getWeeklyActionCount({
       action: "Buy",
       reference_date: date,
+      order_by: "counts",
+      limit: 20,
     });
 
     return (
       <WeeklyActionCountCard
         title={title ?? "Weekly Action Count"}
-        params={{ action: action, reference_date: date }}
+        params={{
+          action: action,
+          reference_date: date,
+          limit: 20,
+          order_by: "counts",
+        }}
         data={data}
       />
     );

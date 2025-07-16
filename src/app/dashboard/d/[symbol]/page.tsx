@@ -82,7 +82,7 @@ export async function generateMetadata({
       date,
       strategy_type,
     );
-    const signal = data.data.find(
+    const signal = data.signals.find(
       (s) => s.signal.ticker === symbol && s.signal.ai_model === model,
     );
     if (signal && signal.signal.result_description) {
@@ -99,7 +99,6 @@ export async function generateMetadata({
 }
 
 export const revalidate = 3600;
-
 
 export default async function DetailPage({
   params,

@@ -2,6 +2,7 @@ import {
   GetWeeklyActionCountParams,
   SignalAPIResponse,
   WeeklyActionCountResponse,
+  Signal,
 } from "../types/signal";
 import api from "./api";
 
@@ -10,13 +11,9 @@ export const signalApiService = {
    * 특정 날짜의 시그널 데이터를 가져옵니다.
    * @param date 조회할 날짜 (YYYY-MM-DD 형식)
    */
-  getSignalsByDate: async (
-    date: string,
-    page: number = 1,
-    pageSize: number = 20,
-  ): Promise<SignalAPIResponse> => {
+  getSignalsByDate: async (date: string): Promise<SignalAPIResponse> => {
     const response = await api.get<SignalAPIResponse>("/signals/date", {
-      params: { date, page, page_size: pageSize },
+      params: { date },
     });
 
     return response.data;
@@ -26,20 +23,14 @@ export const signalApiService = {
     symbols: string[],
     date: string,
     strategy_type?: string | null,
-    page: number = 1,
-    pageSize: number = 20,
   ): Promise<SignalAPIResponse> => {
     const params: {
       symbols: string;
       date: string;
       strategy_type?: string | null;
-      page: number;
-      page_size: number;
     } = {
       symbols: symbols.join(","),
       date,
-      page,
-      page_size: pageSize,
     };
 
     if (strategy_type) {
@@ -47,7 +38,7 @@ export const signalApiService = {
     }
 
     const response = await api.get<SignalAPIResponse>("/signals/date", {
-      params: params,
+      params,
     });
 
     return response.data;
@@ -57,11 +48,15 @@ export const signalApiService = {
     tickers,
     reference_date,
     action,
+    order_by,
+    limit,
   }: GetWeeklyActionCountParams): Promise<WeeklyActionCountResponse> => {
     const params: {
       tickers?: string;
       reference_date?: string;
       action?: string;
+      order_by?: "counts" | null;
+      limit?: number | null;
     } = {};
 
     if (tickers) {
@@ -72,6 +67,12 @@ export const signalApiService = {
     }
     if (action) {
       params.action = action;
+    }
+    if (order_by) {
+      params.order_by = order_by;
+    }
+    if (limit) {
+      params.limit = limit;
     }
 
     const response = await api.get<WeeklyActionCountResponse>(
@@ -86,7 +87,7 @@ export const signalApiService = {
     ticker: string,
     date: string,
     strategy_type?: string | null,
-  ): Promise<SignalAPIResponse["data"][0]["signal"][]> => {
+  ): Promise<Signal[]> => {
     const params: {
       ticker: string;
       date: string;
@@ -100,10 +101,9 @@ export const signalApiService = {
       params.strategy_type = strategy_type;
     }
 
-    const response = await api.get<SignalAPIResponse["data"][0]["signal"][]>(
-      "/translate/signals/ticker",
-      { params },
-    );
+    const response = await api.get<Signal[]>("/translate/signals/ticker", {
+      params,
+    });
 
     return response.data;
   },

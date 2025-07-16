@@ -20,6 +20,7 @@ export default async function WeeklyPriceMovementSection({
       direction: "up",
       reference_date: date,
     });
+    console.log(data);
     return (
       <WeeklyPriceMovementCard
         title={title ?? "Weekly Price Movement"}

@@ -1,5 +1,6 @@
 "use client";
-import * as React from "react";
+import { useState, useEffect } from "react";
+import { useLocalPagination } from "@/hooks/useLocalPagination";
 import {
   ColumnDef,
   SortingState,
@@ -19,14 +20,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"; // Shadcn UI 경로 확인
-import { Button } from "@/components/ui/button"; // Shadcn UI 경로 확인
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Shadcn UI 경로 확인
+} from "@/components/ui/dropdown-menu";
 import { SignalData } from "../../types/signal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { TableSkeleton } from "../ui/skeletons";
@@ -34,16 +35,11 @@ import { TableSkeleton } from "../ui/skeletons";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onRowClick?: (row: TData) => void; // 행 클릭 시 콜백 함수
+  onRowClick?: (row: TData) => void;
   isLoading?: boolean;
-  // 페이지네이션 상태를 외부에서 주입받기 위한 props
-  pagination: {
-    pageIndex: number;
-    pageSize: number;
-  };
-  paginationInfo?: import("@/types/signal").PaginationResponse;
-  // 페이지네이션 변경 이벤트 핸들러
-  onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+  totalItems?: number;
+  totalPages?: number;
+  storageKey?: string;
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -51,23 +47,28 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
-  pagination,
-  paginationInfo,
-  onPaginationChange,
+  storageKey,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([
-    { desc: true, id: "signal.favorite" }, // 제출일 기준 내림차순 정렬
+  const [sorting, setSorting] = useState<SortingState>([
+    { desc: true, id: "signal.favorite" },
     { desc: true, id: "take_profit_buy" },
-  ]); // 기본 정렬 상태 설정 (제출일 기준 내림차순)
-  const [columnFilters, setColumnFilters] = React.useState<
+  ]);
+  const [columnFilters, setColumnFilters] = useState<
     { id: string; value: unknown }[]
   >([]);
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
-  // 실제 사용할 페이지네이션 상태 (외부 또는 내부)
-  const activePagination = pagination;
+  const { pageSize, setPage, setPageSize, page } = useLocalPagination({
+    storageKey: storageKey || "signal_table_pagination",
+    defaultPage: 1,
+    defaultPageSize: 20,
+  });
+
+  function onPaginationChange(newPage: number, newPageSize: number) {
+    setPageSize(newPageSize);
+    setPage(newPage);
+  }
 
   const table = useReactTable({
     data,
@@ -78,32 +79,20 @@ export function SignalDataTable<TData extends SignalData, TValue>({
       columnVisibility,
       rowSelection,
       pagination: {
-        pageIndex: activePagination.pageIndex,
-        pageSize: activePagination.pageSize,
+        pageIndex: page,
+        pageSize,
       },
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    onPaginationChange: (updater) => {
-      const newPagination = typeof updater === 'function' 
-        ? updater(activePagination)
-        : updater;
-      
-      if (onPaginationChange) {
-        onPaginationChange(newPagination.pageIndex, newPagination.pageSize);
-      }
-    },
-    manualPagination: true,
-
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     globalFilterFn: (row, columnId, filterValue) => {
       const value = row.getValue(columnId);
-      // signal.ticker와 같이 중첩된 값에 접근하기 위한 처리
       if (columnId.includes(".")) {
         const keys = columnId.split(".");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,19 +119,13 @@ export function SignalDataTable<TData extends SignalData, TValue>({
     },
   });
 
-  // 테이블 페이지네이션 상태 업데이트
-  React.useEffect(() => {
-    table.setPageIndex(activePagination.pageIndex);
-    table.setPageSize(activePagination.pageSize);
-  }, [activePagination.pageIndex, activePagination.pageSize, table]);
+  // 페이지 크기가 변경될 때마다 테이블의 페이지 크기도 동기화
+  useEffect(() => {
+    table.setPageSize(pageSize);
+  }, [pageSize, table]);
 
   if (isLoading) {
-    return (
-      <TableSkeleton
-        columnCount={columns.length}
-        rowCount={pagination.pageSize}
-      />
-    );
+    return <TableSkeleton columnCount={columns.length} rowCount={pageSize} />;
   }
 
   return (
@@ -218,25 +201,23 @@ export function SignalDataTable<TData extends SignalData, TValue>({
         <div className="text-muted-foreground flex w-full items-center justify-start gap-4 text-sm">
           <span>
             {(() => {
-              const pageSize = activePagination.pageSize || 0;
-              const pageIndex = activePagination.pageIndex || 0;
-              const totalRows = paginationInfo
-                ? paginationInfo.total_items
-                : table.getFilteredRowModel().rows.length || 0;
+              const tablePageSize = table.getState().pagination.pageSize || 0;
+              const tablePageIndex = table.getState().pagination.pageIndex || 0;
+              const totalData = data.length;
               const currentStart = Math.min(
-                pageSize * pageIndex + 1,
-                totalRows,
+                tablePageSize * tablePageIndex + 1,
+                totalData,
               );
               const currentEnd = Math.min(
-                pageSize * (pageIndex + 1),
-                totalRows,
+                tablePageSize * (tablePageIndex + 1),
+                totalData,
               );
 
-              if (totalRows === 0) {
+              if (totalData === 0) {
                 return "0 / 0";
               }
 
-              return `${currentStart}-${currentEnd} / ${totalRows}`;
+              return `${currentStart}-${currentEnd} / ${totalData}`;
             })()}
           </span>
           <div className="flex items-center py-4">
