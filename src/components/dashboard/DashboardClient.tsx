@@ -36,23 +36,19 @@ const DashboardClient = ({ initialData }: Props) => {
   const router = useRouter();
   const mounted = useMounted();
 
-  const todayString = formatDate(new Date(), "yyyy-MM-dd");
-  const submittedDate = date ?? todayString;
+  const todayString = useMemo(() => formatDate(new Date(), "yyyy-MM-dd"), []);
+  const submittedDate = useMemo(() => date ?? todayString, [date, todayString]);
 
   const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const { favorites, toggleFavorite } = useFavoriteTickers();
 
-  const [currentSelectedTickersArray, setCurrentSelectedTickersArray] =
-    useState<string[]>([]);
-
-  useEffect(() => {
-    const tickersFromQ = q
+  const currentSelectedTickersArray = useMemo(() => {
+    return q
       ? q
           .split(",")
           .map((t) => t.trim())
           .filter((t) => t.length > 0)
       : [];
-    setCurrentSelectedTickersArray(tickersFromQ);
   }, [q]);
 
   const { data: signalApiResponse, isLoading } = useSignalDataByDate(
@@ -74,16 +70,22 @@ const DashboardClient = ({ initialData }: Props) => {
   }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    if (signalApiResponse?.signals) {
-      const models = Array.from(
-        new Set(
-          signalApiResponse.signals
-            .map((s: any) => s.signal.ai_model)
-            .filter(Boolean) as string[],
-        ),
-      ).sort();
-      setAvailableAiModels(models);
-    }
+    setAvailableAiModels((prev) => {
+      if (prev.length > 0) return prev; // 이미 설정된 모델이 있으면 그대로 반환
+
+      if (signalApiResponse?.signals) {
+        const models = Array.from(
+          new Set(
+            signalApiResponse.signals
+              .map((s: any) => s.signal.ai_model)
+              .filter(Boolean) as string[],
+          ),
+        ).sort();
+        return models;
+      }
+
+      return [];
+    });
   }, [signalApiResponse?.signals]);
 
   const handleRowClick = useCallback(
@@ -93,7 +95,7 @@ const DashboardClient = ({ initialData }: Props) => {
         { scroll: true },
       );
     },
-    [router],
+    [router, submittedDate],
   );
 
   const handleSelectedTickersChange = useCallback(
@@ -105,131 +107,132 @@ const DashboardClient = ({ initialData }: Props) => {
     [setParams],
   );
 
-  const filteredSignals = useMemo(() => {
+  const tickerFilteredSignals = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
     let signalsToFilter = signalApiResponse.signals;
 
-    const searchTickersArray = currentSelectedTickersArray;
-
-    if (searchTickersArray.length > 0) {
-      signalsToFilter = signalsToFilter.filter((item: any) => {
+    if (currentSelectedTickersArray.length > 0) {
+      signalsToFilter = signalsToFilter.filter((item) => {
         const ticker = item.signal.ticker?.toLowerCase();
         if (!ticker) return false;
-        return searchTickersArray.some((st) =>
+        return currentSelectedTickersArray.some((st) =>
           ticker.includes(st.toLowerCase()),
         );
       });
     }
 
-    if (selectedAiModels.length > 0) {
-      // ... (이하 필터링 로직은 동일)
-      if (aiModelFilterConditions.every((c) => c === "OR")) {
-        signalsToFilter = signalsToFilter.filter((item: any) => {
-          const model = item.signal.ai_model;
-          return model && selectedAiModels.includes(model);
-        });
-      } else if (aiModelFilterConditions.every((c) => c === "AND")) {
-        const signalsByTicker: Record<
-          string,
-          { models: Set<string>; items: SignalData[] }
-        > = {};
-        signalsToFilter.forEach((item: any) => {
-          const ticker = item.signal.ticker;
-          const model = item.signal.ai_model;
-          if (!ticker) return;
-          if (!signalsByTicker[ticker]) {
-            signalsByTicker[ticker] = { models: new Set(), items: [] };
-          }
-          if (model) {
-            signalsByTicker[ticker].models.add(model);
-          }
-          signalsByTicker[ticker].items.push(item);
-        });
+    return signalsToFilter;
+  }, [signalApiResponse?.signals, currentSelectedTickersArray]);
 
-        const tickersSatisfyingAndCondition = Object.keys(
-          signalsByTicker,
-        ).filter((ticker) => {
+  const aiModelFilteredSignals = useMemo(() => {
+    if (selectedAiModels.length === 0) return tickerFilteredSignals;
+
+    if (aiModelFilterConditions.every((c) => c === "OR")) {
+      return tickerFilteredSignals.filter((item) => {
+        const model = item.signal.ai_model;
+        return model && selectedAiModels.includes(model);
+      });
+    } else if (aiModelFilterConditions.every((c) => c === "AND")) {
+      const signalsByTicker: Record<
+        string,
+        { models: Set<string>; items: SignalData[] }
+      > = {};
+
+      tickerFilteredSignals.forEach((item) => {
+        const ticker = item.signal.ticker;
+        const model = item.signal.ai_model;
+        if (!ticker) return;
+        if (!signalsByTicker[ticker]) {
+          signalsByTicker[ticker] = { models: new Set(), items: [] };
+        }
+        if (model) {
+          signalsByTicker[ticker].models.add(model);
+        }
+        signalsByTicker[ticker].items.push(item);
+      });
+
+      const tickersSatisfyingAndCondition = Object.keys(signalsByTicker).filter(
+        (ticker) => {
           const tickerModels = signalsByTicker[ticker].models;
           return selectedAiModels.every((m) => tickerModels.has(m));
-        });
+        },
+      );
 
-        let resultSignals: SignalData[] = [];
-        tickersSatisfyingAndCondition.forEach((ticker) => {
-          resultSignals = resultSignals.concat(signalsByTicker[ticker].items);
-        });
+      let resultSignals: SignalData[] = [];
+      tickersSatisfyingAndCondition.forEach((ticker) => {
+        resultSignals = resultSignals.concat(signalsByTicker[ticker].items);
+      });
 
-        signalsToFilter = resultSignals.filter((item) => {
-          const model = item.signal.ai_model;
-          return model && selectedAiModels.includes(model);
-        });
-      } else {
-        const signalsByTicker: Record<
-          string,
-          { models: Set<string>; items: SignalData[] }
-        > = {};
-        signalsToFilter.forEach((item: any) => {
-          const ticker = item.signal.ticker;
-          const model = item.signal.ai_model;
-          if (!ticker) return;
-          if (!signalsByTicker[ticker]) {
-            signalsByTicker[ticker] = { models: new Set(), items: [] };
-          }
-          if (model) {
-            signalsByTicker[ticker].models.add(model);
-          }
-          signalsByTicker[ticker].items.push(item);
-        });
+      return resultSignals.filter((item) => {
+        const model = item.signal.ai_model;
+        return model && selectedAiModels.includes(model);
+      });
+    } else {
+      const signalsByTicker: Record<
+        string,
+        { models: Set<string>; items: SignalData[] }
+      > = {};
 
-        let resultSignals: SignalData[] = [];
-        Object.entries(signalsByTicker).forEach(([, info]) => {
-          const tickerModels = info.models;
-          const presence = selectedAiModels.map((m) => tickerModels.has(m));
-          let acc = presence[0];
-          for (let i = 1; i < presence.length; i++) {
-            const cond =
-              aiModelFilterConditions[i - 1] ??
-              aiModelFilterConditions[0] ??
-              "OR";
-            if (cond === "OR") {
-              acc = acc || presence[i];
-            } else {
-              acc = acc && presence[i];
-            }
-          }
-          if (acc) {
-            resultSignals = resultSignals.concat(
-              info.items.filter((it) =>
-                selectedAiModels.includes(it.signal.ai_model ?? ""),
-              ),
-            );
-          }
-        });
+      tickerFilteredSignals.forEach((item) => {
+        const ticker = item.signal.ticker;
+        const model = item.signal.ai_model;
+        if (!ticker) return;
+        if (!signalsByTicker[ticker]) {
+          signalsByTicker[ticker] = { models: new Set(), items: [] };
+        }
+        if (model) {
+          signalsByTicker[ticker].models.add(model);
+        }
+        signalsByTicker[ticker].items.push(item);
+      });
 
-        signalsToFilter = resultSignals;
-      }
+      let resultSignals: SignalData[] = [];
+      Object.entries(signalsByTicker).forEach(([, info]) => {
+        const tickerModels = info.models;
+        const presence = selectedAiModels.map((m) => tickerModels.has(m));
+        let acc = presence[0];
+        for (let i = 1; i < presence.length; i++) {
+          const cond =
+            aiModelFilterConditions[i - 1] ??
+            aiModelFilterConditions[0] ??
+            "OR";
+          if (cond === "OR") {
+            acc = acc || presence[i];
+          } else {
+            acc = acc && presence[i];
+          }
+        }
+        if (acc) {
+          resultSignals = resultSignals.concat(
+            info.items.filter((it) =>
+              selectedAiModels.includes(it.signal.ai_model ?? ""),
+            ),
+          );
+        }
+      });
+
+      return resultSignals;
     }
-    return signalsToFilter.map((signalData: any) => ({
+  }, [tickerFilteredSignals, selectedAiModels, aiModelFilterConditions]);
+
+  const filteredSignals = useMemo(() => {
+    const result = aiModelFilteredSignals.map((signalData) => ({
       ...signalData,
       signal: {
         ...signalData.signal,
         favorite: favorites.includes(signalData.signal.ticker) ? 1 : 0,
       },
     }));
-  }, [
-    signalApiResponse?.signals,
-    currentSelectedTickersArray.join(","),
-    selectedAiModels.join(","),
-    aiModelFilterConditions.join(","),
-    favorites.join(","),
-  ]);
+
+    return result;
+  }, [aiModelFilteredSignals, favorites]);
 
   const sortedSignals = useMemo(() => {
-    return [...filteredSignals].sort((a, b) => {
-      if (a.signal.favorite !== b.signal.favorite) {
-        return b.signal.favorite - a.signal.favorite;
-      }
-      return a.signal.ticker.localeCompare(b.signal.ticker);
+    const a = [...filteredSignals].sort((a, b) => {
+      return b.signal.favorite - a.signal.favorite;
     });
+
+    return a;
   }, [filteredSignals]);
 
   const columns = useMemo(

@@ -50,7 +50,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   storageKey,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { desc: true, id: "signal.favorite" },
+    // { desc: true, id: "signal.favorite" },
     { desc: true, id: "take_profit_buy" },
   ]);
   const [columnFilters, setColumnFilters] = useState<

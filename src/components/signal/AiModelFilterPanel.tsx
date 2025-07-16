@@ -12,13 +12,13 @@ interface AiModelFilterPanelProps {
   onConditionChange: (index: number, value: "OR" | "AND") => void;
 }
 
-export function AiModelFilterPanel({
+export const AiModelFilterPanel = React.memo(({
   availableModels,
   selectedModels,
   conditions,
   onModelsChange,
   onConditionChange,
-}: AiModelFilterPanelProps) {
+}: AiModelFilterPanelProps) => {
   const handleModelToggle = (model: string) => {
     const currentIndex = selectedModels.indexOf(model);
     const newSelectedModels = [...selectedModels];
@@ -80,4 +80,6 @@ export function AiModelFilterPanel({
       </div>
     </>
   );
-}
+});
+
+AiModelFilterPanel.displayName = 'AiModelFilterPanel';
