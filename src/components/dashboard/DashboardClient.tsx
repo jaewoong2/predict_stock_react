@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { format as formatDate } from "date-fns";
-import { SignalData } from "@/types/signal";
+import { SignalAPIResponse, SignalData } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
@@ -20,7 +20,11 @@ import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 
-const DashboardClient = () => {
+type Props = {
+  initialData?: SignalAPIResponse;
+};
+
+const DashboardClient = ({ initialData }: Props) => {
   const {
     date,
     q,
@@ -54,7 +58,7 @@ const DashboardClient = () => {
   const { data: signalApiResponse, isLoading } = useSignalDataByDate(
     submittedDate,
     {
-      enabled: !!submittedDate,
+      initialData: initialData,
     },
   );
 
@@ -85,7 +89,7 @@ const DashboardClient = () => {
   const handleRowClick = useCallback(
     (signal: SignalData) => {
       router.push(
-        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}`,
+        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${submittedDate}`,
         { scroll: true },
       );
     },

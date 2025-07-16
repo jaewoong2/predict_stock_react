@@ -8,7 +8,6 @@ import {
 } from "@/types/ticker";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import Link from "next/link";
 
@@ -23,8 +22,6 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
   params,
   data: initialData,
 }) => {
-  const router = useRouter();
-
   const { data, isLoading, error } = useWeeklyPriceMovement(params, {
     select(data) {
       return {
@@ -40,6 +37,8 @@ export const WeeklyPriceMovementCard: FC<WeeklyPriceMovementCardProps> = ({
     initialData,
     enabled: !initialData,
   });
+
+  console.log(data);
 
   if (isLoading) {
     return (

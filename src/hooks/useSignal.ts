@@ -32,7 +32,6 @@ export const useSignalDataByDate = (
     queryFn: () => signalApiService.getSignalsByDate(date),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
-    staleTime: 1000 * 60 * 5, // 5분간 캐시 데이터 사용
   });
 };
 
@@ -58,11 +57,7 @@ export const useSignalDataByNameAndDate = (
       strategy_type,
     ],
     queryFn: () =>
-      signalApiService.getSignalByNameAndDate(
-        symbols,
-        date,
-        strategy_type,
-      ),
+      signalApiService.getSignalByNameAndDate(symbols, date, strategy_type),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
     staleTime: 1000 * 60 * 5, // 5분간 캐시 데이터 사용
@@ -89,10 +84,7 @@ export const useTranslatedSignalDataByTickerAndDate = (
   ticker: string,
   date: string,
   strategy_type?: string | null,
-  options?: Omit<
-    UseQueryOptions<Signal[], Error>,
-    "queryKey" | "queryFn"
-  >,
+  options?: Omit<UseQueryOptions<Signal[], Error>, "queryKey" | "queryFn">,
 ) => {
   return useQuery<Signal[], Error>({
     queryKey: [

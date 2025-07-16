@@ -101,10 +101,9 @@ export const signalApiService = {
       params.strategy_type = strategy_type;
     }
 
-    const response = await api.get<Signal[]>(
-      "/translate/signals/ticker",
-      { params },
-    );
+    const response = await api.get<Signal[]>("/translate/signals/ticker", {
+      params,
+    });
 
     return response.data;
   },
