@@ -24,6 +24,7 @@ export const createColumns = (
   {
     id: "signal.favorite",
     accessorKey: "signal.favorite",
+    enableSorting: false,
     header: "",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;
