@@ -39,7 +39,6 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   totalItems?: number;
   totalPages?: number;
-  storageKey?: string;
 }
 
 export function SignalDataTable<TData extends SignalData, TValue>({
@@ -47,7 +46,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   data,
   onRowClick,
   isLoading,
-  storageKey,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
     { desc: true, id: "signal.favorite" },
@@ -60,7 +58,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   const [rowSelection, setRowSelection] = useState({});
 
   const { pageSize, setPage, setPageSize, page } = useLocalPagination({
-    storageKey: storageKey || "signal_table_pagination",
+    storageKey: "signal_table_pagination",
     defaultPage: 1,
     defaultPageSize: 20,
   });
@@ -68,10 +66,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   // Reset sorting whenever the underlying data changes so
   // newly toggled favorites appear at the top of the list
   useEffect(() => {
-    setSorting([
-      { desc: true, id: "signal.favorite" },
-      // { desc: true, id: "take_profit_buy" },
-    ]);
+    setSorting([{ desc: true, id: "signal.favorite" }]);
   }, [data]);
 
   function onPaginationChange(newPage: number, newPageSize: number) {

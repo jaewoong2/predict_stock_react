@@ -10,6 +10,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { useLocalPagination } from "./useLocalPagination";
 
 // URL search arams에 의해 관리되는 파라미터
 export interface SignalURLSearchParams {
@@ -34,6 +35,11 @@ export function SignalSearchParamsProvider({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { setPage } = useLocalPagination({
+    storageKey: "signal_table_pagination",
+    defaultPage: 1,
+    defaultPageSize: 20,
+  });
 
   const setParams = useCallback(
     (updates: Partial<SignalURLSearchParams>) => {
@@ -70,6 +76,7 @@ export function SignalSearchParamsProvider({
       }
 
       if (newParams.toString() !== searchParams.toString()) {
+        setPage(1);
         router.replace(`${pathname}?${newParams.toString()}`, {
           scroll: false,
         });

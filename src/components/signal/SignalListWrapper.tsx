@@ -35,7 +35,6 @@ export const SignalListWrapper = React.memo(
           isLoading={isLoading}
           totalItems={totalItems}
           totalPages={totalPages}
-          storageKey={storageKey}
         />
       </div>
     );
