@@ -12,7 +12,7 @@ interface UseLocalPaginationProps {
 }
 
 export function useLocalPagination({
-  storageKey = "app_pagination_state",
+  storageKey = "signal_table_pagination",
   defaultPage = 1,
   defaultPageSize = 20,
 }: UseLocalPaginationProps = {}) {
@@ -58,8 +58,7 @@ export function useLocalPagination({
     updatePagination,
     setPage: (newPage: number) =>
       updatePagination(newPage, paginationState.pageSize),
-    setPageSize: (newPageSize: number) =>
-      updatePagination(paginationState.page, newPageSize),
+    setPageSize: (newPageSize: number) => updatePagination(0, newPageSize),
     reset: () => updatePagination(defaultPage, defaultPageSize),
   };
 }

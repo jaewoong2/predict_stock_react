@@ -315,7 +315,6 @@ const DashboardClient = ({ initialData }: Props) => {
         onRowClick={handleRowClick}
         isLoading={isLoading || !mounted}
         totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
-        storageKey="dashboard_signals_pagination"
       />
     </>
   );

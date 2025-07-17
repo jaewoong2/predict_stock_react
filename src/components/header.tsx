@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AlertTitle, DismissibleAlert } from "@/components/ui/alert";
-import Image from "next/image";
 
 const Header = () => {
   const [mounted, setMounted] = useState(false);
