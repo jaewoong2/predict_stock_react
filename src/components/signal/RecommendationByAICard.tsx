@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
-import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { SignalAPIResponse } from "@/types/signal";
