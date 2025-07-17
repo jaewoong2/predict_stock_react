@@ -14,30 +14,32 @@ interface SignalListWrapperProps {
   storageKey?: string;
 }
 
-export const SignalListWrapper = React.memo(({
-  columns,
-  data,
-  onRowClick,
-  isLoading = false,
-  totalItems = 0,
-  totalPages = 0,
-  storageKey,
-  children,
-}: PropsWithChildren<SignalListWrapperProps>) => {
-  return (
-    <div className="mb-8">
-      {children}
-      <SignalDataTable
-        columns={columns}
-        data={data}
-        onRowClick={onRowClick}
-        isLoading={isLoading}
-        totalItems={totalItems}
-        totalPages={totalPages}
-        storageKey={storageKey}
-      />
-    </div>
-  );
-});
+export const SignalListWrapper = React.memo(
+  ({
+    columns,
+    data,
+    onRowClick,
+    isLoading = false,
+    totalItems = 0,
+    totalPages = 0,
+    storageKey,
+    children,
+  }: PropsWithChildren<SignalListWrapperProps>) => {
+    return (
+      <div className="mb-8">
+        {children}
+        <SignalDataTable
+          columns={columns}
+          data={data}
+          onRowClick={onRowClick}
+          isLoading={isLoading}
+          totalItems={totalItems}
+          totalPages={totalPages}
+          storageKey={storageKey}
+        />
+      </div>
+    );
+  },
+);
 
-SignalListWrapper.displayName = 'SignalListWrapper';
+SignalListWrapper.displayName = "SignalListWrapper";

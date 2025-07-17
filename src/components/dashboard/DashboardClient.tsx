@@ -235,6 +235,7 @@ const DashboardClient = ({ initialData }: Props) => {
     return a;
   }, [filteredSignals]);
 
+
   const columns = useMemo(
     () => createColumns(favorites, toggleFavorite),
     [favorites, toggleFavorite],
