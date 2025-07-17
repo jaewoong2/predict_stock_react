@@ -228,13 +228,12 @@ const DashboardClient = ({ initialData }: Props) => {
   }, [aiModelFilteredSignals, favorites]);
 
   const sortedSignals = useMemo(() => {
-    const a = [...filteredSignals].sort((a, b) => {
+    const result = [...filteredSignals].sort((a, b) => {
       return b.signal.favorite - a.signal.favorite;
     });
 
-    return a;
+    return result;
   }, [filteredSignals]);
-
 
   const columns = useMemo(
     () => createColumns(favorites, toggleFavorite),

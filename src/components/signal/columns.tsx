@@ -23,8 +23,10 @@ export const createColumns = (
 ): ColumnDef<SignalData>[] => [
   {
     id: "signal.favorite",
+    accessorFn: ({ signal }) => {
+      return signal.favorite ? 1 : 0;
+    },
     accessorKey: "signal.favorite",
-    enableSorting: false,
     header: "",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;

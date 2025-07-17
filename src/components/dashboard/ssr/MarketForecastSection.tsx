@@ -15,6 +15,7 @@ export default async function MarketForecastSection({ date, title }: Props) {
       newsService.getMarketForecast({ date, source: "Major" }),
       newsService.getMarketForecast({ date, source: "Minor" }),
     ]);
+
     return (
       <MarketForCastCard
         title={title ?? "Market Forecast"}
