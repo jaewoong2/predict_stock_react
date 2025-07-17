@@ -22,6 +22,7 @@ export interface Signal {
   good_things?: string | null;
   bad_things?: string | null;
   chart_pattern?: ChartPattern | null;
+  favorite?: number | null;
 }
 
 export interface SignalTickerInfo {
