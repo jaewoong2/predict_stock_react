@@ -113,11 +113,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
 
   const mounted = useMounted();
 
-  if (!data || !mounted) {
-    return null;
-  }
-
-  const confidenceLevel = data.signal.chart_pattern?.confidence_level
+  const confidenceLevel = data?.signal.chart_pattern?.confidence_level
     ? data.signal.chart_pattern?.confidence_level > 1
       ? data.signal.chart_pattern.confidence_level * 0.01
       : data.signal.chart_pattern?.confidence_level
@@ -129,6 +125,18 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
     }
     setOpen(open);
   }, 300);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (!open) {
+        router.back();
+      }
+    }, 500);
+  }, [open]);
+
+  if (!data || !mounted) {
+    return null;
+  }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
