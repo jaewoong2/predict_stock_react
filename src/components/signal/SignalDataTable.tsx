@@ -57,11 +57,13 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const { pageSize, setPage, setPageSize, page } = useLocalPagination({
+  const { pageSize, setPageSize } = useLocalPagination({
     storageKey: "signal_table_pagination",
     defaultPage: 1,
     defaultPageSize: 20,
   });
+
+  const [page, setPage] = useState(0);
 
   // Reset sorting whenever the underlying data changes so
   // newly toggled favorites appear at the top of the list
