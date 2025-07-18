@@ -70,17 +70,19 @@ export const createColumns = (
       return (
         <div className="flex items-center justify-start font-medium">
           {imageUrl && (
-            <img
-              width={24}
-              height={24}
-              loading="lazy"
-              src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
-              alt="Stock Icon"
-              className="mr-1 h-6 w-6"
-            />
+            <div className="mr-2 flex items-center justify-center overflow-hidden rounded-full bg-black/20 p-[3px]">
+              <Image
+                width={24}
+                height={24}
+                loading="lazy"
+                src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
+                alt="Stock Icon"
+                className="h-6 w-6"
+              />
+            </div>
           )}
           {row.original.signal.ticker}
-        </div> // 기본 왼쪽 정렬
+        </div>
       );
     },
   },
