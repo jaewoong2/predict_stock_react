@@ -1,16 +1,6 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-// This file originally duplicated the content of `SignalDetailView` which
-// renders inside a `Drawer`. The content has been extracted so that it can be
-// reused both in a modal and in a standalone page.
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
@@ -27,6 +17,7 @@ import { Progress } from "../ui/progress";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import useMounted from "@/hooks/useMounted";
+import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
 
 interface SignalDetailContentProps {
   symbol: string;
@@ -124,351 +115,555 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
     : 0;
 
   return (
-    <div className="mx-auto w-full max-w-4xl pb-10 select-text">
-      <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-8 max-sm:px-1">
-        <div className="mb-4 px-0">
-          <button className="absolute top-4 right-4 cursor-pointer text-3xl">
-            &times;
-          </button>
-          {marketNews?.result && (
-            <div className="px-0 pb-4">
-              <MarketNewsCarousel items={marketNews?.result} />
-            </div>
-          )}
+    <div className="mx-auto w-full p-10">
+      <div className="p-6">
+        {marketNews?.result && (
+          <div className="mb-6">
+            <MarketNewsCarousel items={marketNews?.result} />
+          </div>
+        )}
+
+        <div className="mb-8">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="m-0 p-0 text-left text-2xl">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight">
                 {data.signal.ticker}
-              </h2>
-              <span className="text-muted-foreground text-sm font-light">
+              </h1>
+              <p className="text-muted-foreground">
                 {data.signal.timestamp &&
                   format(data.signal.timestamp, "yyyy년 MM월 dd일")}
-              </span>
+              </p>
             </div>
-            {data.signal.action && (
-              <Badge
-                className={cn(
-                  "px-3 py-1 text-xs",
-                  data.signal.action.toLowerCase() === "buy"
-                    ? "bg-green-600 text-white"
-                    : data.signal.action.toLowerCase() === "sell"
-                      ? "bg-red-500 text-white"
-                      : "bg-yellow-500 text-white",
-                )}
-              >
-                {data.signal.action.toUpperCase()}
-              </Badge>
-            )}
+            <div className="flex items-center gap-4">
+              {data.signal.action && (
+                <Badge
+                  className={cn(
+                    "px-4 py-2 text-sm font-semibold",
+                    data.signal.action.toLowerCase() === "buy"
+                      ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                      : data.signal.action.toLowerCase() === "sell"
+                        ? "bg-red-500 text-white hover:bg-red-600"
+                        : "bg-amber-500 text-white hover:bg-amber-600",
+                  )}
+                >
+                  {data.signal.action.toUpperCase()}
+                </Badge>
+              )}
+              {data.signal.probability && (
+                <Badge
+                  className={cn(
+                    "px-3 py-1 text-sm",
+                    data.signal.probability.toLowerCase() === "high"
+                      ? "border-emerald-300 bg-emerald-100 text-emerald-800"
+                      : data.signal.probability.toLowerCase() === "medium"
+                        ? "border-amber-300 bg-amber-100 text-amber-800"
+                        : "border-red-300 bg-red-100 text-red-800",
+                  )}
+                  variant="outline"
+                >
+                  확률:{" "}
+                  {data.signal.probability === "high"
+                    ? "높음"
+                    : data.signal.probability === "medium"
+                      ? "보통"
+                      : "낮음"}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="">
-          <section className="mb-4 flex flex-col gap-2">
-            <div className="flex flex-col">
-              <strong>7일간 주식 움직임</strong>
-              <div className="flex flex-wrap gap-1">
-                {priceMovement.data?.tickers[0]?.count.map((count, index) => (
-                  <Tooltip key={priceMovement.data?.tickers[0]?.date[index]}>
-                    <TooltipTrigger className="cursor-pointer">
-                      <Badge
-                        key={count}
-                        className={cn(
-                          "in-checked: justify-center bg-blue-500 text-xs text-white",
-                          count > 0 ? "bg-green-600" : "bg-red-400",
-                        )}
-                      >
-                        {count > 0 ? "상승" : "하락"}
-                      </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </div>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">개요</TabsTrigger>
+            <TabsTrigger value="analysis">분석</TabsTrigger>
+            <TabsTrigger value="data">시장 데이터</TabsTrigger>
+            <TabsTrigger value="results">결과</TabsTrigger>
+          </TabsList>
 
-            <div className="flex flex-col">
-              {weeklySignalData.data?.signals?.[0].count?.length && (
-                <strong>7일간 상승 시그널</strong>
-              )}
-              <div className="flex flex-wrap gap-1">
-                {weeklySignalData.data?.signals?.[0].count.map(
-                  (count, index) => (
-                    <Tooltip
-                      key={weeklySignalData.data?.signals?.[0].date[index]}
-                    >
-                      <TooltipTrigger className="cursor-pointer">
-                        <Badge
-                          key={count}
-                          className={cn(
-                            "in-checked: justify-center bg-blue-500 text-xs text-white",
-                            count > 0 ? "bg-green-600" : "bg-red-400",
-                          )}
-                        >
-                          {count}개
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        {priceMovement.data?.tickers?.[0]?.date[index] ?? "N/A"}
-                      </TooltipContent>
-                    </Tooltip>
-                  ),
+          <TabsContent value="overview" className="mt-6 space-y-6">
+            <div className="bg-card rounded-lg border p-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="space-y-3">
+                  <label className="text-muted-foreground text-sm font-medium">
+                    전략
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {data.signal.strategy?.split(",").map((strategy) => (
+                      <Badge
+                        key={strategy}
+                        variant="secondary"
+                        className="border-blue-200 bg-blue-50 text-blue-700"
+                      >
+                        {strategy.trim()}
+                      </Badge>
+                    )) ?? (
+                      <span className="text-muted-foreground">
+                        전략 정보 없음
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-muted-foreground text-sm font-medium">
+                    LLM 모델
+                  </label>
+                  <AiModelSelect
+                    options={[
+                      ...new Set(
+                        signals.data?.signals.map(
+                          (signal) => signal.signal.ai_model ?? "",
+                        ),
+                      ),
+                    ]}
+                    value={aiModel}
+                    onChange={(value) => {
+                      router.push(
+                        `/dashboard/d/${symbol}?model=${value}&date=${date}`,
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                    <label className="text-sm font-medium text-blue-700">
+                      💰 진입 가격
+                    </label>
+                    <p className="mt-1 text-lg font-bold text-blue-900">
+                      {formatCurrency(data.signal.entry_price)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+                {data.signal.stop_loss && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+                    <label className="text-sm font-medium text-red-700">
+                      🛑 손절
+                    </label>
+                    <p className="mt-1 text-base font-bold text-red-900">
+                      {formatCurrency(data.signal.stop_loss)}
+                    </p>
+                  </div>
+                )}
+
+                {data.signal.take_profit && (
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+                    <label className="text-sm font-medium text-emerald-700">
+                      🎯 익절
+                    </label>
+                    <p className="mt-1 text-base font-bold text-emerald-900">
+                      {formatCurrency(data.signal.take_profit)}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
-          </section>
-          {/* 시그널 정보 */}
-          <section>
-            <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
-              예측 정보
-            </h3>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex w-full flex-col">
-                <strong>전략:</strong>{" "}
-                <div className="flex flex-wrap gap-1">
-                  {data.signal.strategy
-                    ?.split(",")
-                    .map((strategy) => (
-                      <Badge key={strategy}>{strategy}</Badge>
-                    )) ?? "N/A"}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <strong>LLM 모델:</strong>
-                <AiModelSelect
-                  options={[
-                    ...new Set(
-                      signals.data?.signals.map(
-                        (signal) => signal.signal.ai_model ?? "",
-                      ),
-                    ),
-                  ]}
-                  value={aiModel}
-                  onChange={(value) => {
-                    router.push(
-                      `/dashboard/d/${symbol}?model=${value}&date=${date}`,
-                    );
-                  }}
-                />
-              </div>
-              {data.signal.probability && (
-                <div>
-                  <strong>확률:</strong>{" "}
-                  <Badge
-                    variant={
-                      data.signal.probability.toLowerCase() === "high"
-                        ? "default"
-                        : data.signal.probability.toLowerCase() === "medium"
-                          ? "secondary"
-                          : data.signal.probability.toLowerCase() === "low"
-                            ? "destructive"
-                            : "outline"
-                    }
-                  >
-                    {data.signal.probability}
-                  </Badge>
-                </div>
-              )}
-              <div>
-                <strong>진입 가격:</strong>{" "}
-                {formatCurrency(data.signal.entry_price)}
-              </div>
-              {data.signal.stop_loss && (
-                <div>
-                  <strong>손절 가격:</strong>{" "}
-                  {formatCurrency(data.signal.stop_loss)}
-                </div>
-              )}
-              {data.signal.take_profit && (
-                <div>
-                  <strong>익절 가격:</strong>{" "}
-                  {formatCurrency(data.signal.take_profit)}
-                </div>
-              )}
-              {data.signal.chart_pattern && (
-                <div className="mt-4 w-full md:col-span-2">
-                  <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
-                    차트 패턴 분석
+
+            <div className="bg-card rounded-lg border p-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <div className="space-y-3">
+                  <h3 className="text-foreground text-lg font-semibold">
+                    7일간 주식 움직임
                   </h3>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <strong>패턴:</strong>
+                  <div className="flex flex-wrap gap-2">
+                    {priceMovement.data?.tickers[0]?.count.map(
+                      (count, index) => (
+                        <Tooltip
+                          key={priceMovement.data?.tickers[0]?.date[index]}
+                        >
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                "cursor-pointer transition-all hover:scale-105",
+                                count > 0
+                                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                  : "border-red-200 bg-red-50 text-red-700",
+                              )}
+                            >
+                              {count > 0 ? "📈 상승" : "📉 하락"}
+                            </Badge>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {priceMovement.data?.tickers?.[0]?.date[index] ??
+                              "N/A"}
+                          </TooltipContent>
+                        </Tooltip>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {weeklySignalData.data?.signals?.[0].count?.length && (
+                  <div className="space-y-3">
+                    <h3 className="text-foreground text-lg font-semibold">
+                      7일간 상승 시그널
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {weeklySignalData.data?.signals?.[0].count.map(
+                        (count, index) => (
+                          <Tooltip
+                            key={
+                              weeklySignalData.data?.signals?.[0].date[index]
+                            }
+                          >
+                            <TooltipTrigger asChild>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "cursor-pointer transition-all hover:scale-105",
+                                  count > 0
+                                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                                    : "border-gray-200 bg-gray-50 text-gray-700",
+                                )}
+                              >
+                                🔄 {count}개
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {priceMovement.data?.tickers?.[0]?.date[index] ??
+                                "N/A"}
+                            </TooltipContent>
+                          </Tooltip>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="analysis" className="mt-6 space-y-6">
+            {data.signal.chart_pattern && (
+              <div className="bg-card rounded-lg border p-6">
+                <div className="mb-6">
+                  <h2 className="text-foreground text-xl font-bold">
+                    📈 차트 패턴 분석
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground text-sm font-medium">
+                        패턴명
+                      </label>
                       <Badge
                         className={cn(
-                          "flex flex-wrap text-wrap whitespace-pre-wrap capitalize",
+                          "px-4 py-2 text-sm font-semibold",
                           data.signal.chart_pattern.pattern_type ===
-                            "bullish" && "bg-green-600 text-white",
+                            "bullish" &&
+                            "border-emerald-300 bg-emerald-100 text-emerald-800",
                           data.signal.chart_pattern.pattern_type ===
-                            "bearish" && "bg-red-500 text-white",
+                            "bearish" &&
+                            "border-red-300 bg-red-100 text-red-800",
                           data.signal.chart_pattern.pattern_type ===
-                            "neutral" && "bg-yellow-500 text-white",
+                            "neutral" &&
+                            "border-amber-300 bg-amber-100 text-amber-800",
                         )}
+                        variant="outline"
                       >
                         {data.signal.chart_pattern.name}
                       </Badge>
                     </div>
-                    <div>
-                      <strong>패턴 유형:</strong>{" "}
+
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground text-sm font-medium">
+                        패턴 유형
+                      </label>
                       <Badge
                         className={cn(
-                          "capitalize",
+                          "px-4 py-2 text-sm font-semibold",
                           data.signal.chart_pattern.pattern_type ===
-                            "bullish" && "bg-green-600 text-white",
+                            "bullish" && "bg-emerald-500 text-white",
                           data.signal.chart_pattern.pattern_type ===
                             "bearish" && "bg-red-500 text-white",
                           data.signal.chart_pattern.pattern_type ===
-                            "neutral" && "bg-yellow-500 text-white",
+                            "neutral" && "bg-amber-500 text-white",
                         )}
                       >
                         {data.signal.chart_pattern.pattern_type === "bullish"
-                          ? "상승"
+                          ? "📈 상승 패턴"
                           : data.signal.chart_pattern.pattern_type === "bearish"
-                            ? "하락"
-                            : "중립"}
+                            ? "📉 하락 패턴"
+                            : "➡️ 중립 패턴"}
                       </Badge>
                     </div>
-                    <div>
-                      <strong className="flex items-center">
-                        신뢰도:
-                        <span className="ml-2 text-sm">
-                          {confidenceLevel * 100}%
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
+                        🎯 신뢰도
+                        <span className="text-foreground text-lg font-bold">
+                          {Math.round(confidenceLevel * 100)}%
                         </span>
-                      </strong>{" "}
-                      <Progress value={confidenceLevel * 100} />
+                      </label>
+                      <div className="space-y-2">
+                        <Progress
+                          value={confidenceLevel * 100}
+                          className="h-3"
+                        />
+                        <div className="text-muted-foreground flex justify-between text-xs">
+                          <span>낮음</span>
+                          <span>보통</span>
+                          <span>높음</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="md:col-span-2">
-                      <strong>차트 설명:</strong>{" "}
-                      <p className="text-muted-foreground text-sm">
+                  </div>
+
+                  <div className="space-y-3 lg:col-span-2">
+                    <label className="text-muted-foreground text-sm font-medium">
+                      패턴 설명
+                    </label>
+                    <div className="bg-muted/50 rounded-lg border p-4">
+                      <p className="text-sm leading-relaxed">
                         {data.signal.chart_pattern.description}
                       </p>
                     </div>
                   </div>
                 </div>
-              )}
-              {data.signal.senario && (
-                <div className="md:col-span-2">
-                  <strong>시나리오:</strong> {data.signal.senario}
-                </div>
-              )}
-              {data.signal.good_things && (
-                <div className="md:col-span-2">
-                  <strong>긍정적 요인:</strong> {data.signal.good_things}
-                </div>
-              )}
-              {data.signal.bad_things && (
-                <div className="md:col-span-2">
-                  <strong>부정적 요인:</strong> {data.signal.bad_things}
-                </div>
-              )}
-            </div>
-            {data.signal.report_summary && (
-              <div className="mt-2">
-                <strong>리포트 요약:</strong>{" "}
-                <p className="text-muted-foreground text-sm">
-                  {data.signal.report_summary}
-                </p>
               </div>
             )}
-            {data.signal.result_description && (
-              <div className="mt-2">
-                <strong>결과 설명:</strong>{" "}
-                <p className="text-muted-foreground text-sm">
-                  {data.signal.result_description}
-                </p>
-              </div>
-            )}
-          </section>
 
-          {/* 티커 정보 */}
-          {data.ticker?.name && (
-            <section>
-              <div className="mb-2 flex flex-col border-b pb-1">
-                <h3 className="text-lg font-semibold">{data.ticker.name}</h3>
-                <span className="text-muted-foreground text-sm font-light">
-                  Close Price [{formatDate(data.ticker.ticker_date)}]
-                </span>
-              </div>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>항목</TableHead>
-                      <TableHead>가격</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>현재가</TableCell>
-                      <TableCell>{formatCurrency(data.ticker.price)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>시가</TableCell>
-                      <TableCell>
-                        {formatCurrency(data.ticker.open_price)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>고가</TableCell>
-                      <TableCell>
-                        {formatCurrency(data.ticker.high_price)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>저가</TableCell>
-                      <TableCell>
-                        {formatCurrency(data.ticker.low_price)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>종가</TableCell>
-                      <TableCell>
-                        {formatCurrency(data.ticker.close_price)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>거래량</TableCell>
-                      <TableCell>
-                        {data.ticker.volume?.toLocaleString()}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </section>
-          )}
-
-          {/* 결과 정보 */}
-          {data.result && (
-            <section>
-              <h3 className="mb-2 border-b pb-1 text-lg font-semibold">
-                실제 결과
-              </h3>
-              <div className="flex flex-wrap items-center gap-4">
-                <div>
-                  <Badge>{data.result.action.toUpperCase()}</Badge>
+            {(data.signal.senario ||
+              data.signal.good_things ||
+              data.signal.bad_things ||
+              data.signal.report_summary ||
+              data.signal.result_description) && (
+              <div className="bg-card rounded-lg border p-6">
+                <div className="mb-6">
+                  <h2 className="text-foreground text-xl font-bold">
+                    📋 종합 분석
+                  </h2>
                 </div>
-                <div>
-                  {data.result.is_correct ? (
-                    <Badge className="bg-green-600 text-white hover:bg-green-600">
-                      성공
-                    </Badge>
-                  ) : (
-                    <Badge variant="destructive">실패</Badge>
+
+                <div className="space-y-6">
+                  {data.signal.senario && (
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground text-sm font-medium">
+                        🎬 시나리오
+                      </label>
+                      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                        <p className="text-sm leading-relaxed text-blue-900">
+                          {data.signal.senario}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {data.signal.good_things && (
+                      <div className="space-y-3">
+                        <label className="text-muted-foreground text-sm font-medium">
+                          ✅ 긍정적 요인
+                        </label>
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+                          <p className="text-sm leading-relaxed text-emerald-900">
+                            {data.signal.good_things}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {data.signal.bad_things && (
+                      <div className="space-y-3">
+                        <label className="text-muted-foreground text-sm font-medium">
+                          ⚠️ 부정적 요인
+                        </label>
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                          <p className="text-sm leading-relaxed text-red-900">
+                            {data.signal.bad_things}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {data.signal.report_summary && (
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground text-sm font-medium">
+                        📊 리포트 요약
+                      </label>
+                      <div className="bg-muted/50 rounded-lg border p-4">
+                        <p className="text-sm leading-relaxed">
+                          {data.signal.report_summary}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {data.signal.result_description && (
+                    <div className="space-y-3">
+                      <label className="text-muted-foreground text-sm font-medium">
+                        📋 결과 설명
+                      </label>
+                      <div className="bg-muted/50 rounded-lg border p-4">
+                        <p className="text-sm leading-relaxed">
+                          {data.signal.result_description}
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
-                <div>
-                  <strong>가격 변화:</strong>{" "}
-                  {data.ticker?.close_price &&
-                    data.ticker?.open_price &&
-                    formatCurrency(
-                      data.ticker.close_price - data.ticker.open_price,
-                    )}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="data" className="mt-6 space-y-6">
+            {data.ticker?.name && (
+              <div className="bg-card rounded-lg border p-6">
+                <div className="mb-6">
+                  <h2 className="text-foreground text-xl font-bold">
+                    💹 {data.ticker.name}
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    종가 기준 [{formatDate(data.ticker.ticker_date)}]
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+                  <div className="rounded-lg border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                    <label className="text-sm font-medium text-blue-700">
+                      현재가
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-blue-900">
+                      {formatCurrency(data.ticker.price)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+                    <label className="text-sm font-medium text-gray-700">
+                      시가
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-gray-900">
+                      {formatCurrency(data.ticker.open_price)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-100 p-4">
+                    <label className="text-sm font-medium text-emerald-700">
+                      고가
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-emerald-900">
+                      {formatCurrency(data.ticker.high_price)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-red-200 bg-gradient-to-br from-red-50 to-red-100 p-4">
+                    <label className="text-sm font-medium text-red-700">
+                      저가
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-red-900">
+                      {formatCurrency(data.ticker.low_price)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 p-4">
+                    <label className="text-sm font-medium text-purple-700">
+                      종가
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-purple-900">
+                      {formatCurrency(data.ticker.close_price)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 p-4">
+                    <label className="text-sm font-medium text-amber-700">
+                      거래량
+                    </label>
+                    <p className="mt-1 text-xl font-bold text-amber-900">
+                      {data.ticker.volume?.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </section>
-          )}
-        </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="results" className="mt-6 space-y-6">
+            {data.result && (
+              <div className="bg-card rounded-lg border p-6">
+                <div className="mb-6">
+                  <h2 className="text-foreground text-xl font-bold">
+                    🎯 실제 결과
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    예측 대비 실제 성과
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
+                    <label className="text-sm font-medium text-blue-700">
+                      실행 액션
+                    </label>
+                    <Badge className="mt-2 bg-blue-500 px-4 py-2 text-sm text-white">
+                      {data.result.action.toUpperCase()}
+                    </Badge>
+                  </div>
+
+                  <div
+                    className="rounded-lg border p-4 text-center"
+                    style={{
+                      backgroundColor: data.result.is_correct
+                        ? "#dcfce7"
+                        : "#fef2f2",
+                      borderColor: data.result.is_correct
+                        ? "#bbf7d0"
+                        : "#fecaca",
+                    }}
+                  >
+                    <label
+                      className={`text-sm font-medium ${data.result.is_correct ? "text-emerald-700" : "text-red-700"}`}
+                    >
+                      예측 결과
+                    </label>
+                    <div className="mt-2">
+                      {data.result.is_correct ? (
+                        <Badge className="bg-emerald-500 px-4 py-2 text-sm text-white hover:bg-emerald-600">
+                          ✅ 성공
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600">
+                          ❌ 실패
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {data.ticker?.close_price && data.ticker?.open_price && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+                      <label className="text-sm font-medium text-gray-700">
+                        가격 변화
+                      </label>
+                      <p
+                        className={`mt-1 text-lg font-bold ${
+                          data.ticker.close_price - data.ticker.open_price > 0
+                            ? "text-emerald-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {formatCurrency(
+                          data.ticker.close_price - data.ticker.open_price,
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="bg-card rounded-lg border">
+              <MahaneyAnalysisCard symbol={symbol} date={date} />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
