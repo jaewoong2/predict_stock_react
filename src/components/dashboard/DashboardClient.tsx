@@ -82,6 +82,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
             .filter(Boolean) as string[],
         ),
       ).sort();
+
       updateAvailableAiModels(models);
     }
   }, [
@@ -89,6 +90,23 @@ const DashboardClient = memo(({ initialData }: Props) => {
     availableAiModels.length,
     updateAvailableAiModels,
   ]);
+
+  useEffect(() => {
+    if (selectedAiModels.length <= 1) {
+      if (aiModelFilterConditions.length > 0) {
+        setParams({ conditions: [] });
+      }
+    } else {
+      if (aiModelFilterConditions.length !== selectedAiModels.length - 1) {
+        const fill = aiModelFilterConditions[0] ?? "OR";
+        const newConditions = Array(selectedAiModels.length - 1).fill(fill);
+        aiModelFilterConditions.forEach((c, idx) => {
+          if (idx < newConditions.length) newConditions[idx] = c;
+        });
+        setParams({ conditions: newConditions });
+      }
+    }
+  }, [selectedAiModels.length, aiModelFilterConditions, setParams]);
 
   const handleRowClick = useCallback(
     (signal: SignalData) => {

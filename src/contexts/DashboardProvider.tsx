@@ -3,7 +3,10 @@
 import React, { ReactNode, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { format as formatDate } from "date-fns";
-import { DashboardStateProvider, DashboardState } from "./DashboardStateContext";
+import {
+  DashboardStateProvider,
+  DashboardState,
+} from "./DashboardStateContext";
 import { DashboardActionsProvider } from "./DashboardActionsContext";
 
 interface DashboardProviderProps {
@@ -16,27 +19,16 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
   initialData,
 }) => {
   const searchParams = useSearchParams();
-  
-  const urlBasedInitialData = useMemo(() => {
-    const modelsParam = searchParams.get("models");
-    const conditionParam = searchParams.get("condition");
+
+  const urlBasedInitialData = useMemo<DashboardState>(() => {
     const dateParam = searchParams.get("date");
-    const qParam = searchParams.get("q");
-    
     const todayString = formatDate(new Date(), "yyyy-MM-dd");
-    
-    const parsedConditions = conditionParam
-      ? conditionParam
-          .split(",")
-          .filter(Boolean)
-          .map((c) => (c === "AND" ? "AND" : "OR"))
-      : [];
 
     return {
       date: dateParam || todayString,
-      q: qParam,
-      models: modelsParam ? modelsParam.split(",").filter(Boolean) : [],
-      conditions: parsedConditions,
+      q: null,
+      models: [],
+      conditions: [],
       availableAiModels: [],
       ...initialData,
     };
@@ -44,9 +36,7 @@ export const DashboardProvider: React.FC<DashboardProviderProps> = ({
 
   return (
     <DashboardStateProvider initialData={urlBasedInitialData}>
-      <DashboardActionsProvider>
-        {children}
-      </DashboardActionsProvider>
+      <DashboardActionsProvider>{children}</DashboardActionsProvider>
     </DashboardStateProvider>
   );
 };

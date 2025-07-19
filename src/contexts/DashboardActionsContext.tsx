@@ -31,7 +31,7 @@ interface DashboardActionsProviderProps {
 export const DashboardActionsProvider: React.FC<
   DashboardActionsProviderProps
 > = ({ children }) => {
-  const { state, setState } = useDashboardState();
+  const { setState } = useDashboardState();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -42,47 +42,18 @@ export const DashboardActionsProvider: React.FC<
       models?: string[];
       conditions?: ("OR" | "AND")[];
     }) => {
-      setState((prevState) => {
-        const newState = { ...prevState, ...params };
+      setState((prevState) => ({ ...prevState, ...params }));
 
+      // Date만 URL에 저장
+      if (params.date !== undefined) {
         const newSearchParams = new URLSearchParams(searchParams);
-
-        if (params.date !== undefined) {
-          if (params.date) {
-            newSearchParams.set("date", params.date);
-          } else {
-            newSearchParams.delete("date");
-          }
+        if (params.date) {
+          newSearchParams.set("date", params.date);
+        } else {
+          newSearchParams.delete("date");
         }
-
-        if (params.q !== undefined) {
-          if (params.q) {
-            newSearchParams.set("q", params.q);
-          } else {
-            newSearchParams.delete("q");
-          }
-        }
-
-        if (params.models !== undefined) {
-          if (params.models.length > 0) {
-            newSearchParams.set("models", params.models.join(","));
-          } else {
-            newSearchParams.delete("models");
-          }
-        }
-
-        if (params.conditions !== undefined) {
-          if (params.conditions.length > 0) {
-            newSearchParams.set("conditions", params.conditions.join(","));
-          } else {
-            newSearchParams.delete("conditions");
-          }
-        }
-
         router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-
-        return newState;
-      });
+      }
     },
     [setState, router, searchParams],
   );
@@ -104,14 +75,7 @@ export const DashboardActionsProvider: React.FC<
       models: [],
       conditions: [],
     }));
-
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete("q");
-    newSearchParams.delete("models");
-    newSearchParams.delete("conditions");
-
-    router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-  }, [setState, router, searchParams]);
+  }, [setState]);
 
   const actions: DashboardActions = {
     setParams,
