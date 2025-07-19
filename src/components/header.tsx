@@ -45,7 +45,7 @@ const Header = () => {
         <Link className="flex w-fit items-center" href="/dashboard">
           <img
             alt="Favicon"
-            src={process.env.NEXT_PUBLIC_IMAGE_URL + "/favicon.png"}
+            src={"/favicon.png"}
             width={48}
             height={48}
             className="h-12 w-12"

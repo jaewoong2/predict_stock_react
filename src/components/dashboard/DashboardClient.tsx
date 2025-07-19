@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, memo } from "react";
 import { format as formatDate } from "date-fns";
 import { SignalAPIResponse, SignalData } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import {
+  useDashboardFilters,
+  useDashboardAiModels,
+} from "@/hooks/useDashboard";
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "@/components/signal/SignalListWrapper";
 import SignalSearchInput from "@/components/signal/SignalSearchInput";
@@ -24,14 +27,14 @@ type Props = {
   initialData?: SignalAPIResponse;
 };
 
-const DashboardClient = ({ initialData }: Props) => {
+const DashboardClient = memo(({ initialData }: Props) => {
+  const { date, q, setParams } = useDashboardFilters();
   const {
-    date,
-    q,
-    models: selectedAiModels,
-    conditions: aiModelFilterConditions,
-    setParams,
-  } = useSignalSearchParams();
+    availableAiModels,
+    selectedAiModels,
+    aiModelFilterConditions,
+    updateAvailableAiModels,
+  } = useDashboardAiModels();
 
   const router = useRouter();
   const mounted = useMounted();
@@ -39,7 +42,6 @@ const DashboardClient = ({ initialData }: Props) => {
   const todayString = useMemo(() => formatDate(new Date(), "yyyy-MM-dd"), []);
   const submittedDate = useMemo(() => date ?? todayString, [date, todayString]);
 
-  const [availableAiModels, setAvailableAiModels] = useState<string[]>([]);
   const { favorites, toggleFavorite } = useFavoriteTickers();
 
   const currentSelectedTickersArray = useMemo(() => {
@@ -70,23 +72,23 @@ const DashboardClient = ({ initialData }: Props) => {
   }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    setAvailableAiModels((prev) => {
-      if (prev.length > 0) return prev; // 이미 설정된 모델이 있으면 그대로 반환
+    if (availableAiModels.length > 0) return;
 
-      if (signalApiResponse?.signals) {
-        const models = Array.from(
-          new Set(
-            signalApiResponse.signals
-              .map((s: any) => s.signal.ai_model)
-              .filter(Boolean) as string[],
-          ),
-        ).sort();
-        return models;
-      }
-
-      return [];
-    });
-  }, [signalApiResponse?.signals]);
+    if (signalApiResponse?.signals) {
+      const models = Array.from(
+        new Set(
+          signalApiResponse.signals
+            .map((s: any) => s.signal.ai_model)
+            .filter(Boolean) as string[],
+        ),
+      ).sort();
+      updateAvailableAiModels(models);
+    }
+  }, [
+    signalApiResponse?.signals,
+    availableAiModels.length,
+    updateAvailableAiModels,
+  ]);
 
   const handleRowClick = useCallback(
     (signal: SignalData) => {
@@ -240,6 +242,24 @@ const DashboardClient = ({ initialData }: Props) => {
     [favorites, toggleFavorite],
   );
 
+  const handleModelsChange = useCallback(
+    (models: string[]) => {
+      setParams({ models });
+    },
+    [setParams],
+  );
+
+  const handleConditionChange = useCallback(
+    (idx: number, value: "OR" | "AND") => {
+      setParams({
+        conditions: aiModelFilterConditions
+          .map((c, i) => (i === idx ? value : c))
+          .slice(0, Math.max(0, selectedAiModels.length - 1)),
+      });
+    },
+    [setParams, aiModelFilterConditions, selectedAiModels.length],
+  );
+
   return (
     <>
       <div className="flex w-full flex-wrap items-start justify-between gap-2">
@@ -295,16 +315,8 @@ const DashboardClient = ({ initialData }: Props) => {
             availableModels={availableAiModels}
             selectedModels={selectedAiModels}
             conditions={aiModelFilterConditions}
-            onModelsChange={(models) => {
-              setParams({ models });
-            }}
-            onConditionChange={(idx, value) => {
-              setParams({
-                conditions: aiModelFilterConditions
-                  .map((c, i) => (i === idx ? value : c))
-                  .slice(0, Math.max(0, selectedAiModels.length - 1)),
-              });
-            }}
+            onModelsChange={handleModelsChange}
+            onConditionChange={handleConditionChange}
           />
         </div>
       </div>
@@ -318,6 +330,8 @@ const DashboardClient = ({ initialData }: Props) => {
       />
     </>
   );
-};
+});
+
+DashboardClient.displayName = "DashboardClient";
 
 export default DashboardClient;
