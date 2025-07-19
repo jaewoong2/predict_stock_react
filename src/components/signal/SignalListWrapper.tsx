@@ -22,7 +22,6 @@ export const SignalListWrapper = React.memo(
     isLoading = false,
     totalItems = 0,
     totalPages = 0,
-    storageKey,
     children,
   }: PropsWithChildren<SignalListWrapperProps>) => {
     return (

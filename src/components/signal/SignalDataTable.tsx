@@ -48,7 +48,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { desc: true, id: "signal.favorite" },
+    // { desc: true, id: "signal.favorite" },
     { desc: true, id: "take_profit_buy" },
   ]);
   const [columnFilters, setColumnFilters] = useState<
@@ -68,7 +68,10 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   // Reset sorting whenever the underlying data changes so
   // newly toggled favorites appear at the top of the list
   useEffect(() => {
-    setSorting([{ desc: true, id: "signal.favorite" }]);
+    setSorting([
+      { desc: true, id: "signal.favorite" },
+      { desc: true, id: "take_profit_buy" },
+    ]);
   }, [data]);
 
   function onPaginationChange(newPage: number, newPageSize: number) {

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+} from "react";
 
 export interface DashboardState {
   date: string | null;
@@ -23,7 +29,9 @@ interface DashboardStateContextType {
   setState: React.Dispatch<React.SetStateAction<DashboardState>>;
 }
 
-const DashboardStateContext = createContext<DashboardStateContextType | undefined>(undefined);
+const DashboardStateContext = createContext<
+  DashboardStateContextType | undefined
+>(undefined);
 
 interface DashboardStateProviderProps {
   children: ReactNode;
@@ -44,7 +52,7 @@ export const DashboardStateProvider: React.FC<DashboardStateProviderProps> = ({
       state,
       setState,
     }),
-    [state]
+    [state],
   );
 
   return (
@@ -57,7 +65,9 @@ export const DashboardStateProvider: React.FC<DashboardStateProviderProps> = ({
 export const useDashboardState = () => {
   const context = useContext(DashboardStateContext);
   if (context === undefined) {
-    throw new Error("useDashboardState must be used within a DashboardStateProvider");
+    throw new Error(
+      "useDashboardState must be used within a DashboardStateProvider",
+    );
   }
   return context;
 };
