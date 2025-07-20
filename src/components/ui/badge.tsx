@@ -10,6 +10,10 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
+        warning:
+          "border-transparent bg-yellow-100 text-yellow-800 [a&]:hover:bg-yellow-200",
+        success:
+          "border-transparent bg-green-100 text-green-800 [a&]:hover:bg-green-200",
         default:
           "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
         secondary:
@@ -23,7 +27,7 @@ const badgeVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 function Badge({

@@ -11,28 +11,28 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MahaneyAnalysisCardProps {
   symbol: string;
   date: string;
 }
 
-const getRecommendationColor = (recommendation: string) => {
-  switch (recommendation) {
-    case "Buy":
-      return "bg-green-100 text-green-800 hover:bg-green-200";
-    case "Sell":
-      return "bg-red-100 text-red-800 hover:bg-red-200";
-    case "Hold":
-      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+const getRecommendationVariant = (
+  recommendation: string,
+): "success" | "destructive" | "warning" | "secondary" => {
+  switch (recommendation.toLowerCase()) {
+    case "buy":
+      return "success";
+    case "sell":
+      return "destructive";
+    case "hold":
+      return "warning";
     default:
-      return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+      return "secondary";
   }
-};
-
-const getCriterionIcon = (pass: boolean) => {
-  return pass ? "✅" : "❌";
 };
 
 export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
@@ -47,20 +47,18 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="shadow-none">
         <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-6 w-48" />
-          </CardTitle>
-          <CardDescription>
-            <Skeleton className="h-4 w-64" />
-          </CardDescription>
+          <Skeleton className="h-7 w-1/2" />
+          <Skeleton className="mt-2 h-4 w-3/4" />
         </CardHeader>
         <CardContent className="space-y-4">
-          <Skeleton className="h-20 w-full" />
-          <div className="grid grid-cols-2 gap-4">
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-16 w-full" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
           </div>
         </CardContent>
       </Card>
@@ -69,10 +67,14 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
 
   if (error) {
     return (
-      <Card>
+      <Card className="shadow-none">
         <CardContent className="p-6">
-          <Alert>
-            <p>마하니 분석 데이터를 불러올 수 없습니다.</p>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>오류</AlertTitle>
+            <AlertDescription>
+              마하니 분석 데이터를 불러오는 중 오류가 발생했습니다.
+            </AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -83,11 +85,9 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
 
   if (!analysis) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-muted-foreground text-center">
-            {symbol}에 대한 마하니 분석 데이터가 없습니다.
-          </p>
+      <Card className="shadow-none">
+        <CardContent className="text-muted-foreground p-6 text-center">
+          {symbol}에 대한 마하니 분석 데이터가 없습니다.
         </CardContent>
       </Card>
     );
@@ -106,53 +106,53 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
   return (
     <Card className="shadow-none">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <CardTitle className="text-xl">{analysis.stock_name}</CardTitle>
-            <CardDescription className="mt-2">
+            <CardDescription className="mt-1">
               7단계 체크리스트 기반 기술주 분석 (Mark Mahaney)
             </CardDescription>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge className={getRecommendationColor(analysis.recommendation)}>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant={getRecommendationVariant(analysis.recommendation)}
+              className="text-sm"
+            >
               {analysis.recommendation}
             </Badge>
-            <span className="text-sm font-medium">
-              {analysis.recommendation_score}
-            </span>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6 shadow-none">
-        <div>
-          <h4 className="mb-2 font-medium">종합 평가</h4>
-          <p className="text-muted-foreground mb-2 text-sm">
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
+          <span className="text-foreground text-sm font-bold">
+            {analysis.recommendation_score}
+          </span>
+        </div>
+        <div className="space-y-2">
+          <h4 className="font-semibold">종합 평가</h4>
+          <p className="text-muted-foreground text-sm">
             {analysis.final_assessment}
           </p>
-          <p className="text-sm">{analysis.summary}</p>
         </div>
 
-        <div>
-          <h4 className="mb-4 font-medium">체크리스트 평가</h4>
+        <div className="space-y-3">
+          <h4 className="font-semibold">체크리스트 평가</h4>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {criteria.map((criterion, index) => (
               <div
                 key={index}
-                className="bg-muted/50 space-y-2 rounded-lg border p-3"
+                className="bg-muted/50 space-y-2 rounded-lg border p-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{criterion.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">
-                      {getCriterionIcon(criterion.data.pass_criterion)}
-                    </span>
-                    {/* <span className="text-sm font-medium">
-                      {criterion.data.score}/10
-                    </span> */}
-                  </div>
+                  <span className="font-medium">{criterion.name}</span>
+                  {criterion.data.pass_criterion ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-500" />
+                  )}
                 </div>
-                {/* <Progress value={criterion.data.score * 10} className="h-2" /> */}
-                <div className="text-muted-foreground space-y-1 text-xs">
+                <div className="text-muted-foreground space-y-1 text-sm">
                   <p>
                     <strong>지표:</strong> {criterion.data.metric}
                   </p>
@@ -163,8 +163,8 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
           </div>
         </div>
 
-        <div className="border-t pt-4">
-          <h4 className="mb-2 font-medium">상세 분석</h4>
+        <div className="space-y-2 border-t pt-4">
+          <h4 className="font-semibold">상세 분석</h4>
           <p className="text-muted-foreground text-sm">
             {analysis.detail_summary}
           </p>
