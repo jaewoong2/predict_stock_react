@@ -6,7 +6,6 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 // Helper function to format date string
 const formatCurrency = (amount: number | undefined | null) => {
@@ -71,7 +70,7 @@ export const createColumns = (
         <div className="flex items-center justify-start font-medium">
           {imageUrl && (
             <div className="mr-2 flex items-center justify-center overflow-hidden rounded-full bg-black/20 p-[3px]">
-              <Image
+              <img
                 width={24}
                 height={24}
                 loading="lazy"

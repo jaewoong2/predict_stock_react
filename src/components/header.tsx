@@ -39,13 +39,16 @@ const Header = () => {
     return null; // Prevents hydration mismatch
   }
 
+  const baseurl =
+    process.env.NEXT_PUBLIC_IMAGE_URL || "https://stock.bamtoly.com/static";
+
   return (
     <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-6">
         <Link className="flex w-fit items-center" href="/dashboard">
           <img
             alt="Favicon"
-            src={"/favicon.png"}
+            src={baseurl + "/favicon.png"}
             width={48}
             height={48}
             className="h-12 w-12"
