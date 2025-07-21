@@ -40,7 +40,7 @@ export default function ModalPage({
         />
 
         {/* Modal content, positioned above the overlay */}
-        <div className="bg-background relative z-10 h-full max-h-[90%] w-full max-w-[70%] overflow-y-auto rounded-lg max-lg:max-w-[calc(100%-2rem)]">
+        <div className="bg-background relative z-10 h-full max-h-[90%] w-full max-w-[70%] overflow-y-auto rounded-lg max-lg:max-w-[calc(100%-1rem)]">
           <div className="p-4">
             <button
               onClick={handleClose}

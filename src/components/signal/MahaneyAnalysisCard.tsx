@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface MahaneyAnalysisCardProps {
   symbol: string;
@@ -81,13 +80,13 @@ export const MahaneyAnalysisCard: React.FC<MahaneyAnalysisCardProps> = ({
     );
   }
 
-  const analysis = data?.stocks[0];
+  const analysis = data?.stocks?.[0];
 
   if (!analysis) {
     return (
       <Card className="shadow-none">
         <CardContent className="text-muted-foreground p-6 text-center">
-          {symbol}에 대한 마하니 분석 데이터가 없습니다.
+          {symbol}에 대한 분석 데이터가 없습니다.
         </CardContent>
       </Card>
     );
