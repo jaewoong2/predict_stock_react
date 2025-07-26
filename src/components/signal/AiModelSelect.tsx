@@ -42,7 +42,7 @@ export function AiModelSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-[200px] justify-between shadow-none"
         >
           {value}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -62,7 +62,7 @@ export function AiModelSelect({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value.includes(model) ? "opacity-100" : "opacity-0"
+                      value.includes(model) ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {model}
