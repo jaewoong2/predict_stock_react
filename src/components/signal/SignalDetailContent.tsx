@@ -2,6 +2,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
@@ -62,13 +69,47 @@ const formatCurrency = (amount: number | undefined | null) => {
   }).format(amount);
 };
 
+// 최근 2주 영업일 날짜 옵션 생성 (주말 제외)
+const generateDateOptions = () => {
+  const options = [];
+  const today = new Date();
+  let daysAdded = 0;
+  let currentDate = 0;
+
+  // 최대 2주 영업일 (14일)만 포함
+  while (daysAdded < 14) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - currentDate);
+
+    // 주말이 아닌 경우에만 추가 (0 = 일요일, 6 = 토요일)
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      const dateString = date.toISOString().split("T")[0];
+      const displayDate = format(date, "yyyy년 MM월 dd일");
+
+      options.push({
+        value: dateString,
+        label: displayDate,
+      });
+
+      daysAdded++;
+    }
+
+    currentDate++;
+  }
+
+  return options;
+};
+
 export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   symbol,
   aiModel,
   date,
 }) => {
   const router = useRouter();
-  const { strategy_type } = useSignalSearchParams();
+  const { strategy_type, setParams } = useSignalSearchParams();
+
+  const dateOptions = useMemo(() => generateDateOptions(), []);
 
   const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
 
@@ -147,13 +188,45 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {data.signal.ticker}
-          </h1>
-          <p className="text-muted-foreground">
-            {data.signal.timestamp &&
-              format(data.signal.timestamp, "yyyy년 MM월 dd일")}
-          </p>
+          <div className="flex items-center justify-center gap-4">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {data.signal.ticker}
+            </h1>
+            <div className="flex flex-col space-y-2">
+              <AiModelSelect
+                options={[
+                  ...new Set(
+                    signals.data?.signals.map(
+                      (signal) => signal.signal.ai_model ?? "",
+                    ),
+                  ),
+                ]}
+                value={aiModel}
+                onChange={(value) => {
+                  router.replace(
+                    `/dashboard/d/${symbol}?model=${value}&date=${date}`,
+                  );
+                }}
+              />
+            </div>
+          </div>
+          <Select
+            value={date}
+            onValueChange={(newDate) => {
+              setParams({ date: newDate });
+            }}
+          >
+            <SelectTrigger className="w-[200px] shadow-none">
+              <SelectValue placeholder="날짜 선택" />
+            </SelectTrigger>
+            <SelectContent>
+              {dateOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
           {data.signal.action && (
@@ -184,11 +257,11 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+        <TabsList className="flex w-full">
           <TabsTrigger value="overview">개요</TabsTrigger>
           <TabsTrigger value="analysis">분석</TabsTrigger>
-          <TabsTrigger value="data">시장 데이터</TabsTrigger>
-          <TabsTrigger value="results">결과</TabsTrigger>
+          {data.ticker && <TabsTrigger value="data">시장 데이터</TabsTrigger>}
+          {data.result && <TabsTrigger value="results">결과</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview" className="mt-6 space-y-6">
@@ -211,33 +284,12 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                     )}
                   </div>
                 </div>
-
-                <div className="flex flex-col space-y-2">
-                  <label className="text-muted-foreground text-sm font-medium">
-                    분석
-                  </label>
-                  <AiModelSelect
-                    options={[
-                      ...new Set(
-                        signals.data?.signals.map(
-                          (signal) => signal.signal.ai_model ?? "",
-                        ),
-                      ),
-                    ]}
-                    value={aiModel}
-                    onChange={(value) => {
-                      router.push(
-                        `/dashboard/d/${symbol}?model=${value}&date=${date}`,
-                      );
-                    }}
-                  />
-                </div>
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="bg-muted flex flex-col space-y-1 rounded-lg p-4">
                   <span className="text-muted-foreground text-sm">
-                    💰 진입 가격
+                    진입 가격
                   </span>
                   <span className="text-foreground text-lg font-semibold">
                     {formatCurrency(data.signal.entry_price)}
@@ -245,9 +297,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 </div>
                 {data.signal.stop_loss && (
                   <div className="bg-muted flex flex-col space-y-1 rounded-lg p-4">
-                    <span className="text-muted-foreground text-sm">
-                      🛑 손절
-                    </span>
+                    <span className="text-muted-foreground text-sm">손절</span>
                     <span className="text-lg font-semibold text-red-500">
                       {formatCurrency(data.signal.stop_loss)}
                     </span>
@@ -255,9 +305,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 )}
                 {data.signal.take_profit && (
                   <div className="bg-muted flex flex-col space-y-1 rounded-lg p-4">
-                    <span className="text-muted-foreground text-sm">
-                      🎯 익절
-                    </span>
+                    <span className="text-muted-foreground text-sm">익절</span>
                     <span className="text-lg font-semibold text-green-600">
                       {formatCurrency(data.signal.take_profit)}
                     </span>
