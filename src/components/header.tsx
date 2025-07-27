@@ -71,9 +71,9 @@ const Header = () => {
           </Button>
         </div>
       </nav>
-      <DismissibleAlert variant="default" className="rounded-none px-8">
+      {/* <DismissibleAlert variant="default" className="rounded-none px-8">
         <AlertTitle>🎉 Add Nova AI, Perplexity Sonar Pro Model 🎉</AlertTitle>
-      </DismissibleAlert>
+      </DismissibleAlert> */}
     </header>
   );
 };
