@@ -14,6 +14,7 @@ import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
+import ResearchAnalysis from "@/components/research/ResearchAnalysis";
 
 export async function generateMetadata({
   searchParams,
@@ -182,6 +183,7 @@ export default async function DashboardPage({
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />
         </Suspense>
+        <ResearchAnalysis />
       </div>
       <DashboardFooter />
     </>
