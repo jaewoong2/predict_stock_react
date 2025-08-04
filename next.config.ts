@@ -25,6 +25,7 @@ const nextConfig = {
       { hostname: "stock.bamtoly.com" },
       { hostname: "pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com" },
       { hostname: "stock-api.bamtoly.com" },
+      { hostname: "ai.bamtoly.com" },
     ],
   },
   reactStrictMode: true,

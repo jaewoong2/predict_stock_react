@@ -1,0 +1,17 @@
+# terraform.tfvars.example
+# 이 파일을 terraform.tfvars로 복사하고 실제 값으로 변경하세요
+
+aws_region = "ap-northeast-2"
+project_name = "stock-predict"
+environment = "prod"
+
+# 기존 인프라 정보 (실제 값으로 변경 필요)
+vpc_id = "vpc-xxxxxxxxx"
+public_subnet_ids = [
+  "subnet-xxxxxxxxx",
+  "subnet-yyyyyyyyy"
+]
+security_group_id = "sg-xxxxxxxxx"
+
+# 도메인 설정
+domain_name = "stock.bamtoly.com"
