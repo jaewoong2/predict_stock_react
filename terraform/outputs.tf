@@ -35,5 +35,5 @@ output "domain_name" {
 
 output "ssl_certificate_arn" {
   description = "SSL certificate ARN"
-  value       = "arn:aws:acm:ap-northeast-2:849441246713:certificate/e80e01ba-12e8-4420-8aeb-6e36fc578fc0"
+  value       = data.aws_acm_certificate.app.arn
 }

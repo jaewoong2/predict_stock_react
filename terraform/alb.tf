@@ -59,7 +59,7 @@ resource "aws_lb_listener" "app_https" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:ap-northeast-2:849441246713:certificate/e80e01ba-12e8-4420-8aeb-6e36fc578fc0"
+  certificate_arn   = data.aws_acm_certificate.app.arn
 
   default_action {
     type             = "forward"
