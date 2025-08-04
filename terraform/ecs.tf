@@ -66,6 +66,10 @@ resource "aws_ecs_task_definition" "app" {
         {
           name  = "HOSTNAME"
           value = "0.0.0.0"
+        },
+        {
+          name  = "DEPLOYMENT_TYPE"
+          value = "ecs"
         }
       ]
 
