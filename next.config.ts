@@ -14,7 +14,11 @@ const nextConfig = {
     TZ: "Asia/Seoul",
   },
   assetPrefix:
-    process.env.NODE_ENV === "development" ? null : "https://stock.bamtoly.com",
+    process.env.NODE_ENV === "development"
+      ? null
+      : process.env.DEPLOYMENT_TYPE === "ecs"
+        ? null
+        : "https://ai.bamtoly.com",
   output: "standalone",
   images: {
     remotePatterns: [
@@ -25,6 +29,7 @@ const nextConfig = {
       { hostname: "stock.bamtoly.com" },
       { hostname: "pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com" },
       { hostname: "stock-api.bamtoly.com" },
+      { hostname: "ai.bamtoly.com" },
     ],
   },
   reactStrictMode: true,
