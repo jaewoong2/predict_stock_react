@@ -14,6 +14,7 @@ export default async function MarketNewsSection({ date }: Props) {
       news_type: "market",
       news_date: date,
     });
+
     return <MarketNewsCarousel items={news.result ?? []} />;
   } catch (error) {
     console.error("MarketNewsSection error", error);

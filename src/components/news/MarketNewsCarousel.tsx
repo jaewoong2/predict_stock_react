@@ -23,6 +23,17 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
   const [selectedItem, setSelectedItem] = useState<MarketNewsItem | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // Calculate recommendation counts
+  const recommendationCounts = items?.reduce(
+    (acc, item) => {
+      if (item.recommendation === "Buy") acc.buy++;
+      else if (item.recommendation === "Sell") acc.sell++;
+      else if (item.recommendation === "Hold") acc.hold++;
+      return acc;
+    },
+    { buy: 0, sell: 0, hold: 0 },
+  ) || { buy: 0, sell: 0, hold: 0 };
+
   const scroll = (dir: "left" | "right") => {
     const container = containerRef.current;
     if (!container) return;
@@ -42,13 +53,56 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     <div className="relative">
       <div
         ref={containerRef}
-        className="flex overflow-x-auto space-x-4 snap-x h-full"
+        className="flex h-full snap-x space-x-4 overflow-x-auto"
       >
+        {/* Summary Card */}
+        <div className="bg-card flex min-w-[250px] cursor-default snap-start flex-col justify-between rounded-md border p-4">
+          <div>
+            <p className="mb-4 text-lg font-bold">Market Overview</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-green-500 px-3 py-1 text-sm text-white">
+                    Buy
+                  </Badge>
+                  <span className="text-lg font-bold">
+                    {recommendationCounts.buy}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-yellow-500 px-3 py-1 text-sm text-white">
+                    Hold
+                  </Badge>
+                  <span className="text-lg font-bold">
+                    {recommendationCounts.hold}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-red-500 px-3 py-1 text-sm text-white">
+                    Sell
+                  </Badge>
+                  <span className="text-lg font-bold">
+                    {recommendationCounts.sell}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="text-muted-foreground mt-4 text-sm font-medium">
+            Total: {items?.length || 0} recommendations
+          </p>
+        </div>
+
+        {/* News Items */}
         {items?.map((item) => (
           <div
             key={item.id}
             className={cn(
-              "min-w-[250px] snap-start bg-card rounded-md p-4 border justify-between flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+              "bg-card flex min-w-[250px] cursor-pointer snap-start flex-col justify-between rounded-md border p-4 transition-shadow hover:shadow-md",
             )}
             onClick={() => handleItemClick(item)}
           >
@@ -58,17 +112,17 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
                   item.recommendation === "Buy" && "bg-green-500 text-white",
                   item.recommendation === "Sell" && "bg-red-500 text-white",
                   item.recommendation === "Hold" && "bg-yellow-500 text-white",
-                  "mb-2"
+                  "mb-2",
                 )}
               >
                 {item.recommendation}
               </Badge>
-              <p className="text-sm font-semibold mb-1">{item.headline}</p>
-              <p className="text-xs text-muted-foreground line-clamp-3">
+              <p className="mb-1 text-sm font-semibold">{item.headline}</p>
+              <p className="text-muted-foreground line-clamp-3 text-xs">
                 {item.summary}
               </p>
             </div>
-            <p className="text-xs mt-2 text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-xs">
               {new Date(item.created_at).toLocaleDateString()}
             </p>
           </div>
@@ -77,7 +131,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -left-6 top-1/2 -translate-y-1/2 max-sm:hidden hidden"
+        className="absolute top-1/2 -left-6 hidden -translate-y-1/2 max-sm:hidden"
         onClick={() => scroll("left")}
       >
         <ChevronLeft className="h-4 w-4" />
@@ -85,7 +139,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-6 top-1/2 -translate-y-1/2 max-sm:hidden hidden"
+        className="absolute top-1/2 -right-6 hidden -translate-y-1/2 max-sm:hidden"
         onClick={() => scroll("right")}
       >
         <ChevronRight className="h-4 w-4" />
@@ -94,13 +148,13 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
       {/* News Detail Drawer */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent
-          className="w-fit mx-auto pb-10 !select-text h-full max-h-[80vh] max-sm:w-[calc(100%-14px)] max-sm:max-h-[70vh]"
+          className="mx-auto h-full max-h-[80vh] w-fit pb-10 !select-text max-sm:max-h-[70vh] max-sm:w-[calc(100%-14px)]"
           data-vaul-drawer-direction={"bottom"}
         >
-          <div className="mx-auto w-full max-w-4xl h-full overflow-y-scroll px-6 max-sm:px-1">
+          <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-6 max-sm:px-1">
             <DrawerHeader>
               <DrawerClose asChild>
-                <button className="text-3xl text-white absolute -right-0 -top-10 cursor-pointer">
+                <button className="absolute -top-10 -right-0 cursor-pointer text-3xl text-white">
                   &times;
                 </button>
               </DrawerClose>
@@ -115,7 +169,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
                       selectedItem.recommendation === "Sell" &&
                         "bg-red-500 text-white",
                       selectedItem.recommendation === "Hold" &&
-                        "bg-yellow-500 text-white"
+                        "bg-yellow-500 text-white",
                     )}
                   >
                     {selectedItem.recommendation}
@@ -124,21 +178,21 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
               </DrawerTitle>
               <DrawerDescription>
                 {selectedItem?.ticker && (
-                  <span className="font-bold mr-2">
+                  <span className="mr-2 font-bold">
                     Ticker: {selectedItem.ticker}
                   </span>
                 )}
                 {new Date(selectedItem?.created_at || "").toLocaleDateString()}
               </DrawerDescription>
             </DrawerHeader>
-            <div className="p-4 pb-0 z-10">
-              <div className="rounded-lg bg-muted/50 p-4">
+            <div className="z-10 p-4 pb-0">
+              <div className="bg-muted/50 rounded-lg p-4">
                 <h4 className="mb-2 font-medium">Summary</h4>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-muted-foreground mb-4 text-sm">
                   {selectedItem?.summary}
                 </p>
                 <h4 className="mb-2 font-medium">Details</h4>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                <p className="text-muted-foreground text-sm whitespace-pre-line">
                   {selectedItem?.detail_description}
                 </p>
               </div>
