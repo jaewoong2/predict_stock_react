@@ -15,6 +15,7 @@ import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 import ResearchAnalysis from "@/components/research/ResearchAnalysis";
+import { ETFPortfolioCard } from "@/components/dashboard/ETFPortfolioCard";
 
 export async function generateMetadata({
   searchParams,
@@ -179,6 +180,17 @@ export default async function DashboardPage({
           }
         >
           <MarketAnalysisSection date={date} />
+        </Suspense>
+        <Suspense
+          fallback={
+            <CardSkeleton
+              titleHeight={6}
+              cardClassName="shadow-none"
+              contentHeight={200}
+            />
+          }
+        >
+          <ETFPortfolioCard targetDate={date} etfTickers="ARKK,QQQ" limit={5} />
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />
