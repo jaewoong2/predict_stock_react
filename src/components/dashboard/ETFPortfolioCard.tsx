@@ -13,20 +13,27 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, TrendingDown, AlertCircle, DollarSign } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  DollarSign,
+} from "lucide-react";
 
 interface ETFPortfolioCardProps {
-  etfTickers?: string;
+  etfTickers?: string[];
   targetDate?: string;
   limit?: number;
 }
 
-const getActionVariant = (action: string): "success" | "destructive" => {
-  return action === "ADDED" ? "success" : "destructive";
+const getActionVariant = (
+  action: "BUY" | "SELL",
+): "success" | "destructive" => {
+  return action === "BUY" ? "success" : "destructive";
 };
 
 const getActionIcon = (action: string) => {
-  return action === "ADDED" ? (
+  return action === "BUY" ? (
     <TrendingUp className="h-4 w-4 text-green-500" />
   ) : (
     <TrendingDown className="h-4 w-4 text-red-500" />
@@ -34,7 +41,7 @@ const getActionIcon = (action: string) => {
 };
 
 export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
-  etfTickers = "ARKK,QQQ",
+  etfTickers = ["ARKK", "426030"],
   targetDate,
   limit = 10,
 }) => {
@@ -81,7 +88,7 @@ export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
     );
   }
 
-  const portfolios = data?.etf_portfolios || [];
+  const portfolios = data?.etf_analyses || [];
 
   if (portfolios.length === 0) {
     return (
@@ -118,7 +125,7 @@ export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
         {portfolios.map((portfolio, index) => (
           <div key={portfolio.etf_ticker} className="space-y-4">
             {index > 0 && <Separator className="my-6" />}
-            
+
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
@@ -129,15 +136,17 @@ export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
                     {portfolio.etf_ticker}
                   </p>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-green-500" />
-                    <span className="text-lg font-semibold">
-                      ${(portfolio.total_value / 1000000000).toFixed(2)}B
-                    </span>
+                {portfolio.total_value && (
+                  <div className="text-right">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-green-500" />
+                      <span className="text-lg font-semibold">
+                        ${(portfolio.total_value / 1000000000).toFixed(2)}B
+                      </span>
+                    </div>
+                    <p className="text-muted-foreground text-xs">총 운용자산</p>
                   </div>
-                  <p className="text-muted-foreground text-xs">총 운용자산</p>
-                </div>
+                )}
               </div>
 
               <p className="text-muted-foreground text-sm">
@@ -148,16 +157,17 @@ export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium">주요 포트폴리오 변동</h4>
                   <div className="space-y-2">
-                    {portfolio.changes.slice(0, 5).map((change, changeIndex) => (
+                    {portfolio.changes.map((change, changeIndex) => (
                       <div
                         key={changeIndex}
                         className="bg-muted/30 flex items-center justify-between rounded-lg border p-3"
                       >
                         <div className="flex items-center gap-3">
-                          {getActionIcon(change.action)}
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{change.ticker}</span>
+                              <span className="font-medium">
+                                {change.ticker}
+                              </span>
                               <Badge
                                 variant={getActionVariant(change.action)}
                                 className="h-5 px-2 text-xs"
@@ -166,17 +176,26 @@ export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
                               </Badge>
                             </div>
                             <p className="text-muted-foreground text-xs">
-                              {change.company_name}
+                              {change.reason}
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-medium">
-                            ${Math.abs(change.value / 1000000).toFixed(1)}M
-                          </div>
-                          <div className="text-muted-foreground text-xs">
-                            {change.percentage > 0 ? '+' : ''}{change.percentage.toFixed(2)}%
-                          </div>
+                          {change.total_value && (
+                            <div className="text-sm font-medium">
+                              $
+                              {Math.abs(change.total_value / 1000000).toFixed(
+                                1,
+                              )}
+                              M
+                            </div>
+                          )}
+                          {change.percentage_of_portfolio && (
+                            <div className="text-muted-foreground text-xs">
+                              {change.percentage_of_portfolio > 0 ? "+" : ""}
+                              {change.percentage_of_portfolio.toFixed(2)}%
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

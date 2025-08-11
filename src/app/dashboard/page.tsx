@@ -190,7 +190,7 @@ export default async function DashboardPage({
             />
           }
         >
-          <ETFPortfolioCard targetDate={date} etfTickers="ARKK,QQQ" limit={5} />
+          <ETFPortfolioCard targetDate={date} etfTickers={["ARKK", "426030"]} />
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />

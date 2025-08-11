@@ -1,6 +1,12 @@
 "use client";
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+} from "lucide-react";
 import { MarketNewsItem } from "@/types/news";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +19,14 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from "@/components/ui/chart";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 interface MarketNewsCarouselProps {
   items: MarketNewsItem[];
@@ -33,6 +47,37 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     },
     { buy: 0, sell: 0, hold: 0 },
   ) || { buy: 0, sell: 0, hold: 0 };
+
+  const total =
+    recommendationCounts.buy +
+    recommendationCounts.hold +
+    recommendationCounts.sell;
+
+  // Chart data for ShadCN pie chart
+  const chartData = [
+    {
+      recommendation: "buy",
+      count: recommendationCounts.buy,
+      fill: "var(--color-buy)"
+    },
+    {
+      recommendation: "hold", 
+      count: recommendationCounts.hold,
+      fill: "var(--color-hold)"
+    },
+    {
+      recommendation: "sell",
+      count: recommendationCounts.sell,
+      fill: "var(--color-sell)"
+    }
+  ].filter((item) => item.count > 0);
+
+  const chartConfig = {
+    buy: { label: "Buy", color: "#e07a5f" },
+    hold: { label: "Hold", color: "#3d5a80" },
+    sell: { label: "Sell", color: "#81b29a" },
+  };
+
 
   const scroll = (dir: "left" | "right") => {
     const container = containerRef.current;
@@ -55,46 +100,75 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
         ref={containerRef}
         className="flex h-full snap-x space-x-4 overflow-x-auto"
       >
-        {/* Summary Card */}
-        <div className="bg-card flex min-w-[250px] cursor-default snap-start flex-col justify-between rounded-md border p-4">
+        {/* Enhanced Summary Card */}
+        <div className="from-card via-card to-muted/20 border-border/50 flex min-w-[300px] cursor-default snap-start flex-col justify-between rounded-xl border bg-gradient-to-br p-6 shadow-lg backdrop-blur-sm">
           <div>
-            <p className="mb-4 text-lg font-bold">Market Overview</p>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-green-500 px-3 py-1 text-sm text-white">
-                    Buy
-                  </Badge>
-                  <span className="text-lg font-bold">
-                    {recommendationCounts.buy}
-                  </span>
+            <div className="mb-6 flex items-start gap-2">
+              <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
+                <TrendingUp className="text-primary h-4 w-4" />
+              </div>
+              <h3 className="text-xl font-bold">뉴스</h3>
+            </div>
+
+            {/* Clean Pie Chart */}
+            {chartData.length > 0 ? (
+              <div className="relative mb-6">
+                <ChartContainer
+                  config={chartConfig}
+                  className="mx-auto aspect-square max-h-[240px]"
+                >
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      dataKey="count"
+                      nameKey="recommendation"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      strokeWidth={0}
+                    />
+                    <ChartTooltip 
+                      content={<ChartTooltipContent nameKey="recommendation" />}
+                    />
+                  </PieChart>
+                </ChartContainer>
+
+                {/* Clean center label */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-slate-700">
+                      {total}
+                    </div>
+                    <div className="mt-1 text-sm font-medium text-slate-500">
+                      Reports
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-yellow-500 px-3 py-1 text-sm text-white">
-                    Hold
-                  </Badge>
-                  <span className="text-lg font-bold">
-                    {recommendationCounts.hold}
-                  </span>
+            ) : (
+              <div className="mb-6 flex h-[200px] items-center justify-center">
+                <div className="text-center">
+                  <div className="text-muted-foreground mb-2 text-4xl">📊</div>
+                  <p className="text-muted-foreground text-sm">
+                    No data available
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Badge className="bg-red-500 px-3 py-1 text-sm text-white">
-                    Sell
-                  </Badge>
-                  <span className="text-lg font-bold">
-                    {recommendationCounts.sell}
-                  </span>
-                </div>
-              </div>
+            )}
+          </div>
+
+          <div className="bg-muted/30 mt-6 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-sm font-medium">
+                Total Reports
+              </span>
+              <span className="text-lg font-bold">{total}</span>
+            </div>
+            <div className="text-muted-foreground mt-1 text-xs">
+              Last updated: {new Date().toLocaleDateString()}
             </div>
           </div>
-          <p className="text-muted-foreground mt-4 text-sm font-medium">
-            Total: {items?.length || 0} recommendations
-          </p>
         </div>
 
         {/* News Items */}

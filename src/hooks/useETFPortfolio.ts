@@ -18,7 +18,7 @@ export const useETFPortfolio = (
   options?: Omit<
     UseQueryOptions<ETFAnalysisGetResponse, Error>,
     "queryKey" | "queryFn"
-  >
+  >,
 ) => {
   return useQuery<ETFAnalysisGetResponse, Error>({
     queryKey: ETF_KEYS.portfolio(params),

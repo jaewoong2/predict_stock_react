@@ -1,11 +1,10 @@
 export interface ETFPortfolioChange {
   ticker: string;
-  company_name: string;
-  action: "ADDED" | "REDUCED";
-  shares: number;
-  value: number;
-  percentage: number;
-  change_reason: string;
+  action: "BUY" | "SELL";
+  shares_traded: number;
+  total_value: number;
+  percentage_of_portfolio: number;
+  reason: string;
 }
 
 export interface ETFPortfolioData {
@@ -19,12 +18,12 @@ export interface ETFPortfolioData {
 }
 
 export interface ETFAnalysisGetResponse {
-  etf_portfolios: ETFPortfolioData[];
+  etf_analyses: ETFPortfolioData[];
 }
 
 export interface ETFAnalysisGetRequest {
   target_date?: string;
-  etf_tickers?: string;
+  etf_tickers?: string[];
   limit?: number;
   sort_by?: "date" | "etf_name" | "total_value";
   sort_order?: "asc" | "desc";

@@ -11,6 +11,7 @@ import {
   LineChart,
   ExternalLink,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface MomentumSectorsCardProps {
   sectors: MomentumSector[];
@@ -100,18 +101,20 @@ function StockCard({ stock }: { stock: ThemeStock }) {
   return (
     <Card className="flex-1 overflow-hidden shadow-none transition-all">
       <CardContent className="p-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col items-start justify-between">
+          <div className="flex flex-1 items-center gap-2">
             <div>
               <h4 className="font-medium">{stock.ticker}</h4>
               <p className="text-muted-foreground text-xs">{stock.name}</p>
             </div>
           </div>
           <Badge
-            variant={isPositive ? "default" : "destructive"}
-            className={
-              isPositive ? "bg-green-100 text-green-800 hover:bg-green-100" : ""
-            }
+            className={cn(
+              isPositive
+                ? "bg-green-100 text-green-800 hover:bg-green-100"
+                : "bg-red-100 text-red-800 hover:bg-red-100",
+              "whitespace-normal",
+            )}
           >
             {stock.pre_market_change}
           </Badge>

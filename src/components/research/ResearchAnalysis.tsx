@@ -37,7 +37,6 @@ const ResearchItemCard = ({ item }: { item: ResearchItem }) => (
           </Badge>
         ))}
       </div>
-      <p className="text-muted-foreground mt-2 text-xs">출처: {item.source}</p>
     </CardContent>
   </Card>
 );

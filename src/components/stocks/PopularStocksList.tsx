@@ -21,6 +21,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 import { CardSkeleton } from "../ui/skeletons";
 import { useGetTickerByDiffrences } from "@/hooks/useTicker";
@@ -34,18 +35,27 @@ type Props = {
 export function PopularStocksList({ date, viewType = "table" }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const { data, isLoading: loading } = useGetTickerByDiffrences({
+  const [activeTab, setActiveTab] = useState("price");
+  
+  const { data: priceData, isLoading: priceLoading } = useGetTickerByDiffrences({
     direction: "desc",
     limit: 20,
     field: "close_change",
     target_date: date,
   });
 
-  if (loading) {
+  const { data: volumeData, isLoading: volumeLoading } = useGetTickerByDiffrences({
+    direction: "desc",
+    limit: 20,
+    field: "volume_change",
+    target_date: date,
+  });
+
+  if (priceLoading || volumeLoading) {
     return <LoadingState />;
   }
 
-  if (!data || data.length === 0) {
+  if ((!priceData || priceData.length === 0) && (!volumeData || volumeData.length === 0)) {
     return (
       <Card className="w-full shadow-none">
         <CardHeader>
@@ -59,11 +69,12 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
   }
 
   return viewType === "card" ? (
-    <PopularStocksCard data={data} />
+    <PopularStocksCard priceData={priceData} volumeData={volumeData} />
   ) : (
     <PopularStocksTable
       date={date}
-      data={data}
+      priceData={priceData}
+      volumeData={volumeData}
       currentPage={currentPage}
       itemsPerPage={itemsPerPage}
       setCurrentPage={setCurrentPage}
@@ -71,191 +82,258 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
   );
 }
 
-function PopularStocksCard({ data }: { data: StockData[] }) {
+function PopularStocksCard({ priceData, volumeData }: { priceData?: StockData[], volumeData?: StockData[] }) {
   return (
     <Card className="w-full shadow-none">
       <CardHeader>
         <CardTitle>인기 종목</CardTitle>
       </CardHeader>
       <CardContent>
-        {data.length === 0 ? (
-          <LoadingState />
-        ) : (
-          <div className="space-y-3">
-            {data.map((stock) => (
-              <StockItem key={stock.symbol} stock={stock} />
-            ))}
-          </div>
-        )}
+        <Tabs defaultValue="price" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="price">주가 상승</TabsTrigger>
+            <TabsTrigger value="volume">볼륨 상승</TabsTrigger>
+          </TabsList>
+          <TabsContent value="price" className="mt-4">
+            {!priceData || priceData.length === 0 ? (
+              <LoadingState />
+            ) : (
+              <div className="space-y-3">
+                {priceData.map((stock) => (
+                  <StockItem key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="volume" className="mt-4">
+            {!volumeData || volumeData.length === 0 ? (
+              <LoadingState />
+            ) : (
+              <div className="space-y-3">
+                {volumeData.map((stock) => (
+                  <StockItem key={stock.symbol} stock={stock} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
 }
 
 function PopularStocksTable({
+  priceData,
+  volumeData,
+  currentPage,
+  itemsPerPage,
+  setCurrentPage,
+  date,
+}: {
+  priceData?: StockData[];
+  volumeData?: StockData[];
+  currentPage: number;
+  itemsPerPage: number;
+  setCurrentPage: (page: number) => void;
+  date: string;
+}) {
+  return (
+    <Card className="w-full shadow-none">
+      <CardHeader>종목 변화율</CardHeader>
+      <CardContent>
+        <Tabs defaultValue="price" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="price">주가 상승</TabsTrigger>
+            <TabsTrigger value="volume">볼륨 상승</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="price" className="mt-4">
+            <StockTable 
+              data={priceData} 
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              setCurrentPage={setCurrentPage}
+              date={date}
+            />
+          </TabsContent>
+          
+          <TabsContent value="volume" className="mt-4">
+            <StockTable 
+              data={volumeData} 
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              setCurrentPage={setCurrentPage}
+              date={date}
+            />
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+}
+
+function StockTable({
   data,
   currentPage,
   itemsPerPage,
   setCurrentPage,
   date,
 }: {
-  data: StockData[];
+  data?: StockData[];
   currentPage: number;
   itemsPerPage: number;
   setCurrentPage: (page: number) => void;
   date: string;
 }) {
+  if (!data || data.length === 0) {
+    return <div className="text-red-500">데이터가 없습니다.</div>;
+  }
+
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <Card className="w-full shadow-none">
-      <CardHeader>종목 변화율</CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>종목</TableHead>
-              <TableHead>증가율</TableHead>
-              <TableHead className="text-right">거래량 증가율</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentItems.map((stock) => {
-              const { symbol, close_price, price_change, volume_change } =
-                stock;
-              const isPriceUp = price_change > 0;
-              const isPriceDown = price_change < 0;
-              const isVolumeUp = volume_change > 0;
-              const priceChangeColor = isPriceUp
-                ? "text-green-500"
-                : isPriceDown
-                  ? "text-red-500"
-                  : "text-gray-500";
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>종목</TableHead>
+            <TableHead>증가율</TableHead>
+            <TableHead className="text-right">거래량 증가율</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {currentItems.map((stock) => {
+            const { symbol, close_price, price_change, volume_change } =
+              stock;
+            const isPriceUp = price_change > 0;
+            const isPriceDown = price_change < 0;
+            const isVolumeUp = volume_change > 0;
+            const priceChangeColor = isPriceUp
+              ? "text-green-500"
+              : isPriceDown
+                ? "text-red-500"
+                : "text-gray-500";
 
-              const formattedPrice = close_price.toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              });
-              const formattedPriceChange = `${isPriceUp ? "+" : ""}${price_change.toFixed(2)}%`;
-              const formattedVolumeChange = `${isVolumeUp ? "+" : ""}${volume_change.toFixed(2)}%`;
+            const formattedPrice = close_price.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+            const formattedPriceChange = `${isPriceUp ? "+" : ""}${price_change.toFixed(2)}%`;
+            const formattedVolumeChange = `${isVolumeUp ? "+" : ""}${volume_change.toFixed(2)}%`;
 
+            return (
+              <TableRow
+                key={symbol}
+                className="cursor-pointer hover:bg-gray-50"
+              >
+                <TableCell>
+                  <Link
+                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col">
+                        <span className="font-medium">{symbol}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <Link
+                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{formattedPrice}</span>
+                      <span className={cn(priceChangeColor, "text-xs")}>
+                        {formattedPriceChange}
+                      </span>
+                    </div>
+                  </Link>
+                </TableCell>
+                <TableCell className="text-right">
+                  <Link
+                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                  >
+                    {formattedVolumeChange}
+                  </Link>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      {/* 페이지네이션 UI */}
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              className={
+                currentPage === 1
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
+              }
+            />
+          </PaginationItem>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+            if (
+              page === 1 ||
+              page === totalPages ||
+              (page >= currentPage - 1 && page <= currentPage + 1)
+            ) {
               return (
-                <TableRow
-                  key={symbol}
-                  className="cursor-pointer hover:bg-gray-50"
-                >
-                  <TableCell>
-                    <Link
-                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="flex flex-col">
-                          <span className="font-medium">{symbol}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>{formattedPrice}</span>
-                        <span className={cn(priceChangeColor, "text-xs")}>
-                          {formattedPriceChange}
-                        </span>
-                      </div>
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Link
-                      href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
-                    >
-                      {formattedVolumeChange}
-                    </Link>
-                  </TableCell>
-                </TableRow>
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    isActive={page === currentPage}
+                    onClick={() => setCurrentPage(page)}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
               );
-            })}
-          </TableBody>
-        </Table>
+            }
 
-        {/* 페이지네이션 UI */}
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                className={
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
+            if (page === 2 && currentPage > 3) {
+              return (
+                <PaginationItem key="ellipsis-start">
+                  <PaginationEllipsis />
+                </PaginationItem>
+              );
+            }
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              // 처음 페이지, 마지막 페이지, 현재 페이지 및 그 주변 페이지만 표시
-              if (
-                page === 1 ||
-                page === totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={page === currentPage}
-                      onClick={() => setCurrentPage(page)}
-                      className="cursor-pointer"
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
+            if (page === totalPages - 1 && currentPage < totalPages - 2) {
+              return (
+                <PaginationItem key="ellipsis-end">
+                  <PaginationEllipsis />
+                </PaginationItem>
+              );
+            }
+
+            return null;
+          })}
+
+          <PaginationItem>
+            <PaginationNext
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
-
-              // 현재 페이지와 첫 페이지 사이에 간격이 있을 경우 ... 표시
-              if (page === 2 && currentPage > 3) {
-                return (
-                  <PaginationItem key="ellipsis-start">
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
+              className={
+                currentPage === totalPages
+                  ? "pointer-events-none opacity-50"
+                  : "cursor-pointer"
               }
-
-              // 현재 페이지와 마지막 페이지 사이에 간격이 있을 경우 ... 표시
-              if (page === totalPages - 1 && currentPage < totalPages - 2) {
-                return (
-                  <PaginationItem key="ellipsis-end">
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
-              }
-
-              return null;
-            })}
-
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
-                }
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </CardContent>
-    </Card>
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </>
   );
 }
 
