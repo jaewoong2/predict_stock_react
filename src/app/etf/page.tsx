@@ -35,7 +35,7 @@ function generateMetadataForETF(date: string) {
     },
     openGraph: {
       title: `ETF 포트폴리오 분석 | Spam`,
-      description: `모든 ETF 포트폴리오의 변동사항을 분석하고 성과를 확인하세요.`,
+      description: `Active ETF 포트폴리오의 변동사항을 분석하고 성과를 확인하세요.`,
       url: `https://stock.bamtoly.com/etf${urlSuffix}`,
       siteName: "Spam Finance",
       locale: "ko_KR",

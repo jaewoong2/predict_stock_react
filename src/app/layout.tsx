@@ -46,11 +46,9 @@ export default function RootLayout({
           <ReactQueryProvider>
             <SignalSearchParamsProvider>
               <Header />
-              <div className="flex h-screen">
+              <div className="flex min-h-screen">
                 <Sidebar />
-                <main className="flex-1 overflow-y-auto">
-                  {safeChidren}
-                </main>
+                <main className="flex-1">{safeChidren}</main>
               </div>
               {safeModal}
             </SignalSearchParamsProvider>
