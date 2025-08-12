@@ -103,7 +103,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
         className="flex h-full snap-x space-x-4 overflow-x-auto"
       >
         {/* Enhanced Summary Card */}
-        <div className="from-card via-card to-muted/20 border-border/50 flex min-w-[300px] cursor-default snap-start flex-col justify-between rounded-xl border bg-gradient-to-br p-6 shadow-lg backdrop-blur-sm">
+        <div className="from-card via-card to-muted/20 flex cursor-default snap-start flex-col justify-between rounded-xl border bg-gradient-to-br p-6 shadow-none">
           <div>
             <div className="mb-6 flex items-start gap-2">
               <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
@@ -114,7 +114,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
 
             {/* Clean Pie Chart */}
             {chartData.length > 0 ? (
-              <div className="relative mb-6">
+              <div className="relative mb-6 w-[200px]">
                 {/* Clean center label */}
                 <div className="absolute inset-0 top-1/2 left-1/2 flex h-fit w-fit -translate-x-1/2 -translate-y-1/2 items-center justify-center">
                   <div className="text-center">
@@ -129,7 +129,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
 
                 <ChartContainer
                   config={chartConfig}
-                  className="mx-auto aspect-square max-h-[240px]"
+                  className="mx-auto aspect-square max-h-[200px]"
                 >
                   <PieChart>
                     <Pie
@@ -160,7 +160,7 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
                             100
                           ).toFixed(1);
                           return (
-                            <div className="bg-background border-border/50 z-10 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
+                            <div className="bg-background z-10 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
                               <div className="mb-1 flex items-center gap-2">
                                 <div
                                   className="h-3 w-3 rounded-full"
