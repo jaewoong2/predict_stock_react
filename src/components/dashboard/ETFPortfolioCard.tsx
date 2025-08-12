@@ -41,7 +41,7 @@ const getActionIcon = (action: string) => {
 };
 
 export const ETFPortfolioCard: React.FC<ETFPortfolioCardProps> = ({
-  etfTickers = ["ARKK", "426030"],
+  etfTickers = [],
   targetDate,
   limit = 10,
 }) => {

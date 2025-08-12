@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AlertTitle, DismissibleAlert } from "@/components/ui/alert";
+import MobileNavigation from "@/components/navigation/MobileNavigation";
 
 const Header = () => {
   const [mounted, setMounted] = useState(false);
@@ -55,7 +56,8 @@ const Header = () => {
           />
           <span className="text-base font-light">Stock Predict AI LLM</span>
         </Link>
-        <div className="flex flex-1 items-center justify-end">
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <MobileNavigation />
           <Button
             variant="ghost"
             size="icon"

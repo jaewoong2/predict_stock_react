@@ -13,7 +13,7 @@ export const etfService = {
     sort_by = "date",
     sort_order = "desc",
   }: ETFAnalysisGetRequest): Promise<ETFAnalysisGetResponse> {
-    const params: Record<string, string | number> = {
+    const params: ETFAnalysisGetRequest = {
       sort_by,
       sort_order,
     };
@@ -30,7 +30,7 @@ export const etfService = {
 
     const response = await api.get<ETFAnalysisGetResponse>(
       "/news/etf/portfolio",
-      { params }
+      { params },
     );
     return response.data;
   },

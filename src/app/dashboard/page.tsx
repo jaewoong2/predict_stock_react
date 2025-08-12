@@ -7,15 +7,12 @@ import RecommendationAiSection from "@/components/dashboard/ssr/RecommendationAi
 import RecommendationNewsSection from "@/components/dashboard/ssr/RecommendationNewsSection";
 import MarketNewsSection from "@/components/dashboard/ssr/MarketNewsSection";
 import SignalsSection from "@/components/dashboard/ssr/SignalsSection";
-import MarketAnalysisSection from "@/components/dashboard/ssr/MarketAnalysisSection";
 import { CardSkeleton, CarouselSkeleton } from "@/components/ui/skeletons";
 import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import SummaryTabsCard from "@/components/signal/SummaryTabsCard";
 import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
-import ResearchAnalysis from "@/components/research/ResearchAnalysis";
-import { ETFPortfolioCard } from "@/components/dashboard/ETFPortfolioCard";
 
 export async function generateMetadata({
   searchParams,
@@ -170,32 +167,9 @@ export default async function DashboardPage({
             </div>
           </div>
         </Suspense>
-        <Suspense
-          fallback={
-            <CardSkeleton
-              titleHeight={6}
-              cardClassName="shadow-none"
-              contentHeight={140}
-            />
-          }
-        >
-          <MarketAnalysisSection date={date} />
-        </Suspense>
-        <Suspense
-          fallback={
-            <CardSkeleton
-              titleHeight={6}
-              cardClassName="shadow-none"
-              contentHeight={200}
-            />
-          }
-        >
-          <ETFPortfolioCard targetDate={date} etfTickers={["ARKK", "426030"]} />
-        </Suspense>
         <Suspense fallback={<DashboardLoading />}>
           <SignalsSection date={date} />
         </Suspense>
-        <ResearchAnalysis />
       </div>
       <DashboardFooter />
     </>

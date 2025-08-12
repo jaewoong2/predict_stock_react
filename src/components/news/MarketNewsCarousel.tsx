@@ -1,12 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
 import { MarketNewsItem } from "@/types/news";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,14 +13,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { PieChart, Pie } from "recharts";
 
 interface MarketNewsCarouselProps {
   items: MarketNewsItem[];
@@ -36,6 +24,9 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [selectedItem, setSelectedItem] = useState<MarketNewsItem | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [filterRecommendation, setFilterRecommendation] = useState<
+    string | null
+  >(null);
 
   // Calculate recommendation counts
   const recommendationCounts = items?.reduce(
@@ -56,28 +47,27 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
   // Chart data for ShadCN pie chart
   const chartData = [
     {
-      recommendation: "buy",
+      recommendation: "Buy",
       count: recommendationCounts.buy,
-      fill: "var(--color-buy)"
+      fill: "var(--color-buy)",
     },
     {
-      recommendation: "hold", 
+      recommendation: "Hold",
       count: recommendationCounts.hold,
-      fill: "var(--color-hold)"
+      fill: "var(--color-hold)",
     },
     {
-      recommendation: "sell",
+      recommendation: "Sell",
       count: recommendationCounts.sell,
-      fill: "var(--color-sell)"
-    }
+      fill: "var(--color-sell)",
+    },
   ].filter((item) => item.count > 0);
 
   const chartConfig = {
-    buy: { label: "Buy", color: "#e07a5f" },
-    hold: { label: "Hold", color: "#3d5a80" },
-    sell: { label: "Sell", color: "#81b29a" },
+    buy: { label: "Buy", color: "oklch(72.3% 0.219 149.579)" },
+    hold: { label: "Hold", color: "oklch(79.5% 0.184 86.047)" },
+    sell: { label: "Sell", color: "oklch(63.7% 0.237 25.331)" },
   };
-
 
   const scroll = (dir: "left" | "right") => {
     const container = containerRef.current;
@@ -93,6 +83,18 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
     setSelectedItem(item);
     setIsDrawerOpen(true);
   };
+
+  const handlePieClick = (data: any) => {
+    const recommendation = data.recommendation;
+    setFilterRecommendation(
+      filterRecommendation === recommendation ? null : recommendation,
+    );
+  };
+
+  // Filter items based on selected recommendation
+  const filteredItems = filterRecommendation
+    ? items?.filter((item) => item.recommendation === filterRecommendation)
+    : items;
 
   return (
     <div className="relative">
@@ -113,6 +115,18 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
             {/* Clean Pie Chart */}
             {chartData.length > 0 ? (
               <div className="relative mb-6">
+                {/* Clean center label */}
+                <div className="absolute inset-0 top-1/2 left-1/2 flex h-fit w-fit -translate-x-1/2 -translate-y-1/2 items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-slate-700">
+                      {total}
+                    </div>
+                    <div className="mt-1 text-sm font-medium text-slate-500">
+                      News
+                    </div>
+                  </div>
+                </div>
+
                 <ChartContainer
                   config={chartConfig}
                   className="mx-auto aspect-square max-h-[240px]"
@@ -126,25 +140,47 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
                       cy="50%"
                       innerRadius={60}
                       outerRadius={100}
-                      strokeWidth={0}
+                      strokeWidth={2}
+                      stroke="rgba(255,255,255,0.2)"
+                      onClick={handlePieClick}
+                      style={{ cursor: "pointer" }}
                     />
-                    <ChartTooltip 
-                      content={<ChartTooltipContent nameKey="recommendation" />}
+                    <ChartTooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          const label =
+                            data.recommendation === "Buy"
+                              ? "Buy"
+                              : data.recommendation === "Sell"
+                                ? "Sell"
+                                : "Hold";
+                          const percentage = (
+                            (data.count / total) *
+                            100
+                          ).toFixed(1);
+                          return (
+                            <div className="bg-background border-border/50 z-10 rounded-lg border p-3 shadow-lg backdrop-blur-sm">
+                              <div className="mb-1 flex items-center gap-2">
+                                <div
+                                  className="h-3 w-3 rounded-full"
+                                  style={{ backgroundColor: data.fill }}
+                                />
+                                <p className="text-foreground font-semibold">
+                                  {label}
+                                </p>
+                              </div>
+                              <p className="text-muted-foreground text-sm">
+                                {data.count} ({percentage}%)
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
                     />
                   </PieChart>
                 </ChartContainer>
-
-                {/* Clean center label */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-slate-700">
-                      {total}
-                    </div>
-                    <div className="mt-1 text-sm font-medium text-slate-500">
-                      Reports
-                    </div>
-                  </div>
-                </div>
               </div>
             ) : (
               <div className="mb-6 flex h-[200px] items-center justify-center">
@@ -157,22 +193,10 @@ export function MarketNewsCarousel({ items }: MarketNewsCarouselProps) {
               </div>
             )}
           </div>
-
-          <div className="bg-muted/30 mt-6 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-sm font-medium">
-                Total Reports
-              </span>
-              <span className="text-lg font-bold">{total}</span>
-            </div>
-            <div className="text-muted-foreground mt-1 text-xs">
-              Last updated: {new Date().toLocaleDateString()}
-            </div>
-          </div>
         </div>
 
         {/* News Items */}
-        {items?.map((item) => (
+        {filteredItems?.map((item) => (
           <div
             key={item.id}
             className={cn(

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import Freesentation from "./fonts";
 import Header from "@/components/header";
+import Sidebar from "@/components/navigation/Sidebar";
 import { SignalSearchParamsProvider } from "@/hooks/useSignalSearchParams";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
@@ -45,7 +46,12 @@ export default function RootLayout({
           <ReactQueryProvider>
             <SignalSearchParamsProvider>
               <Header />
-              {safeChidren}
+              <div className="flex h-screen">
+                <Sidebar />
+                <main className="flex-1 overflow-y-auto">
+                  {safeChidren}
+                </main>
+              </div>
               {safeModal}
             </SignalSearchParamsProvider>
           </ReactQueryProvider>
