@@ -11,7 +11,7 @@ export const useDashboard = () => {
       ...state,
       ...actions,
     }),
-    [state, actions]
+    [state, actions],
   );
 };
 
@@ -25,9 +25,17 @@ export const useDashboardFilters = () => {
       q: state.q,
       models: state.models,
       conditions: state.conditions,
+      strategy_type: state.strategy_type, // strategy를 strategy_type으로 변경
       setParams,
     }),
-    [state.date, state.q, state.models, state.conditions, setParams]
+    [
+      state.date,
+      state.q,
+      state.models,
+      state.conditions,
+      state.strategy_type,
+      setParams,
+    ],
   );
 };
 
@@ -47,6 +55,6 @@ export const useDashboardAiModels = () => {
       state.models,
       state.conditions,
       updateAvailableAiModels,
-    ]
+    ],
   );
 };

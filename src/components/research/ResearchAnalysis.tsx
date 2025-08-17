@@ -15,7 +15,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { ResearchItem, LeadingStock, CompanyInfo } from "@/types/research";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { useDashboardFilters } from "@/hooks/useDashboard";
 
 const ResearchItemCard = ({ item }: { item: ResearchItem }) => (
   <Card className="border shadow-none">
@@ -176,7 +176,7 @@ const LoadingSkeleton = () => (
 );
 
 export default function ResearchAnalysis() {
-  const { date } = useSignalSearchParams();
+  const { date } = useDashboardFilters();
   const { data, isLoading, error } = useResearch({
     target_date: date ?? new Date().toISOString().split("T")[0],
     limit: 10,

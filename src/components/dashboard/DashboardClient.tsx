@@ -11,6 +11,7 @@ import {
 import { AiModelFilterPanel } from "@/components/signal/AiModelFilterPanel";
 import { SignalListWrapper } from "@/components/signal/SignalListWrapper";
 import SignalSearchInput from "@/components/signal/SignalSearchInput";
+import { StrategySelect } from "@/components/signal/StrategySelect";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { InfoIcon, XIcon } from "lucide-react";
@@ -28,7 +29,7 @@ type Props = {
 };
 
 const DashboardClient = memo(({ initialData }: Props) => {
-  const { date, q, setParams } = useDashboardFilters();
+  const { date, q, strategy_type, setParams } = useDashboardFilters();
   const {
     availableAiModels,
     selectedAiModels,
@@ -38,9 +39,6 @@ const DashboardClient = memo(({ initialData }: Props) => {
 
   const router = useRouter();
   const mounted = useMounted();
-
-  const todayString = useMemo(() => formatDate(new Date(), "yyyy-MM-dd"), []);
-  const submittedDate = useMemo(() => date ?? todayString, [date, todayString]);
 
   const { favorites, toggleFavorite } = useFavoriteTickers();
 
@@ -53,12 +51,10 @@ const DashboardClient = memo(({ initialData }: Props) => {
       : [];
   }, [q]);
 
-  const { data: signalApiResponse, isLoading } = useSignalDataByDate(
-    submittedDate,
-    {
-      initialData: initialData,
-    },
-  );
+  const { data: signalApiResponse, isLoading } = useSignalDataByDate(date!, {
+    initialData: initialData,
+    enabled: !!date,
+  });
 
   const allAvailableTickersForSearch = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
@@ -111,11 +107,11 @@ const DashboardClient = memo(({ initialData }: Props) => {
   const handleRowClick = useCallback(
     (signal: SignalData) => {
       router.push(
-        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${submittedDate}`,
+        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${date}`,
         { scroll: true },
       );
     },
-    [router, submittedDate],
+    [router, date],
   );
 
   const handleSelectedTickersChange = useCallback(
@@ -123,6 +119,14 @@ const DashboardClient = memo(({ initialData }: Props) => {
       const newQ =
         newSelectedTickers.length > 0 ? newSelectedTickers.join(",") : null;
       setParams({ q: newQ });
+    },
+    [setParams],
+  );
+
+  // 전략 변경 핸들러 수정
+  const handleStrategyChange = useCallback(
+    (newStrategy: string | null) => {
+      setParams({ strategy_type: newStrategy });
     },
     [setParams],
   );
@@ -235,8 +239,22 @@ const DashboardClient = memo(({ initialData }: Props) => {
     }
   }, [tickerFilteredSignals, selectedAiModels, aiModelFilterConditions]);
 
+  // 전략별 필터링 로직
+  const strategyFilteredSignals = useMemo(() => {
+    if (!strategy_type) return aiModelFilteredSignals;
+
+    return aiModelFilteredSignals.filter((item) => {
+      const signalStrategy = item.signal.strategy;
+      if (!signalStrategy) return false;
+
+      // 쉼표로 구분된 전략들을 배열로 변환하여 포함 여부 확인
+      const strategies = signalStrategy.split(",").map((s) => s.trim());
+      return strategies.includes(strategy_type);
+    });
+  }, [aiModelFilteredSignals, strategy_type]);
+
   const filteredSignals = useMemo(() => {
-    const result = aiModelFilteredSignals.map((signalData) => ({
+    const result = strategyFilteredSignals.map((signalData) => ({
       ...signalData,
       signal: {
         ...signalData.signal,
@@ -245,7 +263,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
     }));
 
     return result;
-  }, [aiModelFilteredSignals, favorites]);
+  }, [strategyFilteredSignals, favorites]);
 
   const sortedSignals = useMemo(() => {
     const result = [...filteredSignals].sort((a, b) => {
@@ -309,6 +327,14 @@ const DashboardClient = memo(({ initialData }: Props) => {
                 ))}
               </div>
             )}
+          </div>
+          <div className="flex-shrink-0">
+            <StrategySelect
+              value={strategy_type}
+              onChange={handleStrategyChange}
+              placeholder="전략 선택"
+              className="shadow-none"
+            />
           </div>
         </div>
       </div>

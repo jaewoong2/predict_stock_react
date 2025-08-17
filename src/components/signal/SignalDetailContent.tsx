@@ -19,7 +19,6 @@ import {
   useSignalDataByNameAndDate,
   useWeeklyActionCount,
 } from "@/hooks/useSignal";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import useMounted from "@/hooks/useMounted";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { useWeeklyPriceMovement } from "@/hooks/useTicker";
@@ -31,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { AiModelSelect } from "./AiModelSelect";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
+import { useDashboardFilters } from "@/hooks/useDashboard";
 
 interface SignalDetailContentProps {
   symbol: string;
@@ -107,7 +107,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   date,
 }) => {
   const router = useRouter();
-  const { strategy_type, setParams } = useSignalSearchParams();
+  const { strategy_type, setParams } = useDashboardFilters();
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
 

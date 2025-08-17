@@ -6,8 +6,8 @@ import React, {
   ReactNode,
   useCallback,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useDashboardState } from "./DashboardStateContext";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 interface DashboardActions {
   setParams: (params: {
@@ -15,6 +15,7 @@ interface DashboardActions {
     q?: string | null;
     models?: string[];
     conditions?: ("OR" | "AND")[];
+    strategy_type?: string | null;
   }) => void;
   updateAvailableAiModels: (models: string[]) => void;
   resetFilters: () => void;
@@ -32,8 +33,7 @@ export const DashboardActionsProvider: React.FC<
   DashboardActionsProviderProps
 > = ({ children }) => {
   const { setState } = useDashboardState();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { setParams: setUrlParams } = useSignalSearchParams();
 
   const setParams = useCallback(
     (params: {
@@ -41,21 +41,12 @@ export const DashboardActionsProvider: React.FC<
       q?: string | null;
       models?: string[];
       conditions?: ("OR" | "AND")[];
+      strategy_type?: string | null;
     }) => {
-      setState((prevState) => ({ ...prevState, ...params }));
-
-      // Date만 URL에 저장
-      if (params.date !== undefined) {
-        const newSearchParams = new URLSearchParams(searchParams);
-        if (params.date) {
-          newSearchParams.set("date", params.date);
-        } else {
-          newSearchParams.delete("date");
-        }
-        router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-      }
+      // URL 파라미터만 업데이트하면 됨 (useSignalSearchParams가 모든 로직 처리)
+      setUrlParams(params);
     },
-    [setState, router, searchParams],
+    [setUrlParams],
   );
 
   const updateAvailableAiModels = useCallback(
@@ -69,13 +60,13 @@ export const DashboardActionsProvider: React.FC<
   );
 
   const resetFilters = useCallback(() => {
-    setState((prevState) => ({
-      ...prevState,
+    setParams({
       q: null,
       models: [],
       conditions: [],
-    }));
-  }, [setState]);
+      strategy_type: null,
+    });
+  }, [setParams]);
 
   const actions: DashboardActions = {
     setParams,

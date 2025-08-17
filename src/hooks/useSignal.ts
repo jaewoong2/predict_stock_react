@@ -28,7 +28,7 @@ export const useSignalDataByDate = (
   >,
 ) => {
   return useQuery<SignalAPIResponse, Error>({
-    queryKey: [...SIGNAL_KEYS.listByDate(date)],
+    queryKey: [...SIGNAL_KEYS.listByDate(date), date],
     queryFn: () => signalApiService.getSignalsByDate(date),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
@@ -102,5 +102,37 @@ export const useTranslatedSignalDataByTickerAndDate = (
       ),
     ...options,
     enabled: !!date && (options?.enabled === undefined || options.enabled),
+  });
+};
+
+/**
+ * 전략 선택을 위한 커스텀 훅
+ * signalApiService.getSignalByNameAndDate를 사용하여 전략별로 데이터를 가져옵니다.
+ */
+export const useSignalDataByStrategy = (
+  symbols: string[],
+  date: string,
+  strategy_type?: string | null,
+  options?: Omit<
+    UseQueryOptions<SignalAPIResponse, Error>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  return useQuery<SignalAPIResponse, Error>({
+    queryKey: [
+      ...SIGNAL_KEYS.all,
+      "byStrategy",
+      symbols.join(","),
+      date,
+      strategy_type,
+    ],
+    queryFn: () =>
+      signalApiService.getSignalByNameAndDate(symbols, date, strategy_type),
+    ...options,
+    enabled:
+      !!date &&
+      symbols.length > 0 &&
+      (options?.enabled === undefined || options.enabled),
+    staleTime: 1000 * 60 * 5, // 5분간 캐시 데이터 사용
   });
 };

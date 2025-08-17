@@ -1,5 +1,4 @@
 "use client";
-
 import React, {
   createContext,
   useContext,
@@ -14,6 +13,7 @@ export interface DashboardState {
   models: string[];
   conditions: ("OR" | "AND")[];
   availableAiModels: string[];
+  strategy_type: string | null; // strategy를 strategy_type으로 변경
 }
 
 const initialState: DashboardState = {
@@ -22,13 +22,13 @@ const initialState: DashboardState = {
   models: [],
   conditions: [],
   availableAiModels: [],
+  strategy_type: null, // strategy를 strategy_type으로 변경
 };
 
 interface DashboardStateContextType {
   state: DashboardState;
   setState: React.Dispatch<React.SetStateAction<DashboardState>>;
 }
-
 const DashboardStateContext = createContext<
   DashboardStateContextType | undefined
 >(undefined);

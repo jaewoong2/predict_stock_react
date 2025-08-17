@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useRouter } from "next/navigation";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 export function withDateValidation<T extends object>(
   Component: React.ComponentType<T>,
