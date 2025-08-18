@@ -7,6 +7,7 @@ import { SignalSearchParamsProvider } from "@/hooks/useSignalSearchParams";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
 import { Suspense } from "react";
+import { DashboardProvider } from "@/contexts/DashboardProvider";
 
 export const metadata: Metadata = {
   title: "Stock Predict AI LLM",
@@ -45,12 +46,14 @@ export default function RootLayout({
         <Suspense>
           <ReactQueryProvider>
             <SignalSearchParamsProvider>
-              <Header />
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <main className="flex-1">{safeChidren}</main>
-              </div>
-              {safeModal}
+              <DashboardProvider>
+                <Header />
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <main className="w-full flex-1">{safeChidren}</main>
+                </div>
+                {safeModal}
+              </DashboardProvider>
             </SignalSearchParamsProvider>
           </ReactQueryProvider>
         </Suspense>

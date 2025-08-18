@@ -168,7 +168,7 @@ export default async function DashboardPage({
           </div>
         </Suspense>
         <Suspense fallback={<DashboardLoading />}>
-          <SignalsSection date={date} />
+          <SignalsSection />
         </Suspense>
       </div>
       <DashboardFooter />

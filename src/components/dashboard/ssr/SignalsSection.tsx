@@ -2,18 +2,9 @@ import DashboardClient from "@/components/dashboard/DashboardClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardProvider } from "@/contexts/DashboardProvider";
 
-export const revalidate = 3600;
-type Props = {
-  date: string;
-};
-
-export default async function SignalsSection({ date }: Props) {
+export default async function SignalsSection() {
   try {
-    return (
-      <DashboardProvider>
-        <DashboardClient />
-      </DashboardProvider>
-    );
+    return <DashboardClient />;
   } catch (error) {
     console.error("SignalsSection error", error);
     return (
