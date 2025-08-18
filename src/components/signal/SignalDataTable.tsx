@@ -65,15 +65,6 @@ export function SignalDataTable<TData extends SignalData, TValue>({
 
   const [page, setPage] = useState(0);
 
-  // Reset sorting whenever the underlying data changes so
-  // newly toggled favorites appear at the top of the list
-  useEffect(() => {
-    setSorting([
-      { desc: true, id: "signal.favorite" },
-      { desc: true, id: "take_profit_buy" },
-    ]);
-  }, [data]);
-
   function onPaginationChange(newPage: number, newPageSize: number) {
     setPageSize(newPageSize);
     setPage(newPage);
@@ -132,6 +123,17 @@ export function SignalDataTable<TData extends SignalData, TValue>({
   useEffect(() => {
     table.setPageSize(pageSize);
   }, [pageSize, table]);
+
+  useEffect(() => {
+    onPaginationChange(0, pageSize);
+  }, [data]);
+
+  useEffect(() => {
+    setSorting([
+      { desc: true, id: "signal.favorite" },
+      { desc: true, id: "take_profit_buy" },
+    ]);
+  }, [data]);
 
   if (isLoading) {
     return <TableSkeleton columnCount={columns.length} rowCount={pageSize} />;
