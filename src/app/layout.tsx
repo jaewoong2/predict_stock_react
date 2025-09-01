@@ -8,6 +8,10 @@ import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
 import { Suspense } from "react";
 import { DashboardProvider } from "@/contexts/DashboardProvider";
+import { AuthProvider } from "@/hooks/useAuth";
+import GlobalLoginModal from "@/components/auth/GlobalLoginModal";
+import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Stock Predict AI LLM",
@@ -45,16 +49,22 @@ export default function RootLayout({
         </Script>
         <Suspense>
           <ReactQueryProvider>
-            <SignalSearchParamsProvider>
-              <DashboardProvider>
-                <Header />
-                <div className="flex min-h-screen">
-                  <Sidebar />
-                  <main className="w-full flex-1">{safeChidren}</main>
-                </div>
-                {safeModal}
-              </DashboardProvider>
-            </SignalSearchParamsProvider>
+            <AuthProvider>
+              <SignalSearchParamsProvider>
+                <DashboardProvider>
+                  <Header />
+                  <div className="flex min-h-screen">
+                    <Sidebar />
+                    <main className="w-full flex-1">{safeChidren}</main>
+                  </div>
+                  {safeModal}
+                  {/* URL 파라미터(login=1) 트리거 + 전역 인증 상태 트리거 모두 지원 */}
+                  <GlobalLoginModal />
+                  <GlobalAuthModal />
+                  <Toaster />
+                </DashboardProvider>
+              </SignalSearchParamsProvider>
+            </AuthProvider>
           </ReactQueryProvider>
         </Suspense>
       </body>

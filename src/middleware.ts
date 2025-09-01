@@ -16,8 +16,11 @@ export function middleware(req: NextRequest) {
     response.cookies.set(JWT_TOKEN_KEY, code);
   }
 
-  // Dashboard route validation
-  if (req.nextUrl.pathname.startsWith("/dashboard")) {
+  // Dashboard route validation (exclude /ox/ routes)
+  if (
+    req.nextUrl.pathname.startsWith("/dashboard") &&
+    !req.nextUrl.pathname.startsWith("/ox/")
+  ) {
     return handleDashboardValidation(req, req.nextUrl.pathname);
   }
 

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AlertTitle, DismissibleAlert } from "@/components/ui/alert";
 import MobileNavigation from "@/components/navigation/MobileNavigation";
 
 const Header = () => {
