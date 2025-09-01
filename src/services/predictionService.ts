@@ -35,10 +35,9 @@ export const predictionService = {
     symbol: string,
     choice: PredictionCreate["choice"],
   ): Promise<Prediction> => {
-    const response = await oxApi.postWithBaseResponse<{ prediction: Prediction }>(
-      `/predictions/${symbol.toUpperCase()}`,
-      { choice },
-    );
+    const response = await oxApi.postWithBaseResponse<{
+      prediction: Prediction;
+    }>(`/predictions/${symbol.toUpperCase()}`, { choice });
     return response.prediction;
   },
 
@@ -49,10 +48,9 @@ export const predictionService = {
     predictionId: number,
     choice: PredictionUpdate["choice"],
   ): Promise<Prediction> => {
-    const response = await oxApi.putWithBaseResponse<{ prediction: Prediction }>(
-      `/predictions/${predictionId}`,
-      { choice },
-    );
+    const response = await oxApi.putWithBaseResponse<{
+      prediction: Prediction;
+    }>(`/predictions/${predictionId}`, { choice });
     return response.prediction;
   },
 
@@ -119,14 +117,6 @@ export const predictionService = {
   // ============================================================================
   // Prediction Statistics
   // ============================================================================
-
-  /**
-   * 예측 통계 조회
-   */
-  getPredictionStats: async (): Promise<PredictionStats> => {
-    const response = await oxApi.get<PredictionStats>("/predictions/stats");
-    return response.data;
-  },
 
   /**
    * 일별 예측 통계 조회
@@ -235,7 +225,10 @@ export const predictionService = {
     const response = await oxApi.delete<{ predictions: Prediction[] }>(
       "/predictions/batch",
       {
-        data: { prediction_ids: predictionIds },
+        body: JSON.stringify({ prediction_ids: predictionIds }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
     );
     return response.data.predictions;

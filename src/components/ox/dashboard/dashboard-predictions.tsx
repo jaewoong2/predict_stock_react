@@ -24,7 +24,7 @@ import Link from "next/link";
 export function DashboardPredictions() {
   const { data: session } = useTodaySession();
   const { data: predictions } = usePredictionsForDay(
-    session?.session.trading_day || new Date().toISOString().split("T")[0],
+    session?.session?.trading_day || new Date().toISOString().split("T")[0],
   );
 
   const getStatusIcon = (status: string) => {

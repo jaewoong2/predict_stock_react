@@ -8,13 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useTodayUniverseWithPrices } from "@/hooks/useUniverse";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Loader2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function UniverseList() {
-  const { data: universe } = useTodayUniverseWithPrices();
+  const { data: universe, isLoading } = useTodayUniverseWithPrices();
 
   const getChangeIcon = (changeDirection: string) => {
     switch (changeDirection) {
@@ -43,6 +42,23 @@ export function UniverseList() {
     console.log(`Predicting ${symbol} will go ${direction}`);
   };
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>오늘의 종목</CardTitle>
+          <CardDescription>오늘 예측 가능한 종목 목록</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-muted-foreground flex flex-col items-center justify-center">
+            <span className="ml-2">오늘 예측 가능한 종목을 불러오는 중...</span>
+            <Loader2Icon className="mt-2 h-4 w-4 animate-spin" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!universe?.symbols) {
     return (
       <Card>
@@ -51,8 +67,8 @@ export function UniverseList() {
           <CardDescription>오늘 예측 가능한 종목 목록</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-muted-foreground py-8 text-center">
-            종목 정보를 불러오는 중...
+          <div className="text-muted-foreground flex items-center justify-center">
+            오늘 예측 가능한 종목이 없습니다.
           </div>
         </CardContent>
       </Card>

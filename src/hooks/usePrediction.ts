@@ -10,6 +10,7 @@ import {
   PredictionCreate,
   PredictionUpdate,
   PredictionHistoryParams,
+  PredictionStats,
 } from "../types/prediction";
 
 // ============================================================================
@@ -24,6 +25,7 @@ export const PREDICTION_KEYS = {
     [...PREDICTION_KEYS.all, "day", tradingDay] as const,
   remaining: (tradingDay: string) =>
     [...PREDICTION_KEYS.all, "remaining", tradingDay] as const,
+  stats: () => [...PREDICTION_KEYS.all, "stats"] as const,
 } as const;
 
 // ============================================================================
@@ -133,5 +135,65 @@ export const useRemainingPredictions = (tradingDay: string) => {
     queryFn: () => predictionService.getRemainingPredictions(tradingDay),
     enabled: !!tradingDay,
     refetchInterval: 30 * 1000, // 30초마다 갱신
+  });
+};
+
+/**
+ * 예측 통계 조회 훅 (예측 이력에서 계산)
+ */
+export const usePredictionStats = () => {
+  const { data: predictions } = usePredictionHistory({ limit: 1000 }); // 충분한 데이터 가져오기
+
+  return useQuery<PredictionStats>({
+    queryKey: PREDICTION_KEYS.stats(),
+    queryFn: () => {
+      if (!predictions?.pages?.length) {
+        return {
+          total_predictions: 0,
+          correct_predictions: 0,
+          incorrect_predictions: 0,
+          void_predictions: 0,
+          accuracy_rate: 0,
+          total_points_earned: 0,
+          total_points_lost: 0,
+          net_points: 0,
+        };
+      }
+
+      // 모든 페이지의 예측 데이터 평탄화
+      const allPredictions = predictions.pages.flat();
+
+      const total = allPredictions.length;
+      const correct = allPredictions.filter(
+        (p) => p.status === "CORRECT",
+      ).length;
+      const incorrect = allPredictions.filter(
+        (p) => p.status === "INCORRECT",
+      ).length;
+      const voidCount = allPredictions.filter(
+        (p) => p.status === "VOID",
+      ).length;
+
+      const totalPointsEarned = allPredictions
+        .filter((p) => (p.points_awarded || 0) > 0)
+        .reduce((sum, p) => sum + (p.points_awarded || 0), 0);
+
+      const totalPointsLost = allPredictions
+        .filter((p) => (p.points_awarded || 0) < 0)
+        .reduce((sum, p) => sum + Math.abs(p.points_awarded || 0), 0);
+
+      return {
+        total_predictions: total,
+        correct_predictions: correct,
+        incorrect_predictions: incorrect,
+        void_predictions: voidCount,
+        accuracy_rate: total > 0 ? (correct / total) * 100 : 0,
+        total_points_earned: totalPointsEarned,
+        total_points_lost: totalPointsLost,
+        net_points: totalPointsEarned - totalPointsLost,
+      };
+    },
+    enabled: !!predictions?.pages?.length,
+    staleTime: 5 * 60 * 1000, // 5분
   });
 };

@@ -8,10 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useMyPointsBalance } from "@/hooks/usePoints";
+import { usePointsBalance } from "@/hooks/usePoints";
 import { useTodaySession } from "@/hooks/useSession";
-import { usePredictionStats } from "@/hooks/usePrediction";
-import { useRemainingPredictions } from "@/hooks/usePrediction";
+import {
+  usePredictionHistory,
+  useRemainingPredictions,
+  usePredictionStats,
+} from "@/hooks/usePrediction";
 import {
   Coins,
   Target,
@@ -23,11 +26,11 @@ import {
 import { cn } from "@/lib/utils";
 
 export function DashboardStats() {
-  const { data: pointsBalance } = useMyPointsBalance();
+  const { data: pointsBalance } = usePointsBalance();
   const { data: session } = useTodaySession();
   const { data: predictionStats } = usePredictionStats();
   const { data: remainingPredictions } = useRemainingPredictions(
-    session?.session.trading_day || new Date().toISOString().split("T")[0],
+    session?.session?.trading_day || new Date().toISOString().split("T")[0],
   );
 
   const stats = [
@@ -41,8 +44,8 @@ export function DashboardStats() {
     },
     {
       title: "예측 정확도",
-      value: predictionStats?.accuracy_percentage
-        ? `${predictionStats.accuracy_percentage.toFixed(1)}%`
+      value: predictionStats?.accuracy_rate
+        ? `${predictionStats.accuracy_rate.toFixed(1)}%`
         : "0%",
       description: "전체 예측 정확도",
       icon: Target,
@@ -59,13 +62,13 @@ export function DashboardStats() {
     },
     {
       title: "세션 상태",
-      value: session?.session.status === "OPEN" ? "예측 가능" : "예측 마감",
+      value: session?.session?.status === "OPEN" ? "예측 가능" : "예측 마감",
       description: "현재 세션 상태",
-      icon: session?.session.status === "OPEN" ? CheckCircle : XCircle,
+      icon: session?.session?.status === "OPEN" ? CheckCircle : XCircle,
       color:
-        session?.session.status === "OPEN" ? "text-green-500" : "text-red-500",
+        session?.session?.status === "OPEN" ? "text-green-500" : "text-red-500",
       bgColor:
-        session?.session.status === "OPEN"
+        session?.session?.status === "OPEN"
           ? "bg-green-500/10"
           : "bg-red-500/10",
     },

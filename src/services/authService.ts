@@ -27,8 +27,8 @@ export const authService = {
     const { provider, client_redirect } = params;
     // oxApi의 baseURL 사용
     const baseUrl = getOxBaseUrl();
-    
-    const url = `${baseUrl}/auth/oauth/${provider}/authorize?client_redirect=${encodeURIComponent(client_redirect)}`;
+
+    const url = `${baseUrl}auth/oauth/${provider}/authorize?client_redirect=${encodeURIComponent(client_redirect)}`;
 
     // 브라우저 리다이렉트
     window.location.href = url;

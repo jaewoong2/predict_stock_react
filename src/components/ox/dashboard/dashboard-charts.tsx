@@ -8,23 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { usePredictionStats } from "@/hooks/usePrediction";
-import { usePointsStats } from "@/hooks/usePoints";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 export function DashboardCharts() {
   const { data: predictionStats } = usePredictionStats();
-  const { data: pointsStats } = usePointsStats();
 
   // 예측 정확도 데이터
   const accuracyData = [
@@ -39,21 +26,10 @@ export function DashboardCharts() {
       color: "#ef4444",
     },
     {
-      name: "대기중",
-      value: predictionStats?.pending_predictions || 0,
+      name: "무효",
+      value: predictionStats?.void_predictions || 0,
       color: "#f59e0b",
     },
-  ];
-
-  // 포인트 변화 데이터 (최근 7일)
-  const pointsData = [
-    { day: "월", points: 150 },
-    { day: "화", points: 230 },
-    { day: "수", points: 180 },
-    { day: "목", points: 320 },
-    { day: "금", points: 280 },
-    { day: "토", points: 120 },
-    { day: "일", points: 90 },
   ];
 
   return (
