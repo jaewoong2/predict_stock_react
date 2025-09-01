@@ -6,6 +6,7 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // Helper function to format date string
 const formatCurrency = (amount: number | undefined | null) => {
@@ -44,6 +45,19 @@ export const createColumns = (
             stroke={isFav ? "#facc15" : "currentColor"}
           />
         </button>
+      );
+    },
+  },
+  {
+    id: "predict",
+    header: "예측",
+    cell: ({ row }) => {
+      const ticker = row.original.signal.ticker;
+      const href = `/dashboard/predict/${ticker}`;
+      return (
+        <Link href={href} onClick={(e) => e.stopPropagation()}>
+          <Button size="sm" variant="secondary">예측</Button>
+        </Link>
       );
     },
   },

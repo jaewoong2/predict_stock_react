@@ -112,7 +112,7 @@ export const usePredictionHistory = (params?: PredictionHistoryParams) => {
     initialPageParam: 0,
     staleTime: 2 * 60 * 1000, // 2분
   });
-};
+};;
 
 /**
  * 특정 날짜 예측 조회 훅

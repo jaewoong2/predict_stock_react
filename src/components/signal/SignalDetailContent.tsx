@@ -31,6 +31,8 @@ import { AiModelSelect } from "./AiModelSelect";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
 import { useDashboardFilters } from "@/hooks/useDashboard";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface SignalDetailContentProps {
   symbol: string;
@@ -253,6 +255,9 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
               ]?.text || data.signal.probability}
             </Badge>
           )}
+          <Link href={`/dashboard/predict/${data.signal.ticker}`}>
+            <Button size="sm" variant="secondary">예측</Button>
+          </Link>
         </div>
       </div>
 

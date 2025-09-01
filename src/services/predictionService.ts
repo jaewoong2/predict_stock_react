@@ -108,10 +108,10 @@ export const predictionService = {
       offset: (validatedParams.offset || 0).toString(),
     });
 
-    const response = await oxApi.getWithBaseResponse<{ history: Prediction[] }>(
-      `/predictions/history?${queryString}`,
-    );
-    return response.history;
+    const response = await oxApi.getWithBaseResponse<{
+      data: { history: Prediction[] };
+    }>(`/predictions/history?${queryString}`);
+    return response.data.history;
   },
 
   // ============================================================================

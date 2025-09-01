@@ -252,6 +252,38 @@ export type User = z.infer<typeof UserSchema>;
    - 소셜 기능 (팔로우, 랭킹)
    - 고급 분석 도구
 
+## 🧩 신규 기능: 대시보드 예측 모달 (route 기반)
+
+### 목표
+- `/ox/predict`와 동일한 예측 기능을 대시보드에서 라우팅 기반 모달로 제공
+- 종목별 “예측” 버튼 클릭 시: 로그인 미완료 → 로그인 모달, 로그인 완료 → 예측 모달
+- 복잡한 전역 상태 없이 Next.js App Router 병렬/인터셉트 라우트를 활용
+
+### 설계
+- 경로: `src/app/@modal/(.)dashboard/predict/[symbol]/page.tsx`
+  - `/(.)dashboard` 인터셉터로 대시보드 하위 어디서나 모달 오버레이 렌더
+  - `params.symbol`을 통해 대상 종목을 전달하고 예측 폼에 프리셀렉트
+- 인증 처리: `useAuth`로 상태 확인
+  - 미인증 → `LoginModal` 표시 (닫기 시 비로그인 상태면 router.back)
+  - 인증 완료 시 예측 폼 표시
+- 컴포넌트 재사용: `src/components/ox/predict/prediction-form.tsx`
+  - `initialSymbol` props를 추가해 URL 파라미터로 전달된 종목을 기본 선택
+
+### 해야 할 일 (구현 순서)
+1) PredictionForm에 `initialSymbol?: string` 지원 추가 (프리셀렉트) ✅
+2) 모달 라우트 추가: `@modal/(.)dashboard/predict/[symbol]/page.tsx` ✅
+   - 오버레이 + 닫기 버튼 + 인증 상태별 렌더링 ✅
+3) 데이터테이블 액션 컬럼에 “예측” 버튼 추가 (row ticker → `/dashboard/predict/[ticker]`) ✅
+4) 종목 상세 상단 우측에 “예측” 버튼 추가 (`/dashboard/predict/[symbol]` 링크) ✅
+5) 경로 이동 시 row click과 충돌 방지 (e.stopPropagation) ✅
+6) 간단 동작 확인 후 이 섹션 체크리스트 완료 처리 ✅
+
+### 체크리스트
+- [x] PredictionForm 기본 선택 동작 확인 (`initialSymbol` 적용)
+- [x] `/dashboard/predict/[symbol]` 접근 시 모달 열림 확인
+- [x] 미로그인 시 로그인 모달 → 로그인 후 예측 폼 전환 (route 유지) 확인
+- [x] 테이블/상세의 “예측” 버튼으로 모달 진입 확인
+
 ## 🔧 기술 스택
 - **Frontend**: React 19, TypeScript, Next.js 15
 - **State Management**: React Query (TanStack Query) v5

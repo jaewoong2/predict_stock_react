@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -34,8 +34,14 @@ import { usePointsBalance } from "@/hooks/usePoints";
 import { PredictionChoice } from "@/types/prediction";
 import { SessionStatus } from "@/types/session";
 
-export function PredictionForm() {
-  const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+interface PredictionFormProps {
+  initialSymbol?: string;
+}
+
+export function PredictionForm({ initialSymbol }: PredictionFormProps) {
+  const [selectedSymbol, setSelectedSymbol] = useState<string>(
+    initialSymbol || "",
+  );
   const [selectedChoice, setSelectedChoice] = useState<PredictionChoice | null>(
     null,
   );
@@ -48,6 +54,15 @@ export function PredictionForm() {
   const { data: pointsBalance } = usePointsBalance();
 
   const submitPrediction = useSubmitPrediction();
+
+  // 초기 심볼 프리셀렉트 지원 (prop → state 동기화)
+  // 사용자가 변경 가능하도록 Select는 그대로 노출
+  useEffect(() => {
+    if (initialSymbol && selectedSymbol !== initialSymbol) {
+      setSelectedSymbol(initialSymbol);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialSymbol]);
 
   const handleSubmit = async () => {
     if (!selectedSymbol || !selectedChoice) {
@@ -85,7 +100,7 @@ export function PredictionForm() {
   };
 
   const selectedStock = universe?.symbols?.find(
-    (item: any) => item.symbol === selectedSymbol,
+    (item) => item.symbol === selectedSymbol,
   );
 
   return (
@@ -138,7 +153,7 @@ export function PredictionForm() {
               <SelectValue placeholder="예측할 종목을 선택하세요" />
             </SelectTrigger>
             <SelectContent>
-              {universe?.symbols?.map((item: any) => (
+              {universe?.symbols?.map((item) => (
                 <SelectItem key={item.symbol} value={item.symbol}>
                   <div className="flex items-center space-x-2">
                     <span className="font-medium">{item.symbol}</span>
