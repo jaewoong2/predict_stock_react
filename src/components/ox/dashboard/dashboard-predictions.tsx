@@ -95,9 +95,9 @@ export function DashboardPredictions() {
         </div>
       </CardHeader>
       <CardContent>
-        {predictions && predictions.length > 0 ? (
+        {predictions && predictions.predictions.length > 0 ? (
           <div className="space-y-4">
-            {predictions.slice(0, 5).map((prediction) => (
+            {predictions.predictions.map((prediction) => (
               <div
                 key={prediction.id}
                 className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
@@ -107,7 +107,7 @@ export function DashboardPredictions() {
                   <div>
                     <div className="font-medium">{prediction.symbol}</div>
                     <div className="text-muted-foreground text-sm">
-                      {new Date(prediction.created_at).toLocaleTimeString()}
+                      {new Date(prediction.submitted_at).toLocaleTimeString()}
                     </div>
                   </div>
                 </div>
@@ -140,10 +140,12 @@ export function DashboardPredictions() {
           </div>
         )}
 
-        {predictions && predictions.length > 5 && (
+        {predictions && predictions.predictions.length > 5 && (
           <div className="mt-4 text-center">
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/ox/history">{predictions.length - 5}개 더 보기</Link>
+              <Link href="/ox/history">
+                {predictions.predictions.length - 5}개 더 보기
+              </Link>
             </Button>
           </div>
         )}

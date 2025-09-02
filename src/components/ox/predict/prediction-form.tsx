@@ -32,7 +32,7 @@ import {
 import { cn } from "@/lib/utils";
 import { usePointsBalance } from "@/hooks/usePoints";
 import { PredictionChoice } from "@/types/prediction";
-import { SessionStatus } from "@/types/session";
+import { SessionPhase } from "@/types/session";
 
 interface PredictionFormProps {
   initialSymbol?: string;
@@ -121,14 +121,14 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
             <div
               className={cn(
                 "h-2 w-2 rounded-full",
-                session?.session?.status === SessionStatus.OPEN
+                session?.session?.phase === SessionPhase.OPEN
                   ? "bg-green-500"
                   : "bg-red-500",
               )}
             />
             <span className="text-sm font-medium">
-              세션 상태:{" "}
-              {session?.session?.status === SessionStatus.OPEN
+              세션 상태:
+              {session?.session?.phase === SessionPhase.OPEN
                 ? "예측 가능"
                 : "예측 마감"}
             </span>
@@ -211,7 +211,7 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
                   "bg-green-500 hover:bg-green-600",
               )}
               onClick={() => setSelectedChoice(PredictionChoice.UP)}
-              disabled={session?.session?.status !== SessionStatus.OPEN}
+              disabled={session?.session?.phase !== SessionPhase.OPEN}
             >
               <TrendingUp className="mr-2 h-4 w-4" />
               상승 (O)
@@ -226,7 +226,7 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
                   "bg-red-500 hover:bg-red-600",
               )}
               onClick={() => setSelectedChoice(PredictionChoice.DOWN)}
-              disabled={session?.session?.status !== SessionStatus.OPEN}
+              disabled={session?.session?.phase !== SessionPhase.OPEN}
             >
               <TrendingDown className="mr-2 h-4 w-4" />
               하락 (X)
@@ -240,7 +240,7 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
           disabled={
             !selectedSymbol ||
             !selectedChoice ||
-            session?.session?.status !== SessionStatus.OPEN ||
+            session?.session?.phase !== SessionPhase.OPEN ||
             remainingPredictions === 0 ||
             submitPrediction.isPending
           }
@@ -257,7 +257,7 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
         </Button>
 
         {/* Warning Messages */}
-        {session?.session?.status !== SessionStatus.OPEN && (
+        {session?.session?.phase !== SessionPhase.OPEN && (
           <div className="flex items-center space-x-2 rounded-lg border border-yellow-200 bg-yellow-50 p-3">
             <AlertCircle className="h-4 w-4 text-yellow-600" />
             <span className="text-sm text-yellow-800">

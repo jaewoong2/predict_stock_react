@@ -5,7 +5,7 @@ import { DateStringSchema, DateTimeStringSchema } from "./common";
 // Enums
 // ============================================================================
 
-export enum SessionStatus {
+export enum SessionPhase {
   OPEN = "OPEN", // 예측 가능
   CLOSED = "CLOSED", // 예측 마감
 }
@@ -17,7 +17,7 @@ export enum SessionStatus {
 export const SessionSchema = z.object({
   id: z.number(),
   trading_day: DateStringSchema,
-  status: z.nativeEnum(SessionStatus),
+  phase: z.nativeEnum(SessionPhase),
   created_at: DateTimeStringSchema,
   closed_at: DateTimeStringSchema.optional(),
 });
@@ -135,11 +135,11 @@ export type SessionComparison = z.infer<typeof SessionComparisonSchema>;
 /**
  * 세션 상태에 따른 표시 텍스트 반환
  */
-export const getSessionStatusText = (status: SessionStatus): string => {
+export const getSessionStatusText = (status: SessionPhase): string => {
   switch (status) {
-    case SessionStatus.OPEN:
+    case SessionPhase.OPEN:
       return "예측 가능 🟢";
-    case SessionStatus.CLOSED:
+    case SessionPhase.CLOSED:
       return "예측 마감 🔴";
     default:
       return status;
@@ -149,11 +149,11 @@ export const getSessionStatusText = (status: SessionStatus): string => {
 /**
  * 세션 상태에 따른 색상 클래스 반환
  */
-export const getSessionStatusColor = (status: SessionStatus): string => {
+export const getSessionStatusColor = (status: SessionPhase): string => {
   switch (status) {
-    case SessionStatus.OPEN:
+    case SessionPhase.OPEN:
       return "text-green-600";
-    case SessionStatus.CLOSED:
+    case SessionPhase.CLOSED:
       return "text-red-600";
     default:
       return "text-gray-600";
@@ -163,15 +163,15 @@ export const getSessionStatusColor = (status: SessionStatus): string => {
 /**
  * 세션이 열려있는지 확인
  */
-export const isSessionOpen = (status: SessionStatus): boolean => {
-  return status === SessionStatus.OPEN;
+export const isSessionOpen = (status: SessionPhase): boolean => {
+  return status === SessionPhase.OPEN;
 };
 
 /**
  * 세션이 닫혀있는지 확인
  */
-export const isSessionClosed = (status: SessionStatus): boolean => {
-  return status === SessionStatus.CLOSED;
+export const isSessionClosed = (status: SessionPhase): boolean => {
+  return status === SessionPhase.CLOSED;
 };
 
 /**
@@ -255,7 +255,7 @@ export const createSessionStatusMessage = (
     }
   }
 
-  if (isSessionOpen(session.status)) {
+  if (isSessionOpen(session.phase)) {
     return "현재 예측이 가능합니다.";
   } else {
     return "예측이 마감되었습니다.";
@@ -266,7 +266,7 @@ export const createSessionStatusMessage = (
  * 세션 진행률 계산
  */
 export const calculateSessionProgress = (session: Session): number => {
-  if (isSessionOpen(session.status)) {
+  if (isSessionOpen(session.phase)) {
     const created = new Date(session.created_at);
     const now = new Date();
     const totalDuration = 6.5 * 60 * 60 * 1000; // 6.5시간 (거래 시간)
@@ -287,7 +287,7 @@ export const getSessionTimeRemaining = (
   hours: number;
   minutes: number;
 } => {
-  if (isSessionClosed(session.status)) {
+  if (isSessionClosed(session.phase)) {
     return { hours: 0, minutes: 0 };
   }
 

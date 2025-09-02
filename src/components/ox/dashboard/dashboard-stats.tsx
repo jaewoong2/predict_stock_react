@@ -62,13 +62,13 @@ export function DashboardStats() {
     },
     {
       title: "세션 상태",
-      value: session?.session?.status === "OPEN" ? "예측 가능" : "예측 마감",
+      value: session?.session?.phase === "OPEN" ? "예측 가능" : "예측 마감",
       description: "현재 세션 상태",
-      icon: session?.session?.status === "OPEN" ? CheckCircle : XCircle,
+      icon: session?.session?.phase === "OPEN" ? CheckCircle : XCircle,
       color:
-        session?.session?.status === "OPEN" ? "text-green-500" : "text-red-500",
+        session?.session?.phase === "OPEN" ? "text-green-500" : "text-red-500",
       bgColor:
-        session?.session?.status === "OPEN"
+        session?.session?.phase === "OPEN"
           ? "bg-green-500/10"
           : "bg-red-500/10",
     },

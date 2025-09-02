@@ -24,7 +24,7 @@ export function Header() {
 
   const getSessionStatusColor = () => {
     if (!session) return "bg-gray-500";
-    switch (session.session?.status) {
+    switch (session.session?.phase) {
       case "OPEN":
         return "bg-green-500";
       case "CLOSED":
@@ -36,7 +36,7 @@ export function Header() {
 
   const getSessionStatusText = () => {
     if (!session || !session.session) return "로딩 중...";
-    switch (session.session.status) {
+    switch (session.session.phase) {
       case "OPEN":
         return "예측 가능";
       case "CLOSED":

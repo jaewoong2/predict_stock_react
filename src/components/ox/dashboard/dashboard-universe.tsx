@@ -54,7 +54,7 @@ export function DashboardUniverse() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {universe?.items?.slice(0, 5).map((item) => (
+          {universe?.symbols?.slice(0, 5).map((item) => (
             <div
               key={item.symbol}
               className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors"
@@ -88,11 +88,11 @@ export function DashboardUniverse() {
           ))}
         </div>
 
-        {universe?.items && universe.items.length > 5 && (
+        {universe?.symbols && universe.symbols.length > 5 && (
           <div className="mt-4 text-center">
             <Button variant="ghost" size="sm" asChild>
               <Link href="/ox/predict">
-                {universe.items.length - 5}개 더 보기
+                {universe.symbols.length - 5}개 더 보기
               </Link>
             </Button>
           </div>

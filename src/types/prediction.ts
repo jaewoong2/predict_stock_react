@@ -29,12 +29,13 @@ export enum PredictionStatus {
 export const PredictionSchema = z.object({
   id: z.number(),
   user_id: z.number(),
-  symbol: z.string().regex(/^[A-Z]{1,5}$/, "심볼은 대문자 1-5자여야 합니다"),
+  trading_day: DateStringSchema,
+  symbol: z.string(),
   choice: z.nativeEnum(PredictionChoice),
   status: z.nativeEnum(PredictionStatus),
-  trading_day: DateStringSchema,
-  created_at: DateTimeStringSchema,
-  points_awarded: PositiveNumberSchema.optional(),
+  submitted_at: DateTimeStringSchema,
+  updated_at: DateTimeStringSchema.nullable(),
+  points_earned: z.number(),
 });
 
 export const PredictionCreateSchema = z.object({
@@ -46,10 +47,20 @@ export const PredictionUpdateSchema = z.object({
   choice: z.nativeEnum(PredictionChoice),
 });
 
+export const PredictionsForDayResponseSchema = z.object({
+  predictions: z.array(PredictionSchema),
+  total_predictions: z.number(),
+  completed_predictions: z.number(),
+  pending_predictions: z.number(),
+  trading_day: DateStringSchema,
+});
+
 export type Prediction = z.infer<typeof PredictionSchema>;
 export type PredictionCreate = z.infer<typeof PredictionCreateSchema>;
 export type PredictionUpdate = z.infer<typeof PredictionUpdateSchema>;
-
+export type PredictionsForDayResponse = z.infer<
+  typeof PredictionsForDayResponseSchema
+>;
 // ============================================================================
 // Prediction History Types
 // ============================================================================

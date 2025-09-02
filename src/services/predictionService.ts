@@ -16,6 +16,7 @@ import {
   PredictionChoice,
   normalizeSymbol,
   isValidSymbol,
+  PredictionsForDayResponse,
 } from "../types/prediction";
 import {
   PAGINATION_LIMITS,
@@ -73,10 +74,11 @@ export const predictionService = {
    */
   getUserPredictionsForDay: async (
     tradingDay: string,
-  ): Promise<Prediction[]> => {
-    const response = await oxApi.getWithBaseResponse<{ result: Prediction[] }>(
-      `/predictions/day/${tradingDay}`,
-    );
+  ): Promise<PredictionsForDayResponse> => {
+    const response = await oxApi.getWithBaseResponse<{
+      result: PredictionsForDayResponse;
+    }>(`/predictions/day/${tradingDay}`);
+
     return response.result;
   },
 
@@ -109,9 +111,14 @@ export const predictionService = {
     });
 
     const response = await oxApi.getWithBaseResponse<{
-      data: { history: Prediction[] };
+      history: Prediction[];
     }>(`/predictions/history?${queryString}`);
-    return response.data.history;
+
+    if (response.history) {
+      return response.history;
+    }
+
+    return [];
   },
 
   // ============================================================================
@@ -372,7 +379,7 @@ export const createPredictionSummary = (
   const void_count = predictions.filter((p) => p.status === "VOID").length;
   const accuracy = total > 0 ? (correct / total) * 100 : 0;
   const totalPoints = predictions.reduce(
-    (sum, p) => sum + (p.points_awarded || 0),
+    (sum, p) => sum + (p.points_earned || 0),
     0,
   );
 

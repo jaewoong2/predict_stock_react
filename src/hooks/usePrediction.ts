@@ -112,7 +112,7 @@ export const usePredictionHistory = (params?: PredictionHistoryParams) => {
     initialPageParam: 0,
     staleTime: 2 * 60 * 1000, // 2분
   });
-};;
+};
 
 /**
  * 특정 날짜 예측 조회 훅
@@ -175,12 +175,12 @@ export const usePredictionStats = () => {
       ).length;
 
       const totalPointsEarned = allPredictions
-        .filter((p) => (p.points_awarded || 0) > 0)
-        .reduce((sum, p) => sum + (p.points_awarded || 0), 0);
+        .filter((p) => (p.points_earned || 0) > 0)
+        .reduce((sum, p) => sum + (p.points_earned || 0), 0);
 
       const totalPointsLost = allPredictions
-        .filter((p) => (p.points_awarded || 0) < 0)
-        .reduce((sum, p) => sum + Math.abs(p.points_awarded || 0), 0);
+        .filter((p) => (p.points_earned || 0) < 0)
+        .reduce((sum, p) => sum + Math.abs(p.points_earned || 0), 0);
 
       return {
         total_predictions: total,

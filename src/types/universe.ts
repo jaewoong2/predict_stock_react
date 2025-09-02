@@ -15,6 +15,7 @@ export const UniverseItemSchema = z.object({
 });
 
 export const UniverseItemWithPriceSchema = UniverseItemSchema.extend({
+  symbol: z.string(),
   company_name: z.string(),
   current_price: PositiveNumberSchema,
   previous_close: PositiveNumberSchema,

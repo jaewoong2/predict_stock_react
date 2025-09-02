@@ -94,10 +94,13 @@ export function PredictionHistory() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(prediction.created_at), {
-                          addSuffix: true,
-                          locale: ko,
-                        })}
+                        {formatDistanceToNow(
+                          new Date(prediction.submitted_at),
+                          {
+                            addSuffix: true,
+                            locale: ko,
+                          },
+                        )}
                       </div>
                     </div>
                   </div>
@@ -121,8 +124,8 @@ export function PredictionHistory() {
                       </Badge>
                     </div>
                     <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      {prediction.points_awarded
-                        ? `+${prediction.points_awarded} 포인트`
+                      {prediction.points_earned
+                        ? `+${prediction.points_earned} 포인트`
                         : ""}
                     </div>
                   </div>

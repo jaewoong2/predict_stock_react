@@ -5,7 +5,7 @@ const JWT_TOKEN_KEY = process.env.NEXT_PUBLIC_JWT_TOKEN_KEY ?? "access_token";
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const response = NextResponse.next();
-  const code = url.searchParams.get("code");
+  const code = url.searchParams.get("token");
 
   if (req.nextUrl.pathname === "/logout") {
     response.cookies.delete(JWT_TOKEN_KEY);
