@@ -1,26 +1,30 @@
 import { BaseResponse } from "../types/common";
-import { TOKEN_COOKIE_KEY, getClientCookie, getServerCookieAsync, deleteClientCookie } from "@/lib/cookies";
+import {
+  TOKEN_COOKIE_KEY,
+  getClientCookie,
+  getServerCookieAsync,
+  deleteClientCookie,
+} from "@/lib/cookies";
 
 // 기존 API 기본 URL 설정
 const getBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
     return process.env.NEXT_PUBLIC_API_LOCAL_URL || "http://localhost:8000/";
   }
-  return (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://pef3ppbc4k.execute-api.ap-northeast-2.amazonaws.com/dev/"
-  );
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "https://ai-api.bamtoly.com/";
 };
 
 // O/X 예측 서비스 API 기본 URL 설정
 const getOxBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
     return (
-      process.env.NEXT_PUBLIC_OX_API_LOCAL_URL || "http://localhost:8000/api/v1/"
+      process.env.NEXT_PUBLIC_OX_API_LOCAL_URL ||
+      "http://localhost:8000/api/v1/"
     );
   }
   return (
-    process.env.NEXT_PUBLIC_OX_API_BASE_URL || "https://your-domain.com/api/v1/"
+    process.env.NEXT_PUBLIC_OX_API_BASE_URL ||
+    "https://ox-universe.bamtoly.com/api/v1/"
   );
 };
 
@@ -37,7 +41,8 @@ const createCustomFetch = (baseUrlGetter: () => string) => {
   return async (url: string, options: RequestInit = {}) => {
     const baseUrl = baseUrlGetter();
     // baseURL이 /로 끝나고 url이 /로 시작하면 중복 제거
-    const cleanUrl = baseUrl.endsWith("/") && url.startsWith("/") ? url.slice(1) : url;
+    const cleanUrl =
+      baseUrl.endsWith("/") && url.startsWith("/") ? url.slice(1) : url;
     const fullUrl = `${baseUrl}${cleanUrl}`;
     const token = await getToken();
 
