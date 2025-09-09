@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, memo } from "react";
-import { format as formatDate } from "date-fns";
 import { SignalAPIResponse, SignalData } from "@/types/signal";
 import { createColumns } from "@/components/signal/columns";
 import {

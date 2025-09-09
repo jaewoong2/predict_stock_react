@@ -4,10 +4,10 @@ import { ProfilePageClient } from "@/components/ox/profile/profile-page-client";
 import { ProfilePageServer } from "@/components/ox/profile/profile-page-server";
 import { Loader2Icon } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "프로필 관리 | O/X 예측",
-  description: "프로필 정보 수정, 계정 설정, 활동 내역 확인",
-};
+// export const metadata: Metadata = {
+//   title: "프로필 관리 | O/X 예측",
+//   description: "프로필 정보 수정, 계정 설정, 활동 내역 확인",
+// };
 
 function LoadingSpinner() {
   return (

@@ -13,10 +13,10 @@ import GlobalLoginModal from "@/components/auth/GlobalLoginModal";
 import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
 import { Toaster } from "@/components/ui/sonner";
 
-export const metadata: Metadata = {
-  title: "Stock Predict AI LLM",
-  description: "Predict stock prices with AI models",
-};
+// export const metadata: Metadata = {
+//   title: "Stock Predict AI LLM",
+//   description: "Predict stock prices with AI models",
+// };
 
 export default function RootLayout({
   children,

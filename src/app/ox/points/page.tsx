@@ -3,10 +3,10 @@ import { Metadata } from "next";
 import { PointsPageClient } from "@/components/ox/points/points-page-client";
 import { PointsPageServer } from "@/components/ox/points/points-page-server";
 
-export const metadata: Metadata = {
-  title: "포인트 관리 | O/X 예측",
-  description: "포인트 잔액 조회, 거래 내역 확인, 포인트 내보내기",
-};
+// export const metadata: Metadata = {
+//   title: "포인트 관리 | O/X 예측",
+//   description: "포인트 잔액 조회, 거래 내역 확인, 포인트 내보내기",
+// };
 
 function LoadingSpinner() {
   return (

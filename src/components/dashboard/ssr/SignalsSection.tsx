@@ -1,6 +1,5 @@
 import DashboardClient from "@/components/dashboard/DashboardClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DashboardProvider } from "@/contexts/DashboardProvider";
 
 export default async function SignalsSection() {
   try {

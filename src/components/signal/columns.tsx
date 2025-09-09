@@ -56,7 +56,9 @@ export const createColumns = (
       const href = `/dashboard/predict/${ticker}`;
       return (
         <Link href={href} onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="secondary">예측</Button>
+          <Button size="sm" variant="secondary">
+            예측
+          </Button>
         </Link>
       );
     },
@@ -275,7 +277,7 @@ export const createColumns = (
   },
   {
     accessorKey: "result.signal.ai_model",
-    header: "LLM 모델",
+    header: "AI 모델",
     cell: ({ row }) => {
       return (
         <Badge

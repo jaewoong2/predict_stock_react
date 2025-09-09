@@ -9,8 +9,10 @@ import {
 // 기존 API 기본 URL 설정
 const getBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
-    return process.env.NEXT_PUBLIC_API_LOCAL_URL || "http://localhost:8000/";
+    // 개발 모드에서는 프록시를 통해 CORS 우회
+    return process.env.NEXT_PUBLIC_API_LOCAL_URL || `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/proxy/`;
   }
+  // 프로덕션에서는 직접 요청
   return process.env.NEXT_PUBLIC_API_BASE_URL || "https://ai-api.bamtoly.com/";
 };
 

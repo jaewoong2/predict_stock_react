@@ -13,6 +13,19 @@ const nextConfig = {
   env: {
     TZ: "Asia/Seoul",
   },
+
+  async rewrites() {
+    // 개발 모드에서만 프록시 활성화 (CORS 우회용)
+    if (process.env.NODE_ENV === "development") {
+      return [
+        {
+          source: "/api/proxy/:path*",
+          destination: "https://ai-api.bamtoly.com/:path*",
+        },
+      ];
+    }
+    return [];
+  },
   assetPrefix:
     process.env.NODE_ENV === "development"
       ? null

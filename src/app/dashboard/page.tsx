@@ -14,66 +14,66 @@ import DashboardFooter from "@/components/dashboard/DashboardFooter";
 import DateSelectorWrapper from "@/components/signal/DateSelectorWrapper";
 import { Metadata } from "next";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    date?: string;
-  }>;
-}): Promise<Metadata> {
-  const today = new Date().toISOString().split("T")[0];
-  const searchParams_ = await searchParams;
-  const date =
-    typeof searchParams_.date === "string" ? searchParams_.date : today;
+// export async function generateMetadata({
+//   searchParams,
+// }: {
+//   searchParams: Promise<{
+//     date?: string;
+//   }>;
+// }): Promise<Metadata> {
+//   const today = new Date().toISOString().split("T")[0];
+//   const searchParams_ = await searchParams;
+//   const date =
+//     typeof searchParams_.date === "string" ? searchParams_.date : today;
 
-  // 기본 메타데이터
-  const baseMetadata = {
-    title: "Forecast US Stock Prices | Spam",
-    description: "Forecast US stock prices using AI models and market signals.",
-    keywords: [
-      "stock forecast",
-      "AI prediction",
-      "market signals",
-      "stock analysis",
-      "financial analysis",
-    ],
-    authors: [{ name: "Spam Finance" }],
-    category: "Finance",
-    creator: "Spam Finance Team",
-    publisher: "Spam Finance",
-    robots: "index, follow",
-    alternates: {
-      canonical: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
-    },
-    openGraph: {
-      title: "Forecast US Stock Prices | Spam",
-      description:
-        "Forecast US stock prices using AI models and market signals.",
-      url: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
-      siteName: "Spam Finance",
-      locale: "ko_KR",
-      type: "website",
-      images: [
-        {
-          url: "https://stock.bamtoly.com/og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: "Spam Finance Dashboard Preview",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "Forecast US Stock Prices | Spam",
-      description:
-        "Forecast US stock prices using AI models and market signals.",
-      images: ["https://stock.bamtoly.com/twitter-image.jpg"],
-      creator: "@spamfinance",
-    },
-  };
+//   // 기본 메타데이터
+//   const baseMetadata = {
+//     title: "Forecast US Stock Prices | Spam",
+//     description: "Forecast US stock prices using AI models and market signals.",
+//     keywords: [
+//       "stock forecast",
+//       "AI prediction",
+//       "market signals",
+//       "stock analysis",
+//       "financial analysis",
+//     ],
+//     authors: [{ name: "Spam Finance" }],
+//     category: "Finance",
+//     creator: "Spam Finance Team",
+//     publisher: "Spam Finance",
+//     robots: "index, follow",
+//     alternates: {
+//       canonical: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
+//     },
+//     openGraph: {
+//       title: "Forecast US Stock Prices | Spam",
+//       description:
+//         "Forecast US stock prices using AI models and market signals.",
+//       url: `https://stock.bamtoly.com/dashboard${date !== today ? `?date=${date}` : ""}`,
+//       siteName: "Spam Finance",
+//       locale: "ko_KR",
+//       type: "website",
+//       images: [
+//         {
+//           url: "https://stock.bamtoly.com/og-image.jpg",
+//           width: 1200,
+//           height: 630,
+//           alt: "Spam Finance Dashboard Preview",
+//         },
+//       ],
+//     },
+//     twitter: {
+//       card: "summary_large_image",
+//       title: "Forecast US Stock Prices | Spam",
+//       description:
+//         "Forecast US stock prices using AI models and market signals.",
+//       images: ["https://stock.bamtoly.com/twitter-image.jpg"],
+//       creator: "@spamfinance",
+//     },
+//   };
 
-  return baseMetadata;
-}
+//   return baseMetadata;
+// }
 
 export const revalidate = 3600;
 export const runtime = "edge"; // Use edge runtime for better performance
