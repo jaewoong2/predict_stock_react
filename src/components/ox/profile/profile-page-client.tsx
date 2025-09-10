@@ -6,6 +6,8 @@ import { AccountSettingsForm } from "./account-settings-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Settings, Shield } from "lucide-react";
+import { CooldownStatusCard } from "@/components/ox/engagement/CooldownStatusCard";
+import { AdWatchHistoryList } from "@/components/ox/engagement/AdWatchHistoryList";
 
 export function ProfilePageClient() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -49,6 +51,12 @@ export function ProfilePageClient() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* 광고/쿨다운 히스토리 섹션 */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <CooldownStatusCard />
+        <AdWatchHistoryList />
+      </div>
     </div>
   );
 }
