@@ -3,59 +3,61 @@
 import { useState } from "react";
 import { PointsLedgerList } from "./points-ledger-list";
 import { PointsExportModal } from "./points-export-modal";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, Filter } from "lucide-react";
+import { TossButton } from "@/components/ui/toss-button";
+import { TossCard, TossCardContent, TossCardHeader, TossCardTitle } from "@/components/ui/toss-card";
+import { Download, History } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function PointsPageClient() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [filterType, setFilterType] = useState<string>("all");
 
+  const filters = [
+    { id: "all", label: "전체" },
+    { id: "earned", label: "획득" },
+    { id: "spent", label: "사용" }
+  ];
+
   return (
     <div className="space-y-6">
       {/* 액션 버튼들 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>포인트 관리</span>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowExportModal(true)}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                내보내기
-              </Button>
+      <TossCard padding="lg">
+        <TossCardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <History className="h-5 w-5 text-blue-600" />
+              <TossCardTitle>거래 내역</TossCardTitle>
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4 flex gap-2">
-            <Button
-              variant={filterType === "all" ? "default" : "outline"}
+            <TossButton
+              variant="ghost"
               size="sm"
-              onClick={() => setFilterType("all")}
+              onClick={() => setShowExportModal(true)}
             >
-              전체
-            </Button>
-            <Button
-              variant={filterType === "earned" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("earned")}
-            >
-              획득
-            </Button>
-            <Button
-              variant={filterType === "spent" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterType("spent")}
-            >
-              사용
-            </Button>
+              <Download className="h-4 w-4" />
+              내보내기
+            </TossButton>
           </div>
-        </CardContent>
-      </Card>
+        </TossCardHeader>
+        <TossCardContent>
+          {/* Filter Tabs */}
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+            {filters.map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => setFilterType(filter.id)}
+                className={cn(
+                  "flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200",
+                  filterType === filter.id
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-gray-600 hover:text-gray-800"
+                )}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+        </TossCardContent>
+      </TossCard>
 
       {/* 포인트 거래 내역 */}
       <PointsLedgerList filterType={filterType} />

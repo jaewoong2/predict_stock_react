@@ -7,14 +7,19 @@ import { MobileTabBar } from "@/components/ox/home/MobileTabBar";
 
 export default function OxHomePage() {
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-2 md:max-w-xl">
-      <HomeTopStrip activeTab="home" />
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Content Container */}
+      <div className="mx-auto w-full max-w-full px-4 py-2 md:max-w-xl">
+        <HomeTopStrip activeTab="home" />
 
-      <div className="space-y-4">
-        <MyInvestmentCard />
-        <RealtimeRankingCard />
+        {/* Main Content with Toss-style spacing */}
+        <div className="space-y-6 pb-20">
+          <MyInvestmentCard />
+          <RealtimeRankingCard />
+        </div>
       </div>
-      <div className="h-16" />
+      
+      {/* Fixed Mobile Tab Bar */}
       <MobileTabBar />
     </div>
   );

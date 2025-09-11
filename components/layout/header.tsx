@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useTodaySession } from "@/hooks/useSession";
 import { usePointsBalance } from "@/hooks/usePoints";
@@ -21,6 +22,15 @@ export function Header() {
   const { user, logout } = useAuth();
   const { data: session } = useTodaySession();
   const { data: pointsBalance } = usePointsBalance();
+  const [hiddenOnScroll, setHiddenOnScroll] = React.useState(false);
+
+  React.useEffect(() => {
+    const onScroll = () =>
+      setHiddenOnScroll((window.scrollY || window.pageYOffset) > 16);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const getSessionStatusColor = () => {
     if (!session) return "bg-gray-500";
@@ -47,7 +57,14 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background flex h-16 items-center justify-between border-b px-6">
+    <header
+      className={cn(
+        "bg-background flex items-center justify-between border-b px-6 transition-all duration-200",
+        hiddenOnScroll
+          ? "pointer-events-none h-0 -translate-y-2 overflow-hidden opacity-0"
+          : "h-16 translate-y-0 opacity-100",
+      )}
+    >
       {/* Left Section */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">

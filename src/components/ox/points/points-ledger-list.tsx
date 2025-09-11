@@ -1,14 +1,39 @@
 "use client";
 
 import { usePointsLedger } from "@/hooks/usePoints";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TossCard, TossCardContent } from "@/components/ui/toss-card";
+import { TossButton } from "@/components/ui/toss-button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, TrendingDown, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 
 function LoadingSpinner() {
   return (
-    <div className="h-10 w-10 animate-spin rounded-full border-2 border-gray-400 border-t-transparent" />
+    <TossCard padding="lg">
+      <TossCardContent>
+        <div className="space-y-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl"
+            >
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div>
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+              <div className="text-right">
+                <Skeleton className="h-4 w-16 mb-1" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </TossCardContent>
+    </TossCard>
   );
 }
 
@@ -27,24 +52,23 @@ export function PointsLedgerList({ filterType }: PointsLedgerListProps) {
   } = usePointsLedger({ limit: 20 });
 
   if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex justify-center py-8">
-          <LoadingSpinner />
-        </CardContent>
-      </Card>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
     return (
-      <Card>
-        <CardContent className="py-8">
-          <div className="text-center text-red-600 dark:text-red-400">
-            거래 내역을 불러오는 중 오류가 발생했습니다.
+      <TossCard padding="lg">
+        <TossCardContent>
+          <div className="py-12 text-center">
+            <div className="text-red-600 mb-2">
+              거래 내역을 불러오는 중 오류가 발생했습니다.
+            </div>
+            <TossButton variant="outline" size="sm">
+              다시 시도
+            </TossButton>
           </div>
-        </CardContent>
-      </Card>
+        </TossCardContent>
+      </TossCard>
     );
   }
 
@@ -59,42 +83,45 @@ export function PointsLedgerList({ filterType }: PointsLedgerListProps) {
         );
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>거래 내역</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <TossCard padding="lg">
+      <TossCardContent>
+        <div className="space-y-3">
           {filteredItems.length === 0 ? (
-            <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-              거래 내역이 없습니다.
+            <div className="py-12 text-center">
+              <Clock className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                거래 내역이 없습니다
+              </h3>
+              <p className="text-sm text-gray-500">
+                예측을 통해 포인트를 획득해보세요
+              </p>
             </div>
           ) : (
             <>
               {filteredItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 transition-colors hover:bg-gray-100"
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`rounded-full p-2 ${
+                      className={`rounded-full p-2.5 ${
                         item.delta_points > 0
-                          ? "bg-green-100 dark:bg-green-900/20"
-                          : "bg-red-100 dark:bg-red-900/20"
+                          ? "bg-green-100"
+                          : "bg-red-100"
                       }`}
                     >
                       {item.delta_points > 0 ? (
-                        <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        <TrendingUp className="h-4 w-4 text-green-600" />
                       ) : (
-                        <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <TrendingDown className="h-4 w-4 text-red-600" />
                       )}
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="font-medium text-gray-900 text-sm">
                         {item.reason}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
                         <Clock className="h-3 w-3" />
                         {formatDistanceToNow(new Date(item.created_at), {
                           addSuffix: true,
@@ -105,17 +132,17 @@ export function PointsLedgerList({ filterType }: PointsLedgerListProps) {
                   </div>
                   <div className="text-right">
                     <div
-                      className={`font-semibold ${
+                      className={`font-bold text-sm ${
                         item.delta_points > 0
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          ? "text-green-600"
+                          : "text-red-600"
                       }`}
                     >
                       {item.delta_points > 0 ? "+" : ""}
-                      {item.delta_points.toLocaleString()}
+                      {item.delta_points.toLocaleString()}P
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      잔액: {item.balance_after.toLocaleString()}
+                    <div className="text-xs text-gray-500">
+                      잔액: {item.balance_after.toLocaleString()}P
                     </div>
                   </div>
                 </div>
@@ -123,19 +150,20 @@ export function PointsLedgerList({ filterType }: PointsLedgerListProps) {
 
               {hasNextPage && (
                 <div className="flex justify-center pt-4">
-                  <button
+                  <TossButton
+                    variant="outline"
+                    size="sm"
                     onClick={() => fetchNextPage()}
                     disabled={isFetchingNextPage}
-                    className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                   >
                     {isFetchingNextPage ? "로딩 중..." : "더 보기"}
-                  </button>
+                  </TossButton>
                 </div>
               )}
             </>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </TossCardContent>
+    </TossCard>
   );
 }

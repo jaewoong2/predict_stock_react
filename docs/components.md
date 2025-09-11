@@ -1,4 +1,5 @@
 # OX Universe - NextJS Frontend Architecture & Components Guide
+=> React Native 로 마이그레이션 할 예정이니 이를 고려 해서 개발 할 것
 
 ## 📊 서비스 개요
 
@@ -207,7 +208,7 @@ API 연결(ox-universe-api.md):
 ↓
 예측가격 vs EOD 종가 비교
 ↓
-CORRECT(+50pt) / INCORRECT(0pt) / VOID(환불)
+CORRECT(+100pt) / INCORRECT(0pt) / VOID(환불)
 ```
 
 #### 정산 결과 표시

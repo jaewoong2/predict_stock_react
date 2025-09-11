@@ -1,7 +1,6 @@
 import { PointsBalanceResponse } from "@/types/points";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Coins, TrendingUp, TrendingDown } from "lucide-react";
+import { TossCard, TossCardContent } from "@/components/ui/toss-card";
+import { Coins } from "lucide-react";
 
 interface PointsBalanceCardProps {
   balance: { balance: number };
@@ -9,23 +8,27 @@ interface PointsBalanceCardProps {
 
 export function PointsBalanceCard({ balance }: PointsBalanceCardProps) {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
-          <Coins className="h-5 w-5 text-yellow-500" />
-          포인트 잔액
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-center">
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
+    <TossCard variant="gradient" padding="lg" className="relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
+      <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-white/5" />
+      
+      <TossCardContent className="text-center space-y-4">
+        <div className="flex justify-center">
+          <div className="p-3 bg-white/20 rounded-2xl">
+            <Coins className="h-8 w-8 text-white" />
+          </div>
+        </div>
+        
+        <div>
+          <div className="text-3xl font-bold text-white mb-1">
             {balance.balance.toLocaleString()}
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-white/80">
             현재 보유 포인트
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </TossCardContent>
+    </TossCard>
   );
 }

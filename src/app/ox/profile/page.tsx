@@ -2,7 +2,9 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import { ProfilePageClient } from "@/components/ox/profile/profile-page-client";
 import { ProfilePageServer } from "@/components/ox/profile/profile-page-server";
-import { Loader2Icon } from "lucide-react";
+import { MobileTabBar } from "@/components/ox/home/MobileTabBar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { User, Settings } from "lucide-react";
 
 // export const metadata: Metadata = {
 //   title: "프로필 관리 | O/X 예측",
@@ -11,39 +13,54 @@ import { Loader2Icon } from "lucide-react";
 
 function LoadingSpinner() {
   return (
-    <div className="flex justify-center py-8">
-      <Loader2Icon className="h-6 w-6 animate-spin" />
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-6 w-32" />
+        </div>
+        <Skeleton className="h-4 w-48" />
+      </div>
+      <div className="space-y-4">
+        <Skeleton className="h-32 w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-2xl" />
+      </div>
     </div>
   );
 }
 
 export default function ProfilePage() {
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          프로필 관리
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          프로필 정보와 계정 설정을 관리하세요
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      <div className="mx-auto w-full max-w-md px-4 py-6 md:max-w-xl">
+        {/* Page Header with Toss style */}
+        <div className="text-center space-y-3 mb-6">
+          <div className="flex justify-center">
+            <div className="p-3 bg-blue-100 rounded-2xl">
+              <User className="h-8 w-8 text-blue-600" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">프로필 관리</h1>
+          <p className="text-sm text-gray-600 max-w-md mx-auto">
+            프로필 정보와 계정 설정을 관리하세요
+          </p>
+        </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* SSR: 사용자 정보 및 재정 요약 */}
-        <div className="lg:col-span-1">
+        <div className="space-y-6 pb-20">
+          {/* SSR: 사용자 정보 및 재정 요약 */}
           <Suspense fallback={<LoadingSpinner />}>
             <ProfilePageServer />
           </Suspense>
-        </div>
 
-        {/* CSR: 프로필 수정 및 설정 변경 */}
-        <div className="lg:col-span-2">
+          {/* CSR: 프로필 수정 및 설정 변경 */}
           <Suspense fallback={<LoadingSpinner />}>
             <ProfilePageClient />
           </Suspense>
         </div>
       </div>
+      
+      {/* Fixed Mobile Tab Bar */}
+      <MobileTabBar />
     </div>
   );
 }

@@ -6,7 +6,9 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { PredictionButton } from "@/components/ox/predict/PredictionButton";
+import { PredictionCancelButton } from "@/components/ox/predict/PredictionCancelButton";
+import { PredictionChoice } from "@/types/prediction";
 
 // Helper function to format date string
 const formatCurrency = (amount: number | undefined | null) => {
@@ -49,17 +51,52 @@ export const createColumns = (
     },
   },
   {
-    id: "predict",
-    header: "예측",
+    id: "predict_up",
+    header: "상승",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;
-      const href = `/dashboard/predict/${ticker}`;
       return (
-        <Link href={href} onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="secondary">
-            예측
-          </Button>
-        </Link>
+        <div onClick={(e) => e.stopPropagation()}>
+          <PredictionButton 
+            symbol={ticker}
+            choice={PredictionChoice.UP}
+            size="sm"
+            variant="compact"
+          />
+        </div>
+      );
+    },
+  },
+  {
+    id: "predict_down", 
+    header: "하락",
+    cell: ({ row }) => {
+      const ticker = row.original.signal.ticker;
+      return (
+        <div onClick={(e) => e.stopPropagation()}>
+          <PredictionButton 
+            symbol={ticker}
+            choice={PredictionChoice.DOWN}
+            size="sm"
+            variant="compact"
+          />
+        </div>
+      );
+    },
+  },
+  {
+    id: "prediction_status",
+    header: "예측 상태",
+    cell: ({ row }) => {
+      const ticker = row.original.signal.ticker;
+      return (
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+          <PredictionCancelButton 
+            symbol={ticker}
+            size="sm"
+            variant="outline"
+          />
+        </div>
       );
     },
   },
