@@ -10,7 +10,8 @@
       "mcp__serena__find_file",
       "mcp__serena__find_symbol",
       "mcp__serena__replace_symbol_body",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "mcp__serena__replace_regex"
     ],
     "deny": [],
     "ask": []

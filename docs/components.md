@@ -155,6 +155,12 @@ PredictionContext
 - 서비스: `src/services/predictionService.ts`
 - 테이블/버튼: `src/components/signal/*`, `src/components/signal/SignalDataTable.tsx`, `src/components/signal/SignalDetail*`
 
+API 연결(ox-universe-api.md):
+- POST `/predictions/{symbol}` → 제출
+- GET `/predictions/remaining/{trading_day}` → 남은 예측 수
+- GET `/predictions/day/{trading_day}` → 오늘 예측 목록
+- GET `/predictions/history` → 이력 페이지네이션
+
 ### 2. 슬롯 & 쿨다운 시스템
 
 #### 슬롯 정책
@@ -181,8 +187,8 @@ PredictionContext
 
 #### 스냅샷 기반 아키텍처
 - **Production**: DB 스냅샷에서만 읽기 (yfinance 호출 없음)
-- **Refresh**: 30분마다 `POST /universe/refresh-prices` 호출
-- **Fallback**: `SNAPSHOT_NOT_AVAILABLE` 에러시 refresh 트리거
+- **Refresh**: 백엔드 배치/크론에서 처리 (프런트 트리거 불필요)
+- **Fallback**: `SNAPSHOT_NOT_AVAILABLE` 시 서버 상태 메시지 노출만 (수동 호출 없음)
 
 #### 가격 표시 전략
 ```
@@ -210,6 +216,12 @@ CORRECT(+50pt) / INCORRECT(0pt) / VOID(환불)
 - 포인트 변동 내역 자동 업데이트
 
 ---
+
+API 연결(세션/마켓):
+- GET `/session/today` → 오늘 세션/마켓 상태(`useTodaySession`)
+- GET `/session/can-predict?trading_day=...` → 예측 가능 여부(`useCanPredict`)
+- GET `/session/next-trading-day` → 다음 거래일 안내
+- GET `/session/schedule/*` → 오픈/마감 시간 노출
 
 ## 🎁 리워드 교환 플로우 (상세)
 
@@ -299,6 +311,20 @@ const onRedeem = async () => {
 - 광고 시청 히스토리: `src/components/ox/engagement/AdWatchHistoryList.tsx`
 - 리워드 히스토리: 상태 배지(pending→completed), `src/components/ox/rewards/RewardHistoryTable.tsx`
 
+### 모바일 홈(`/ox/home`)
+- 상단 스트립: 지수 배지 + 탭 네비(`src/components/ox/home/HomeTopStrip.tsx`)
+-  └ 주의: 지수 값은 현재 플레이스홀더. 별도 Index Service 연동 예정
+- 내 투자 카드: 포인트/남은 예측 수(`getRemainingPredictions` 사용, `src/components/ox/home/MyInvestmentCard.tsx`)
+- 실시간 랭킹: 거래량/인기/관심 탭(ETF 제외), 인기 리스트 재사용(`src/components/ox/home/RealtimeRankingCard.tsx`)
+- 하단 탭바: 홈/발견/예측/포인트/프로필 (`src/components/ox/home/MobileTabBar.tsx`)
+
+### 모바일 뉴스(`/ox/news`)
+- 상단 스트립: `HomeTopStrip` 재사용, activeTab="news"
+- 뉴스 리스트: `src/components/ox/news/NewsListMobile.tsx`
+  - 데이터: `useMarketNewsSummary({ news_type: 'market', news_date })`
+  - 필터: 전체/Buy/Hold/Sell 토글
+  - 항목: 티커 이니셜 원형 아이콘, 헤드라인, 요약, 상대시간, 추천 배지
+
 ### 관리자 페이지(초안)
 - 경로: `src/app/ox/admin/page.tsx` (탭 기반)
 - 사용자 관리: 목록/검색(초안), 권한/정지(추가 예정)
@@ -321,13 +347,13 @@ const onRedeem = async () => {
 
 #### FloatingInfo
 - 마켓 상태 (OPEN/CLOSED)
-- 사용 가능 슬롯 (hover시 쿨다운 표시)
-- 오늘의 예측 수
+- 남은 예측 수(`useRemainingPredictions(tradingDay)`)와 쿨다운 안내
+- 오늘의 예측 수/제출 현황
 
 #### Points/Rewards UI
-- 포인트 카드: 현재 잔액, 오늘 적립, 내보내기 버튼(`src/components/ox/points/points-export-modal.tsx`)
+- 포인트 카드: 현재 잔액, 오늘 적립
 - 원장 리스트: `src/components/ox/points/points-ledger-list.tsx` 무한스크롤/필터
-- 내보내기 모달: `src/components/ox/points/points-export-modal.tsx` (CSV/Excel/JSON)
+- 내보내기 모달: (선택) `src/components/ox/points/points-export-modal.tsx` — API 연동 보류
 - 리워드 카탈로그: `src/components/ox/rewards/RewardCatalogGrid.tsx`
 - 리워드 상세/체크아웃: `src/components/ox/rewards/RewardDetailSheet.tsx`, `src/components/ox/rewards/RewardCheckoutDialog.tsx`
 - 리워드 히스토리: `src/components/ox/rewards/RewardHistoryTable.tsx`, 상태 배지 `RewardStatusChip.tsx`
@@ -484,6 +510,9 @@ NEXT_PUBLIC_MAX_SLOTS=10
   - UI: `src/components/ox/engagement/CooldownStatusCard.tsx`, `src/components/ox/engagement/AdWatchHistoryList.tsx`
 - 관리자
   - 페이지: `src/app/ox/admin/page.tsx` (탭: 리워드/사용자/포인트)
+- 모바일 홈
+  - 페이지: `src/app/ox/home/page.tsx`
+  - UI: `src/components/ox/home/HomeTopStrip.tsx`, `MyInvestmentCard.tsx`, `RealtimeRankingCard.tsx`, `MobileTabBar.tsx`
 
 ---
 
@@ -495,3 +524,64 @@ NEXT_PUBLIC_MAX_SLOTS=10
 - 페이지네이션 규약 통일: `limit/offset`은 `types/common.ts` 제한 준수, 무한스크롤 `getNextPageParam` 통일
 - 에러 메시지 국제화 준비: 서버 에러코드→클라이언트 메시지 매핑 테이블 도입
 - Admin 플로우 초안: 리워드 생성/수정/재고 조정/노출 ON/OFF, 유저별 제한 관리(추후 페이지 구성)
+
+---
+
+## 🧩 TODO: Services/Hooks To Implement (based on current services)
+
+- Market Indices
+  - Add: `src/services/indexService.ts`, `src/hooks/useMarketIndices.ts`
+  - Types: `src/types/indices.ts` (e.g., `{ name, price, changePct }`)
+  - UI: `HomeTopStrip`의 지수 배지에 연결(현재 placeholder)
+  - API: GET `/market/indices` 또는 provider proxy 확정 필요
+
+- Watchlist(관심목록) 서버 동기화
+  - 현상: `useFavoriteTickers.ts` 로컬 저장만 사용
+  - Add: `src/services/watchlistService.ts`, hooks `useWatchlist`, `useToggleWatchlist`
+  - API: GET `/users/me/watchlist`, PUT/DELETE `/users/me/watchlist/{symbol}`
+  - UI: RealtimeRankingCard “관심” 탭, 시그널 목록 즐겨찾기 토글 연동
+
+- News Detail Sheet
+  - Add: `src/components/ox/news/NewsDetailSheet.tsx` (모바일 시트/드로어)
+  - Optional API: GET `/news/{id}` (리스트에 `detail_description`가 없을 경우)
+
+- Rewards Admin API
+  - Add: `src/services/rewardAdminService.ts`, hooks `useRewardAdminList`, `useUpsertReward`, `useToggleReward`
+  - API: `/admin/rewards` CRUD + visibility/stock/limit
+  - UI: `src/app/ox/admin/page.tsx` 리워드 탭 연결
+
+- Points Admin API
+  - Add: `src/services/pointsAdminService.ts`, hook `useAdjustPoints`
+  - API: POST `/admin/points/adjust`, GET `/admin/points/ledger`
+  - UI: 관리자 포인트 탭에서 조정/원장 조회
+
+- Points Export API — 보류(미필요)
+  - 현상: `points-export-modal.tsx` 더미 유지, API 연동은 추후 필요 시 진행
+
+- Ads Provider Bridge (SDK 연동)
+  - 현상: `adService.completeAdWatch` 서버 연동만 구현
+  - Add: `src/lib/ads/provider.ts` + `useAdProvider`(init/show/콜백)
+  - Ensure: 서버 검증 토큰/HMAC 포함하여 `/ads/watch-complete` 호출
+
+- Universe Refresh Prices — 보류(프런트 미구현)
+  - 결정: 백엔드 배치에서 수행. 프런트 트리거/버튼 불필요
+
+- Auth: Apple + Magic Link
+  - 현상: OAuth 시작은 Google/Kakao만
+  - Add: `authService.startOAuthLogin('apple')`
+  - Add: Magic Link `authService.requestMagicLink(email)`, `authService.verifyMagicLink(token)`
+  - API: `/auth/oauth/apple/authorize`, `/auth/magic-link/request`, `/auth/magic-link/verify`
+  - UI: `LoginModal`에 버튼 추가 및 플로우 연결
+
+- Notifications (정산/승인/시스템 알림)
+  - Add: `src/services/notificationService.ts`, hooks `useNotifications`, `useMarkAsRead`, `useSubscribePush`
+  - API: GET `/notifications`, POST `/notifications/read`, POST `/notifications/subscribe`
+  - UI: `components/layout/header.tsx` 종 아이콘 연동
+
+- Analytics (이벤트 추적)
+  - Add: `src/lib/analytics.ts` (provider-agnostic)
+  - Track: `page_view`, `prediction_submit`, `ad_watch_complete`, `reward_redeem`, `points_export`, `news_filter_click`
+  - Hook: `useAnalytics()`로 화면/버튼에 주입
+
+- ETF 탭 데이터 소스 — 보류(미필요)
+  - 결정: 초기 범위에서 제외. 필요 시 별도 서비스/훅 설계

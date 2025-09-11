@@ -20,12 +20,13 @@ const nextConfig = {
       return [
         {
           source: "/api/proxy/:path*",
-          destination: "https://ai-api.bamtoly.com/:path*",
+          destination: "http://localhost:8002/:path*",
         },
       ];
     }
     return [];
   },
+
   assetPrefix:
     process.env.NODE_ENV === "development"
       ? null
