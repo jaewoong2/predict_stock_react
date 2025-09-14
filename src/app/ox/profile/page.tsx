@@ -31,17 +31,17 @@ function LoadingSpinner() {
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white">
       <div className="mx-auto w-full max-w-md px-4 py-6 md:max-w-xl">
         {/* Page Header with Toss style */}
-        <div className="text-center space-y-3 mb-6">
+        <div className="mb-6 space-y-3 text-center">
           <div className="flex justify-center">
-            <div className="p-3 bg-blue-100 rounded-2xl">
+            <div className="rounded-2xl bg-blue-100 p-3">
               <User className="h-8 w-8 text-blue-600" />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">프로필 관리</h1>
-          <p className="text-sm text-gray-600 max-w-md mx-auto">
+          <p className="mx-auto max-w-md text-sm text-gray-600">
             프로필 정보와 계정 설정을 관리하세요
           </p>
         </div>
@@ -58,7 +58,7 @@ export default function ProfilePage() {
           </Suspense>
         </div>
       </div>
-      
+
       {/* Fixed Mobile Tab Bar */}
       <MobileTabBar />
     </div>

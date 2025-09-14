@@ -10,10 +10,13 @@ import {
 const getBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
     // 개발 모드에서는 프록시를 통해 CORS 우회
-    return process.env.NEXT_PUBLIC_API_LOCAL_URL || `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/proxy/`;
+    return (
+      process.env.NEXT_PUBLIC_LOCAL_URL ||
+      `${typeof window !== "undefined" ? window.location.origin : "http://localhost:3000"}/api/proxy/`
+    );
   }
   // 프로덕션에서는 직접 요청
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "https://ai-api.bamtoly.com/";
+  return process.env.NEXT_PUBLIC_LOCAL_URL || "https://ai-api.bamtoly.com/";
 };
 
 // O/X 예측 서비스 API 기본 URL 설정
@@ -21,7 +24,7 @@ const getOxBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
     return (
       process.env.NEXT_PUBLIC_OX_API_LOCAL_URL ||
-      "http://localhost:8000/api/v1/"
+      "http://localhost:8001/api/v1/"
     );
   }
   return (

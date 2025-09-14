@@ -60,7 +60,9 @@ export default function RootLayout({
                   <Header />
                   <div className="flex min-h-screen">
                     <Sidebar />
-                    <main className="w-full flex-1">{safeChidren}</main>
+                    <main className="w-full flex-1 lg:w-[calc(100%-96px)]">
+                      {safeChidren}
+                    </main>
                   </div>
                   {safeModal}
                   {/* URL 파라미터(login=1) 트리거 + 전역 인증 상태 트리거 모두 지원 */}

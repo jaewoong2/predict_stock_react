@@ -9,7 +9,10 @@ interface TossCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const TossCard = React.forwardRef<HTMLDivElement, TossCardProps>(
-  ({ className, variant = "default", padding = "md", children, ...props }, ref) => {
+  (
+    { className, variant = "default", padding = "md", children, ...props },
+    ref,
+  ) => {
     return (
       <div
         ref={ref}
@@ -18,26 +21,28 @@ const TossCard = React.forwardRef<HTMLDivElement, TossCardProps>(
           "rounded-2xl border transition-all duration-200",
           // Variants
           {
-            "bg-white border-gray-100 shadow-sm hover:shadow-md": variant === "default",
-            "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100 shadow-sm": variant === "gradient",
-            "bg-white/80 backdrop-blur-sm border-white/20 shadow-lg": variant === "glass",
-            "bg-white border-gray-100 shadow-lg hover:shadow-xl": variant === "elevated",
+            "border-gray-100 bg-white shadow-none": variant === "default",
+            "border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-sm":
+              variant === "gradient",
+            "border-white/20 bg-white/80 shadow-none backdrop-blur-sm":
+              variant === "glass",
+            "border-gray-100 bg-white": variant === "elevated",
           },
           // Padding
           {
             "p-3": padding === "sm",
-            "p-4": padding === "md", 
+            "p-4": padding === "md",
             "p-6": padding === "lg",
             "p-8": padding === "xl",
           },
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 TossCard.displayName = "TossCard";
@@ -60,7 +65,10 @@ const TossCardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-lg font-semibold leading-tight text-gray-900", className)}
+    className={cn(
+      "text-lg leading-tight font-semibold text-gray-900",
+      className,
+    )}
     {...props}
   />
 ));
@@ -72,7 +80,7 @@ const TossCardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-gray-500 leading-relaxed", className)}
+    className={cn("text-sm leading-relaxed text-gray-500", className)}
     {...props}
   />
 ));
