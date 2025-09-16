@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,6 +12,16 @@ import {
 import { Loader2 } from "lucide-react";
 import { useAuth, useOAuthCallback } from "@/hooks/useAuth";
 import { useOAuthLogin } from "@/hooks/useAuth";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+
+const SENSITIVE_CALLBACK_PARAMS = [
+  "token",
+  "user_id",
+  "nickname",
+  "provider",
+  "is_new_user",
+] as const;
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -22,27 +32,63 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const oauthLogin = useOAuthLogin();
   const handleOAuthCallback = useOAuthCallback();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // 현재 페이지를 콜백 대상으로 사용 (절대 URL)
   const clientRedirect = useMemo(() => {
-    if (typeof window === "undefined") return "";
-    return window.location.href;
-  }, []);
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "";
+    if (!origin) return "";
+
+    const query = searchParams?.toString();
+    return query ? `${origin}${pathname}?${query}` : `${origin}${pathname}`;
+  }, [pathname, searchParams]);
 
   // OAuth 콜백 파라미터가 있다면 처리하여 로그인 상태로 전환
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const hasTokenParam = new URLSearchParams(window.location.search).has(
-      "token",
-    );
-    if (hasTokenParam) {
-      const result = handleOAuthCallback(window.location.href);
-      if (result) {
-        // 성공적으로 토큰을 저장했으면 모달 닫기
-        onClose();
-      }
+    if (!isOpen || isVerifying) return;
+    if (!searchParams) return;
+    if (!searchParams.has("token")) return;
+
+    setIsVerifying(true);
+
+    const result = handleOAuthCallback(searchParams);
+
+    if (result) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      SENSITIVE_CALLBACK_PARAMS.forEach((key) => nextParams.delete(key));
+      const nextQuery = nextParams.toString();
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+        scroll: false,
+      });
+      onClose();
+    } else {
+      toast.error("로그인에 실패했습니다.", {
+        description: "토큰 검증에 실패했습니다. 다시 시도해주세요.",
+      });
+      const nextParams = new URLSearchParams(searchParams.toString());
+      SENSITIVE_CALLBACK_PARAMS.forEach((key) => nextParams.delete(key));
+      const nextQuery = nextParams.toString();
+      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+        scroll: false,
+      });
     }
-  }, [handleOAuthCallback, onClose]);
+
+    setIsVerifying(false);
+  }, [
+    handleOAuthCallback,
+    isOpen,
+    isVerifying,
+    onClose,
+    pathname,
+    router,
+    searchParams,
+  ]);
 
   const onLogin = useCallback(
     (provider: "google" | "kakao") => {
@@ -53,7 +99,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="sm:max-w-[420px]">
         <DialogHeader>
           <DialogTitle>로그인</DialogTitle>
@@ -66,7 +119,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <Button
             variant="default"
             className="w-full"
-            disabled={isLoading || oauthLogin.isPending || isAuthenticated}
+            disabled={
+              isLoading ||
+              oauthLogin.isPending ||
+              isAuthenticated ||
+              isVerifying
+            }
             onClick={() => onLogin("google")}
           >
             {oauthLogin.isPending ? (
@@ -81,7 +139,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <Button
             variant="secondary"
             className="w-full"
-            disabled={isLoading || oauthLogin.isPending || isAuthenticated}
+            disabled={
+              isLoading ||
+              oauthLogin.isPending ||
+              isAuthenticated ||
+              isVerifying
+            }
             onClick={() => onLogin("kakao")}
           >
             {oauthLogin.isPending ? (

@@ -255,7 +255,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
               ]?.text || data.signal.probability}
             </Badge>
           )}
-          <Link href={`/dashboard/predict/${data.signal.ticker}`}>
+          <Link href={`/ox/dashboard/predict/${data.signal.ticker}`}>
             <Button size="sm" variant="secondary">예측</Button>
           </Link>
         </div>

@@ -1,20 +1,11 @@
 import { userService } from "@/services/userService";
 import { pointService } from "@/services/pointService";
 import { UserProfileCard } from "./user-profile-card";
-import { UserStatsCard } from "./user-stats-card";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { TOKEN_COOKIE_KEY } from "@/lib/cookies";
 
 export async function ProfilePageServer() {
-  // SSR 보호: 토큰이 없으면 홈으로 리다이렉트하며 로그인 모달 트리거
-  const cookieStore = await cookies();
-  const token = cookieStore.get(TOKEN_COOKIE_KEY)?.value;
-  if (!token) {
-    redirect("/?login=1");
-  }
   try {
-    // SSR: 사용자 프로필 및 포인트 정보 조회
     const [profile, balance] = await Promise.all([
       userService.getMyProfile(),
       pointService.getMyPointsBalance(),

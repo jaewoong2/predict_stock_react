@@ -3,13 +3,11 @@ import "@/styles/globals.css";
 import Freesentation from "./fonts";
 import Header from "@/components/header";
 import Sidebar from "@/components/navigation/Sidebar";
-import { SignalSearchParamsProvider } from "@/hooks/useSignalSearchParams";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
 import { Suspense } from "react";
 import { DashboardProvider } from "@/contexts/DashboardProvider";
 import { AuthProvider } from "@/hooks/useAuth";
-import GlobalLoginModal from "@/components/auth/GlobalLoginModal";
 import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
 import { FloatingInfo } from "@/components/ox/layout/FloatingInfo";
 import { Toaster } from "@/components/ui/sonner";
@@ -55,23 +53,19 @@ export default function RootLayout({
         <Suspense>
           <ReactQueryProvider>
             <AuthProvider>
-              <SignalSearchParamsProvider>
-                <DashboardProvider>
-                  <Header />
-                  <div className="flex min-h-screen">
-                    <Sidebar />
-                    <main className="w-full flex-1 lg:w-[calc(100%-96px)]">
-                      {safeChidren}
-                    </main>
-                  </div>
-                  {safeModal}
-                  {/* URL 파라미터(login=1) 트리거 + 전역 인증 상태 트리거 모두 지원 */}
-                  <GlobalLoginModal />
-                  <GlobalAuthModal />
-                  <FloatingInfo />
-                  <Toaster />
-                </DashboardProvider>
-              </SignalSearchParamsProvider>
+              <DashboardProvider>
+                <Header />
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <main className="w-full flex-1 lg:w-[calc(100%-96px)]">
+                    {safeChidren}
+                  </main>
+                </div>
+                {safeModal}
+                <GlobalAuthModal />
+                <FloatingInfo />
+                <Toaster />
+              </DashboardProvider>
             </AuthProvider>
           </ReactQueryProvider>
         </Suspense>

@@ -6,9 +6,12 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
-import { PredictionButton } from "@/components/ox/predict/PredictionButton";
-import { PredictionCancelButton } from "@/components/ox/predict/PredictionCancelButton";
-import { PredictionChoice } from "@/types/prediction";
+
+export type PredictionModalTrigger = {
+  symbol: string;
+  aiProbability?: string | null;
+  aiModel?: string | null;
+};
 
 // Helper function to format date string
 const formatCurrency = (amount: number | undefined | null) => {
@@ -22,6 +25,7 @@ const formatCurrency = (amount: number | undefined | null) => {
 export const createColumns = (
   favorites: string[],
   toggleFavorite: (ticker: string) => void,
+  onOpenPrediction: (payload: PredictionModalTrigger) => void,
 ): ColumnDef<SignalData>[] => [
   {
     id: "signal.favorite",
@@ -51,51 +55,22 @@ export const createColumns = (
     },
   },
   {
-    id: "predict_up",
-    header: "상승",
+    id: "predict_modal",
+    header: "예측",
     cell: ({ row }) => {
       const ticker = row.original.signal.ticker;
+      const handleOpen = () => {
+        onOpenPrediction({
+          symbol: ticker,
+          aiProbability: row.original.signal.probability ?? null,
+          aiModel: row.original.signal.ai_model ?? null,
+        });
+      };
       return (
         <div onClick={(e) => e.stopPropagation()}>
-          <PredictionButton 
-            symbol={ticker}
-            choice={PredictionChoice.UP}
-            size="sm"
-            variant="compact"
-          />
-        </div>
-      );
-    },
-  },
-  {
-    id: "predict_down", 
-    header: "하락",
-    cell: ({ row }) => {
-      const ticker = row.original.signal.ticker;
-      return (
-        <div onClick={(e) => e.stopPropagation()}>
-          <PredictionButton 
-            symbol={ticker}
-            choice={PredictionChoice.DOWN}
-            size="sm"
-            variant="compact"
-          />
-        </div>
-      );
-    },
-  },
-  {
-    id: "prediction_status",
-    header: "예측 상태",
-    cell: ({ row }) => {
-      const ticker = row.original.signal.ticker;
-      return (
-        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
-          <PredictionCancelButton 
-            symbol={ticker}
-            size="sm"
-            variant="outline"
-          />
+          <Button size="sm" variant="outline" onClick={handleOpen}>
+            예측
+          </Button>
         </div>
       );
     },

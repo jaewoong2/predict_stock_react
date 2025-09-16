@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRewardExchange } from "@/hooks/useRewards";
-import { usePointsBalance } from "@/hooks/usePoints";
+import { usePointsBalance, useCheckAffordability } from "@/hooks/usePoints";
 import { RewardItem } from "@/types/rewards";
 
 interface RewardCheckoutDialogProps {
@@ -27,6 +27,7 @@ export function RewardCheckoutDialog({ open, onOpenChange, item, quantity, onCom
 
   const total = item.points_cost * quantity;
   const insufficient = (points?.balance ?? 0) < total;
+  const { data: affordability } = useCheckAffordability(total);
 
   const handleSubmit = async () => {
     if (insufficient) return;
@@ -83,13 +84,13 @@ export function RewardCheckoutDialog({ open, onOpenChange, item, quantity, onCom
 
           {insufficient && (
             <div className="rounded-md border border-yellow-300 bg-yellow-50 p-2 text-sm text-yellow-800 dark:border-yellow-900/50 dark:bg-yellow-900/20 dark:text-yellow-200">
-              포인트가 부족합니다. 활동으로 포인트를 적립하거나 리워드를 조정하세요.
+              포인트가 부족합니다. {affordability?.shortfall ? `부족분: ${affordability.shortfall.toLocaleString()} P` : "활동으로 포인트를 적립하거나 리워드를 조정하세요."}
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>취소</Button>
-            <Button onClick={handleSubmit} disabled={isLoading || insufficient}>
+            <Button onClick={handleSubmit} disabled={isLoading || insufficient || affordability?.can_afford === false}>
               {isLoading ? "처리 중..." : "교환 요청"}
             </Button>
           </div>
@@ -98,4 +99,3 @@ export function RewardCheckoutDialog({ open, onOpenChange, item, quantity, onCom
     </Dialog>
   );
 }
-

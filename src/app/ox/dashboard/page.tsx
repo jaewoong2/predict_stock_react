@@ -3,6 +3,7 @@ import { DashboardStats } from "@/components/ox/dashboard/dashboard-stats";
 import { DashboardCharts } from "@/components/ox/dashboard/dashboard-charts";
 import { DashboardUniverse } from "@/components/ox/dashboard/dashboard-universe";
 import { DashboardPredictions } from "@/components/ox/dashboard/dashboard-predictions";
+import DashboardClient from "@/components/dashboard/DashboardClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -37,6 +38,13 @@ export default function DashboardPage() {
       <Suspense fallback={<PredictionsSkeleton />}>
         <DashboardPredictions />
       </Suspense>
+
+      {/* Signals (from existing dashboard) with Predict modal */}
+      <div className="pt-2">
+        <Suspense fallback={<PredictionsSkeleton />}>
+          <DashboardClient />
+        </Suspense>
+      </div>
     </div>
   );
 }

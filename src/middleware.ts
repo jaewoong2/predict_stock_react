@@ -1,22 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
+import { TOKEN_COOKIE_KEY } from "@/lib/cookies";
 
-const JWT_TOKEN_KEY = process.env.NEXT_PUBLIC_JWT_TOKEN_KEY ?? "access_token";
+const COOKIE_KEY = TOKEN_COOKIE_KEY;
+const COOKIE_OPTIONS = {
+  path: "/",
+  httpOnly: false,
+  sameSite: "lax" as const,
+  maxAge: 60 * 60 * 24 * 7,
+  ...(process.env.NODE_ENV === "production" ? { secure: true } : {}),
+};
+const SENSITIVE_PARAMS = [
+  "token",
+  "code",
+  "login",
+  "user_id",
+  "nickname",
+  "provider",
+  "is_new_user",
+];
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
-  const response = NextResponse.next();
-  const code = url.searchParams.get("token");
 
   if (req.nextUrl.pathname === "/logout") {
-    response.cookies.delete(JWT_TOKEN_KEY);
-    return response;
+    const logoutResponse = NextResponse.next();
+    logoutResponse.cookies.delete({ name: COOKIE_KEY, path: "/" });
+    return logoutResponse;
   }
 
-  if (code) {
-    response.cookies.set(JWT_TOKEN_KEY, code);
+  const token = url.searchParams.get("token");
+  const fallbackCode = url.searchParams.get("code");
+  const cookieValue = token || fallbackCode;
+
+  if (cookieValue) {
+    const isPrefetch = req.headers.get("x-middleware-prefetch") === "1";
+
+    SENSITIVE_PARAMS.forEach((param) => {
+      if (url.searchParams.has(param)) {
+        url.searchParams.delete(param);
+      }
+    });
+
+    if (isPrefetch) {
+      const passthrough = NextResponse.next();
+      passthrough.cookies.set({
+        name: COOKIE_KEY,
+        value: cookieValue,
+        ...COOKIE_OPTIONS,
+      });
+      return passthrough;
+    }
+
+    const redirectResponse = NextResponse.redirect(url);
+    redirectResponse.cookies.set({
+      name: COOKIE_KEY,
+      value: cookieValue,
+      ...COOKIE_OPTIONS,
+    });
+    return redirectResponse;
   }
 
-  // Dashboard route validation (exclude /ox/ routes)
   if (
     req.nextUrl.pathname.startsWith("/dashboard") &&
     !req.nextUrl.pathname.startsWith("/ox/")
@@ -24,7 +67,7 @@ export function middleware(req: NextRequest) {
     return handleDashboardValidation(req, req.nextUrl.pathname);
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 function handleDashboardValidation(req: NextRequest, pathname: string) {

@@ -35,11 +35,9 @@ export const predictionService = {
   submitPrediction: async (
     symbol: string,
     choice: PredictionCreate["choice"],
-  ): Promise<Prediction> => {
-    const response = await oxApi.postWithBaseResponse<{
-      prediction: Prediction;
-    }>(`/predictions/${symbol.toUpperCase()}`, { choice });
-    return response.prediction;
+  ): Promise<PredictionSubmitResponse> => {
+    const response = await oxApi.postWithBaseResponse<PredictionSubmitResponse>(`/predictions/${symbol.toUpperCase()}`, { choice });
+    return response;
   },
 
   /**

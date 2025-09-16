@@ -252,3 +252,86 @@ components.md 문서를 기반으로 src/app/ox 관련 컴포넌트들을 재개
 **마지막 업데이트**: 2025-09-11  
 **담당자**: Claude Code  
 **상태**: Phase 1 완료, Toss 스타일 디자인 개선 완료
+
+
+
+
+
+
+## 🔌 페이지별 API 매핑 (엔드포인트/요청/응답) <2025:09:15>
+
+각 페이지에서 사용할 수 있는 백엔드 엔드포인트를 정리했습니다. 이미 구현된 것은 바로 연동하고, 미구현 항목은 아래 TODO에 작업 항목으로 추가했습니다. 응답 포맷은 기본적으로 `BaseResponse` 래핑을 따르며, 일부 `/points/*`와 `/ads/*`는 직접 스키마를 반환합니다. 상세 타입/예시는 `docs/ox-universe-api` 참고.
+
+### /ox/home (모바일 홈)
+- Market status: `GET /api/v1/session/today`
+  - Response data: { session, market_status: { current_date,current_time_kst,is_trading_day,message,next_trading_day? } }
+- Can predict now: `GET /api/v1/session/can-predict?trading_day=YYYY-MM-DD`
+  - Response data: { can_predict, trading_day, current_time }
+- Available slots summary: `GET /api/v1/ads/available-slots`
+  - Direct response: { current_max_predictions, predictions_made, available_predictions, can_unlock_by_ad, can_unlock_by_cooldown, today_ad_unlocks, today_cooldown_unlocks }
+- MyInvestmentCard (요약): `GET /api/v1/users/me/financial-summary`
+  - Response data: { user_id,current_balance,points_earned_today,can_make_predictions,summary_date }
+
+### /ox/predict (예측 페이지)
+- Universe today with price snapshot: `GET /api/v1/universe/today/with-prices`
+  - Response data: { universe: { trading_day, items:[{ symbol, seq, current_price, previous_close, change_percent, market_status, last_price_updated }] } }
+- Poll universe prices (snapshot DB): `GET /api/v1/prices/universe/{trading_day}`
+  - Response data: { universe_prices: { trading_day, items:[{ symbol, close_price, previous_close, change_percent, market_status, last_price_updated }] } }
+- Submit prediction: `POST /api/v1/predictions/{symbol}` body { choice: "UP"|"DOWN" }
+  - Response data: { prediction: { id,user_id,symbol,choice,status,trading_day,created_at,points_awarded? } }
+- Update prediction: `PUT /api/v1/predictions/{prediction_id}` body { choice }
+- Cancel prediction: `DELETE /api/v1/predictions/{prediction_id}` (5분 제한, 서버강제)
+- Remaining slots: `GET /api/v1/predictions/remaining/{trading_day}` → { remaining_predictions }
+- Cooldown status: `GET /api/v1/cooldown/status` → { has_active_cooldown, remaining_seconds, unlock_at? }
+- Unlock via Ad: `POST /api/v1/ads/watch-complete` body { ad_id?,duration? }
+  - Direct response: { success,message,slots_unlocked,current_max_predictions }
+- Unlock via Cooldown: `POST /api/v1/ads/unlock-slot`
+  - Direct response: { success,message,current_max_predictions,unlocked_slots,method_used }
+
+### /ox/profile (프로필)
+- My profile: `GET /api/v1/users/me` → data { id,email,nickname,auth_provider,created_at,last_login_at?,is_active }
+- Update profile: `PUT /api/v1/users/me` body { nickname?,email? }
+- Profile + points: `GET /api/v1/users/me/profile-with-points`
+  - Response data: { user_profile:{...}, points_balance, last_updated }
+
+### /ox/points (포인트)
+- Balance: `GET /api/v1/points/balance` (direct)
+  - { balance }
+- Ledger: `GET /api/v1/points/ledger?limit&offset` (direct)
+  - { balance, entries:[...], total_count, has_next }
+- Earned today: `GET /api/v1/points/earned/{trading_day}` (direct)
+  - { user_id,trading_day,points_earned }
+- Integrity (my): `GET /api/v1/points/integrity/my` (direct)
+  - { status, ... }
+- Affordability (편의): `GET /api/v1/users/me/can-afford/{amount}`
+  - Response data: { amount,can_afford,current_balance,shortfall }
+
+### /ox/rewards (카탈로그/상세/교환)
+- Catalog: `GET /api/v1/rewards/catalog?available_only=true`
+  - Response: catalog list (see docs/frontend-api.md)
+- Reward by SKU: `GET /api/v1/rewards/catalog/{sku}`
+- Redeem: `POST /api/v1/rewards/redeem` body { sku,quantity?,meta? }
+- My redemption history: `GET /api/v1/rewards/my-redemptions?limit&offset`
+
+### /ox/dashboard (대시보드)
+- Prediction stats (day): `GET /api/v1/predictions/stats/{trading_day}`
+  - Response data: { total_predictions, up_predictions, down_predictions, ... }
+- User stats (admin): `GET /api/v1/users/stats/overview`
+- Settlement summary (admin): `GET /api/v1/admin/settlement/summary/{trading_day}`
+
+### /ox/admin (관리자)
+- Prices admin: `POST /api/v1/prices/collect-eod/{trading_day}` / `GET /api/v1/prices/admin/validate-settlement/{trading_day}`
+- Prediction admin: lock/pending/bulk status under `/api/v1/predictions/admin/*`
+- Settlement admin: `/api/v1/admin/settlement/*` (settle-day, summary, retry, manual-settle)
+- Rewards admin: `/api/v1/rewards/admin/*` (items, stock, delete, stats)
+- Points admin: `/api/v1/points/admin/*` (add, deduct, adjust, stats)
+- Error monitor: `/api/v1/admin/errors/*` (recent, stats, summaries, trending)
+- Schema check/create: `/api/v1/admin/db/schema/*`
+
+## ⚙️ 이번 커밋에 포함된 백엔드 변경사항
+
+- New: 사용자 집계 엔드포인트 추가
+  - `GET /api/v1/users/me/profile-with-points`
+  - `GET /api/v1/users/me/financial-summary`
+  - `GET /api/v1/users/me/can-afford/{amount}`
+  - Files: `myapi/routers/user_router.py`, `myapi/services/user_service.py` (기존 메서드 활용)

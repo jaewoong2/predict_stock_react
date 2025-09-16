@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Download, Calendar } from "lucide-react";
+import { pointService } from "@/services/pointService";
+import { PAGINATION_LIMITS } from "@/types/common";
+import type { PointsLedgerEntry } from "@/types/points";
 
 interface PointsExportModalProps {
   open: boolean;
@@ -36,15 +39,74 @@ export function PointsExportModal({
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      // TODO: 실제 내보내기 API 호출
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // 임시 지연
+      // 1) 원장 전체 페이지네이션 수집
+      const limit = PAGINATION_LIMITS.POINTS_LEDGER.max; // 최대 100
+      let offset = 0;
+      let hasNext = true;
+      const all: PointsLedgerEntry[] = [];
 
-      // 파일 다운로드 시뮬레이션
-      const blob = new Blob(["포인트 내보내기 데이터"], { type: "text/csv" });
+      while (hasNext) {
+        const page = await pointService.getPointsLedger({ limit, offset });
+        all.push(...page.entries);
+        hasNext = page.has_next;
+        offset += limit;
+        // 안전장치: 과도한 루프 방지
+        if (offset > 5000) break;
+      }
+
+      // 2) 기간 필터링 (선택적)
+      const inRange = (e: PointsLedgerEntry) => {
+        const ts = new Date(e.created_at).getTime();
+        if (startDate && ts < startDate.setHours(0, 0, 0, 0)) return false;
+        if (endDate && ts > endDate.setHours(23, 59, 59, 999)) return false;
+        return true;
+      };
+      const filtered = all.filter(inRange);
+
+      // 3) 포맷별 변환 (기본 CSV)
+      const fileBase = `points-export-${new Date().toISOString().split("T")[0]}`;
+      const csvHeaders = [
+        "id",
+        "transaction_type",
+        "delta_points",
+        "balance_after",
+        "reason",
+        "ref_id",
+        "created_at",
+      ];
+      const csvRows = filtered.map((e) => [
+        e.id,
+        e.transaction_type,
+        e.delta_points,
+        e.balance_after,
+        sanitizeCsvField(e.reason),
+        e.ref_id ?? "",
+        e.created_at,
+      ]);
+
+      let blob: Blob;
+      let filename: string;
+      if (format === "json") {
+        blob = new Blob([JSON.stringify(filtered, null, 2)], {
+          type: "application/json",
+        });
+        filename = `${fileBase}.json`;
+      } else if (format === "excel") {
+        // 간단하게 CSV로 저장하고 확장자만 xls로 제공 (클릭 열기 호환)
+        const csv = [csvHeaders.join(","), ...csvRows.map((r) => r.join(","))].join("\n");
+        blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+        filename = `${fileBase}.xls`;
+      } else {
+        const csv = [csvHeaders.join(","), ...csvRows.map((r) => r.join(","))].join("\n");
+        blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+        filename = `${fileBase}.csv`;
+      }
+
+      // 4) 다운로드 트리거
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `points-export-${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = filename;
       a.click();
       window.URL.revokeObjectURL(url);
 
@@ -55,6 +117,12 @@ export function PointsExportModal({
       setIsExporting(false);
     }
   };
+
+  function sanitizeCsvField(value: string) {
+    // 따옴표/줄바꿈 이스케이프
+    const v = value?.replace(/"/g, '""') ?? "";
+    return `"${v}"`;
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

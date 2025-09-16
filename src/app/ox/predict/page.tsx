@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Sparkles, History, Target } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { SectionHeader } from "@/components/atomic/molecules/SectionHeader";
 
 export default function PredictPage() {
   const [activeTab, setActiveTab] = useState("predict");
@@ -19,18 +20,13 @@ export default function PredictPage() {
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white">
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
-        {/* Page Header with Toss style */}
-        <div className="space-y-3 text-center">
-          <div className="flex justify-center">
-            <div className="rounded-2xl bg-blue-100 p-3">
-              <Sparkles className="h-8 w-8 text-blue-600" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">오늘의 예측</h1>
-          <p className="mx-auto max-w-md text-sm text-gray-600">
-            미국 주식 100개 종목에 대해 상승/하락을 예측하고 포인트를 획득하세요
-          </p>
-        </div>
+        <SectionHeader
+          icon={<Sparkles className="h-8 w-8" />}
+          iconVariant="blue"
+          title="오늘의 예측"
+          subtitle="미국 주식 100개 종목에 대해 상승/하락을 예측하고 포인트를 획득하세요"
+          align="center"
+        />
 
         {/* Custom Tab Navigation */}
         <div className="flex justify-center">

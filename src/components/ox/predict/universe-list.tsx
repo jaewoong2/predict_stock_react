@@ -7,9 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useTodayUniverseWithPrices } from "@/hooks/useUniverse";
 import { TrendingUp, TrendingDown, Minus, Loader2Icon } from "lucide-react";
+import { PredictActionBar } from "@/components/atomic/molecules/PredictActionBar";
 import { cn } from "@/lib/utils";
 
 export function UniverseList() {
@@ -35,11 +35,6 @@ export function UniverseList() {
       default:
         return "text-gray-500";
     }
-  };
-
-  const handlePrediction = (symbol: string, direction: "UP" | "DOWN") => {
-    // TODO: 예측 로직 구현
-    console.log(`Predicting ${symbol} will go ${direction}`);
   };
 
   if (isLoading) {
@@ -115,24 +110,7 @@ export function UniverseList() {
                 </div>
               </div>
 
-              <div className="flex space-x-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1 border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
-                  onClick={() => handlePrediction(item.symbol, "UP")}
-                >
-                  상승 ⬆️
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1 border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
-                  onClick={() => handlePrediction(item.symbol, "DOWN")}
-                >
-                  하락 ⬇️
-                </Button>
-              </div>
+              <PredictActionBar symbol={item.symbol} size="sm" variant="outline" showCancel />
             </div>
           ))}
         </div>

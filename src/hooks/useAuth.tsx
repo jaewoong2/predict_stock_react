@@ -8,6 +8,8 @@ import {
   createContext,
   useContext,
 } from "react";
+import { useSearchParams } from "next/navigation";
+import type { ReadonlyURLSearchParams } from "next/navigation";
 import {
   useQuery,
   useMutation,
@@ -18,7 +20,6 @@ import {
   authService,
   parseOAuthCallback,
   isTokenValid,
-  extractUserFromToken,
 } from "../services/authService";
 import {
   TOKEN_COOKIE_KEY,
@@ -31,8 +32,6 @@ import {
   UserProfile,
   UserUpdate,
   OAuthAuthorizeParams,
-  UserListResult,
-  UserSearchResult,
   AuthState,
   AuthContextValue,
 } from "../types/auth";
@@ -75,135 +74,119 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [authState, setAuthState] = useState<AuthState>(() => {
-    // 서버 사이드 렌더링 시 localStorage 접근 방지
-    if (typeof window === "undefined") {
-      return {
-        token: null,
-        isAuthenticated: false,
-        user: null,
-      };
-    }
-
-    // 초기 상태를 쿠키에서 복원 (클라이언트 전용)
-    const token = typeof document !== "undefined"
-      ? getClientCookie(TOKEN_COOKIE_KEY)
-      : null;
-    return {
-      token,
-      isAuthenticated: !!token && isTokenValid(token),
-      user: null,
-    };
-  });
-
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
-  // 초기 비로그인 상태에서는 로딩을 해제하여 모달 표시가 가능하도록 함
-  useEffect(() => {
-    if (!authState.token) {
-      setIsLoading(false);
-    }
-  }, [authState.token]);
+  const [authState, setAuthState] = useState<Pick<AuthState, "token" | "isAuthenticated">>({
+    token: null,
+    isAuthenticated: false,
+  });
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // 로그인 함수
-  const login = useCallback((token: string) => {
-    if (typeof window !== "undefined") {
-      // 토큰 만료에 맞춰 쿠키 만료 설정
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        const now = Math.floor(Date.now() / 1000);
-        const maxAgeSeconds = Math.max((payload?.exp ?? now) - now, 60 * 60); // 최소 1시간
-        setClientCookie(TOKEN_COOKIE_KEY, token, { maxAgeSeconds });
-      } catch {
-        setClientCookie(TOKEN_COOKIE_KEY, token, { maxAgeSeconds: 60 * 60 * 24 * 7 });
-      }
+  const persistToken = useCallback((token: string) => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const now = Math.floor(Date.now() / 1000);
+      const exp = typeof payload.exp === "number" ? payload.exp : null;
+      const maxAgeSeconds = exp ? Math.max(exp - now, 60 * 60) : 60 * 60 * 24 * 7;
+
+      setClientCookie(TOKEN_COOKIE_KEY, token, { maxAgeSeconds });
+    } catch {
+      setClientCookie(TOKEN_COOKIE_KEY, token, {
+        maxAgeSeconds: 60 * 60 * 24 * 7,
+      });
     }
-    setAuthState({
-      token,
-      isAuthenticated: true,
-      user: null,
-    });
-    setShowLoginModal(false);
-    setIsLoading(false);
   }, []);
 
-  // 로그아웃 함수
+  const login = useCallback(
+    (token: string) => {
+      persistToken(token);
+      setAuthState({ token, isAuthenticated: true });
+      setShowLoginModal(false);
+      setIsInitializing(false);
+    },
+    [persistToken],
+  );
+
   const logout = useCallback(() => {
     if (typeof window !== "undefined") {
       deleteClientCookie(TOKEN_COOKIE_KEY);
     }
-    setAuthState({
-      token: null,
-      isAuthenticated: false,
-      user: null,
-    });
+    setAuthState({ token: null, isAuthenticated: false });
     setShowLoginModal(true);
-    // 모든 쿼리 캐시 클리어
+    setIsInitializing(false);
     queryClient.clear();
-    setIsLoading(false);
   }, [queryClient]);
 
-  // 로그인 모달 표시 함수
   const showLogin = useCallback(() => {
     setShowLoginModal(true);
   }, []);
 
-  // 로그인 모달 숨김 함수
   const hideLogin = useCallback(() => {
     setShowLoginModal(false);
   }, []);
 
-  // 토큰 갱신 함수
   const refreshToken = useCallback(async () => {
     if (!authState.token) return;
 
     try {
       const response = await authService.refreshToken(authState.token);
-      // 새 토큰으로 쿠키 만료 갱신 포함
       login(response.access_token);
-      setIsLoading(false);
     } catch (error) {
       console.error("Token refresh failed:", error);
       logout();
     }
   }, [authState.token, login, logout]);
 
-  // 사용자 프로필 조회
-  const { data: user, error: profileError } = useQuery({
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const storedToken = getClientCookie(TOKEN_COOKIE_KEY);
+    if (storedToken && isTokenValid(storedToken)) {
+      setAuthState({ token: storedToken, isAuthenticated: true });
+    } else {
+      if (storedToken) {
+        deleteClientCookie(TOKEN_COOKIE_KEY);
+      }
+      setShowLoginModal(true);
+    }
+    setIsInitializing(false);
+  }, []);
+
+  useEffect(() => {
+    if (!searchParams) return;
+    if (searchParams.get("login") !== "1") return;
+
+    logout();
+  }, [logout, searchParams]);
+
+  const {
+    data: user,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery<User, Error>({
     queryKey: AUTH_KEYS.profile(),
     queryFn: authService.getMyProfile,
     enabled: authState.isAuthenticated,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
-  // 프로필 데이터가 로드되면 상태 업데이트
   useEffect(() => {
-    if (user) {
-      setAuthState((prev) => ({ ...prev, user }));
-      setIsLoading(false);
-    }
-  }, [user]);
-
-  // 프로필 조회 실패 시 로그아웃
-  useEffect(() => {
-    if (profileError) {
-      console.error("Profile fetch failed:", profileError);
+    if (isProfileError) {
       logout();
-      setIsLoading(false);
     }
-  }, [profileError, logout]);
+  }, [isProfileError, logout]);
 
-  // 로그인하지 않은 상태일 때 자동으로 로그인 모달 표시
-  useEffect(() => {
-    if (!isLoading && !authState.isAuthenticated) {
-      setShowLoginModal(true);
-    }
-  }, [authState.isAuthenticated, isLoading]);
+  const isLoading = isInitializing || (authState.isAuthenticated && isProfileLoading);
 
   const contextValue: AuthContextValue = {
-    ...authState,
-    user: user || null,
+    token: authState.token,
+    isAuthenticated: authState.isAuthenticated,
+    user: user ?? null,
     isLoading,
     showLoginModal,
     login,
@@ -212,8 +195,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     showLogin,
     hideLogin,
   };
-
-  // 비인증 상태면 모달 자동 표시는 상단 useEffect로 처리
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
@@ -418,15 +399,29 @@ export const useOAuthCallback = () => {
   const queryClient = useQueryClient();
 
   return useCallback(
-    (url: string) => {
-      const callbackData = parseOAuthCallback(url);
-      if (callbackData) {
-        login(callbackData.token);
-        // 관련 쿼리 무효화
-        queryClient.invalidateQueries({ queryKey: AUTH_KEYS.profile() });
-        return callbackData;
+    (params: ReadonlyURLSearchParams | string) => {
+      const normalizedQuery =
+        typeof params === "string"
+          ? params.includes("?")
+            ? params
+            : `callback?${params}`
+          : `callback?${params.toString()}`;
+
+      const callbackData = parseOAuthCallback(normalizedQuery);
+
+      if (!callbackData) {
+        return null;
       }
-      return null;
+
+      if (!isTokenValid(callbackData.token)) {
+        console.warn("Received invalid OAuth token from callback");
+        return null;
+      }
+
+      login(callbackData.token);
+      // 관련 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.profile() });
+      return callbackData;
     },
     [login, queryClient],
   );

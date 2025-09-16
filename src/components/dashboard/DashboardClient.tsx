@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, memo } from "react";
 import { SignalAPIResponse, SignalData } from "@/types/signal";
-import { createColumns } from "@/components/signal/columns";
+import { createColumns, PredictionModalTrigger } from "@/components/signal/columns";
 import {
   useDashboardFilters,
   useDashboardAiModels,
@@ -272,9 +272,27 @@ const DashboardClient = memo(({ initialData }: Props) => {
     return result;
   }, [filteredSignals]);
 
+  const openPredictionModal = useCallback(
+    ({ symbol, aiProbability, aiModel }: PredictionModalTrigger) => {
+      const params = new URLSearchParams();
+      if (aiProbability) {
+        params.set("probability", aiProbability);
+      }
+      if (aiModel) {
+        params.set("model", aiModel);
+      }
+      const query = params.toString();
+      router.push(
+        `/ox/dashboard/predict/${symbol}${query ? `?${query}` : ""}`,
+        { scroll: false },
+      );
+    },
+    [router],
+  );
+
   const columns = useMemo(
-    () => createColumns(favorites, toggleFavorite),
-    [favorites, toggleFavorite],
+    () => createColumns(favorites, toggleFavorite, openPredictionModal),
+    [favorites, toggleFavorite, openPredictionModal],
   );
 
   const handleModelsChange = useCallback(
@@ -371,6 +389,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
         isLoading={isLoading || !mounted}
         totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
       />
+
     </>
   );
 });

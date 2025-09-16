@@ -7,7 +7,11 @@ export const TOKEN_COOKIE_KEY =
 export const getClientCookie = (key: string): string | null => {
   if (typeof document === "undefined") return null;
   const match = document.cookie.match(
-    new RegExp("(?:^|; )" + key.replace(/([.$?*|{}()\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"),
+    new RegExp(
+      "(?:^|; )" +
+        key.replace(/([.$?*|{}()\[\]\\\/\+^])/g, "\\$1") +
+        "=([^;]*)",
+    ),
   );
   return match ? decodeURIComponent(match[1]) : null;
 };
@@ -31,7 +35,9 @@ export const deleteClientCookie = (key: string, path: string = "/") => {
 };
 
 // Next.js 15+ dynamic APIs are async
-export const getServerCookieAsync = async (key: string): Promise<string | null> => {
+export const getServerCookieAsync = async (
+  key: string,
+): Promise<string | null> => {
   try {
     const mod = await import("next/headers");
     const c = await mod.cookies();

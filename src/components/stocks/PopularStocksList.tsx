@@ -36,26 +36,32 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [activeTab, setActiveTab] = useState("price");
-  
-  const { data: priceData, isLoading: priceLoading } = useGetTickerByDiffrences({
-    direction: "desc",
-    limit: 20,
-    field: "close_change",
-    target_date: date,
-  });
 
-  const { data: volumeData, isLoading: volumeLoading } = useGetTickerByDiffrences({
-    direction: "desc",
-    limit: 20,
-    field: "volume_change",
-    target_date: date,
-  });
+  const { data: priceData, isLoading: priceLoading } = useGetTickerByDiffrences(
+    {
+      direction: "desc",
+      limit: 20,
+      field: "close_change",
+      target_date: date,
+    },
+  );
+
+  const { data: volumeData, isLoading: volumeLoading } =
+    useGetTickerByDiffrences({
+      direction: "desc",
+      limit: 20,
+      field: "volume_change",
+      target_date: date,
+    });
 
   if (priceLoading || volumeLoading) {
     return <LoadingState />;
   }
 
-  if ((!priceData || priceData.length === 0) && (!volumeData || volumeData.length === 0)) {
+  if (
+    (!priceData || priceData.length === 0) &&
+    (!volumeData || volumeData.length === 0)
+  ) {
     return (
       <Card className="w-full shadow-none">
         <CardHeader>
@@ -82,7 +88,13 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
   );
 }
 
-function PopularStocksCard({ priceData, volumeData }: { priceData?: StockData[], volumeData?: StockData[] }) {
+function PopularStocksCard({
+  priceData,
+  volumeData,
+}: {
+  priceData?: StockData[];
+  volumeData?: StockData[];
+}) {
   return (
     <Card className="w-full shadow-none">
       <CardHeader>
@@ -146,20 +158,20 @@ function PopularStocksTable({
             <TabsTrigger value="price">주가 상승</TabsTrigger>
             <TabsTrigger value="volume">볼륨 상승</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="price" className="mt-4">
-            <StockTable 
-              data={priceData} 
+            <StockTable
+              data={priceData}
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
               setCurrentPage={setCurrentPage}
               date={date}
             />
           </TabsContent>
-          
+
           <TabsContent value="volume" className="mt-4">
-            <StockTable 
-              data={volumeData} 
+            <StockTable
+              data={volumeData}
               currentPage={currentPage}
               itemsPerPage={itemsPerPage}
               setCurrentPage={setCurrentPage}
@@ -206,8 +218,7 @@ function StockTable({
         </TableHeader>
         <TableBody>
           {currentItems.map((stock) => {
-            const { symbol, close_price, price_change, volume_change } =
-              stock;
+            const { symbol, close_price, price_change, volume_change } = stock;
             const isPriceUp = price_change > 0;
             const isPriceDown = price_change < 0;
             const isVolumeUp = volume_change > 0;
@@ -374,7 +385,7 @@ function StockItem({ stock }: StockItemProps) {
   });
 
   const formattedPriceChange = `${isPriceUp ? "+" : ""}${price_change.toFixed(2)}%`;
-  const formattedVolumeChange = `${isVolumeUp ? "+" : ""}${volume.toLocaleString()}주`;
+  const formattedVolumeChange = `${isVolumeUp ? "+" : ""}${volume.toLocaleString()}%`;
 
   return (
     <div className="flex items-center justify-between py-1">
