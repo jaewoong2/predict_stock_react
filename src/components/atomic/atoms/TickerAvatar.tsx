@@ -109,9 +109,9 @@ export function TickerAvatar({
 
       const fac = new FastAverageColor();
       fac
-        .getColorAsync(img, {
+        .getColorAsync(img.src, {
           defaultColor: [240, 240, 240, 1],
-          mode: "dominant",
+          mode: "precision",
         })
         .then((color) => {
           const [r, g, b] = color.value;

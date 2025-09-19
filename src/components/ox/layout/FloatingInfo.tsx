@@ -134,7 +134,7 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
       {showDock && (
         <motion.div
           className={cn(
-            "fixed inset-x-0 top-4 z-[60] px-4 supports-[env(safe-area-inset-top)]:pt-[calc(env(safe-area-inset-top)+8px)] sm:left-1/2 sm:top-20 sm:w-auto sm:-translate-x-1/2 sm:px-0 sm:right-auto",
+            "fixed inset-x-0 top-4 z-[60] px-4 supports-[env(safe-area-inset-top)]:pt-[calc(env(safe-area-inset-top)+8px)] sm:top-20 sm:right-auto sm:left-1/2 sm:w-auto sm:-translate-x-1/2 sm:px-0",
             className,
           )}
           initial={{ opacity: 0, y: -16, scale: 0.98 }}
@@ -149,7 +149,7 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
         >
           <Card
             className={cn(
-              "relative mx-auto flex w-full max-w-[440px] items-center gap-2 overflow-hidden rounded-[20px] border border-white/35 bg-white/60 px-3 py-2 text-[11px] shadow-[0_24px_55px_-28px_rgba(15,23,42,0.48)] backdrop-blur-[22px] transition-[border,background] hover:border-white/55 hover:bg-white/70 dark:border-white/12 dark:bg-[#121624]/70 dark:hover:border-white/18 dark:hover:bg-[#121624]/80 sm:px-4 sm:py-[10px] sm:gap-3",
+              "relative mx-auto flex w-full max-w-[440px] items-center gap-2 overflow-hidden rounded-[20px] border bg-white px-3 py-2 text-[11px] shadow-[0_24px_55px_-28px_rgba(15,23,42,0.48)] backdrop-blur-[22px] transition-[border,background] hover:border-white/55 hover:bg-white/70 sm:gap-3 sm:px-4 sm:py-[10px] dark:border-white/12 dark:bg-[#121624]/70 dark:hover:border-white/18 dark:hover:bg-[#121624]/80",
             )}
           >
             <span className="pointer-events-none absolute inset-[-30%] h-[200%] w-[200%] rotate-6 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.55),transparent_65%)]" />
@@ -157,7 +157,7 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
             <div className="flex w-full items-center gap-2 sm:gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 dark:hover:bg-white/10 sm:px-3">
+                  <div className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10">
                     <div
                       className={cn(
                         "flex h-7 w-7 items-center justify-center rounded-[16px]",
@@ -176,12 +176,14 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                     <div className="flex flex-1 flex-col gap-0.5 text-slate-900 dark:text-slate-50">
                       <div className="flex items-center gap-1.5 text-[12px] font-semibold">
                         <span>{sessionPhase}</span>
-                        <span className={cn(
-                          "rounded-full px-2 py-[3px] text-[9px] font-medium tracking-[0.18em] shadow-sm ring-1",
-                          isMarketOpen
-                            ? "bg-white/70 text-emerald-500 ring-white/50 dark:bg-white/10 dark:text-emerald-200 dark:ring-white/15"
-                            : "bg-white/70 text-slate-500 ring-white/50 dark:bg-white/10 dark:text-slate-200 dark:ring-white/15",
-                        )}>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-[3px] text-[9px] font-medium tracking-[0.18em] shadow-sm ring-1",
+                            isMarketOpen
+                              ? "bg-white/70 text-emerald-500 ring-white/50 dark:bg-white/10 dark:text-emerald-200 dark:ring-white/15"
+                              : "bg-white/70 text-slate-500 ring-white/50 dark:bg-white/10 dark:text-slate-200 dark:ring-white/15",
+                          )}
+                        >
                           {isMarketOpen ? "LIVE" : "CLOSED"}
                         </span>
                       </div>
@@ -196,9 +198,13 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                 <TooltipContent sideOffset={12} className="max-w-xs text-xs">
                   <div className="space-y-1">
                     <div className="text-sm font-semibold">세션 정보</div>
-                    <div className="text-slate-500 dark:text-slate-300">Phase: {sessionPhase}</div>
+                    <div className="text-slate-500 dark:text-slate-300">
+                      Phase: {sessionPhase}
+                    </div>
                     {tradingDay && (
-                      <div className="text-slate-500 dark:text-slate-300">거래일: {tradingDay}</div>
+                      <div className="text-slate-500 dark:text-slate-300">
+                        거래일: {tradingDay}
+                      </div>
                     )}
                   </div>
                   <div className="space-y-1 pt-2">
@@ -216,12 +222,10 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                 </TooltipContent>
               </Tooltip>
 
-              <span className="hidden h-7 w-px bg-white/30 dark:bg-white/10 sm:block" />
-
               {cooldownSummaryText ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 dark:hover:bg-white/10 sm:px-3">
+                    <div className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10">
                       <div className="flex h-7 w-7 items-center justify-center rounded-[16px] bg-sky-400/18 text-sky-500 dark:bg-sky-500/18 dark:text-sky-200">
                         <Timer className="h-3.5 w-3.5" />
                       </div>
@@ -238,17 +242,13 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                         : "쿨다운이 활성화되어 있지 않습니다"}
                   </TooltipContent>
                 </Tooltip>
-              ) : (
-                <div className="hidden flex-1 items-center text-[10px] font-medium text-slate-500 dark:text-slate-300 sm:flex">
-                  쿨다운 없음
-                </div>
-              )}
+              ) : null}
 
-              <span className="hidden h-7 w-px bg-white/30 dark:bg-white/10 sm:block" />
+              <span className="hidden h-7 w-px bg-white/30 sm:block dark:bg-white/10" />
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex min-w-[96px] items-center justify-end gap-2 rounded-[16px] px-2 py-1.5 text-right transition-colors hover:bg-white/35 dark:hover:bg-white/10 sm:justify-center sm:px-3 sm:text-left">
+                  <div className="flex min-w-[96px] items-center justify-end gap-2 rounded-[16px] px-2 py-1.5 text-right transition-colors hover:bg-white/35 sm:justify-center sm:px-3 sm:text-left dark:hover:bg-white/10">
                     <div className="flex h-7 w-7 items-center justify-center rounded-[16px] bg-amber-400/18 text-amber-500 dark:bg-amber-500/18 dark:text-amber-200">
                       <Coins className="h-3.5 w-3.5" />
                     </div>

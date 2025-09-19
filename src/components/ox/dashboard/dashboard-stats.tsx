@@ -230,7 +230,7 @@ export function DashboardStats() {
                   <Tooltip key={`${prediction.symbol}-${prediction.id}`}>
                     <TooltipTrigger asChild>
                       <div
-                        className="absolute left-0 top-0 transition-transform duration-300 ease-out"
+                        className="absolute top-0 left-0 transition-transform duration-300 ease-out"
                         style={{
                           transform: `translateX(${translateX}px)`,
                           zIndex: sortedPredictions.length - index,
