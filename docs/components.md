@@ -621,6 +621,7 @@ NEXT_PUBLIC_MAX_SLOTS=10
   - 정보는 세션/쿨다운/포인트 3개 섹션으로 구성하며, 타이포와 아이콘 대비를 우선으로 사용.
 - **Dashboard** (`src/app/ox/dashboard/page.tsx`, `dashboard-stats.tsx`, `DashboardClient.tsx`)
   - 패널/통계 카드는 보더 없이 공간과 배경 톤으로만 구분합니다.
+  - 상단 stats 카드는 오늘 예측 종목을 아바타 스택으로 보여주며 hover 시 중첩이 풀리는 인터랙션을 유지합니다.
   - 필터 영역은 배경 톤(`bg-slate-50`)과 여백으로 묶고, 버튼/배지는 Toss 계열 색상/타이포를 준수합니다.
 - **Signal Data Table** (`src/components/signal/SignalDataTable.tsx`)
   - 테이블 외곽 보더를 없애고, 헤더는 `bg-slate-50`, 본문은 `divide-y`로만 구분합니다.

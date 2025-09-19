@@ -6,6 +6,7 @@ import { ArrowUpDown, Star } from "lucide-react";
 import { Button } from "@/components/ui/button"; // Shadcn UI의 Button 임포트 경로 확인 필요
 import { Badge } from "@/components/ui/badge"; // Shadcn UI의 Badge 임포트 경로 확인 필요
 import { cn } from "@/lib/utils";
+import { TickerAvatar } from "@/components/atomic/atoms/TickerAvatar";
 
 export type PredictionModalTrigger = {
   symbol: string;
@@ -95,19 +96,8 @@ export const createColumns = (
       // You could add error handling with onError in the img tag
 
       return (
-        <div className="flex items-center justify-start font-medium">
-          {imageUrl && (
-            <div className="mr-2 flex items-center justify-center overflow-hidden rounded-full bg-black/20 p-[3px]">
-              <img
-                width={24}
-                height={24}
-                loading="lazy"
-                src={process.env.NEXT_PUBLIC_IMAGE_URL + imageUrl}
-                alt="Stock Icon"
-                className="h-6 w-6"
-              />
-            </div>
-          )}
+        <div className="flex items-center justify-start gap-3 font-medium">
+          {imageUrl && <TickerAvatar symbol={ticker} size={26} />}
           {row.original.signal.ticker}
         </div>
       );
