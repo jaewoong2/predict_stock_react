@@ -35,7 +35,7 @@ export function RealtimeRankingCard() {
       <TossCardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+            <TrendingUp className="h-5 w-5 text-[#2b6ef2]" />
             <TossCardTitle>실시간 랭킹</TossCardTitle>
           </div>
           <TossButton variant="ghost" size="sm">
@@ -45,18 +45,17 @@ export function RealtimeRankingCard() {
       </TossCardHeader>
 
       <TossCardContent>
-        {/* Custom Tab Navigation */}
         <div className="mb-6">
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
+          <div className="flex gap-2 rounded-xl bg-slate-50 p-1 dark:bg-[#151b25]">
             {tabs.map((tabItem) => (
               <button
                 key={tabItem.id}
                 onClick={() => setTab(tabItem.id)}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200",
+                  "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
                   tab === tabItem.id
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "bg-white text-[#2b6ef2] shadow-sm dark:bg-[#1d2432]"
+                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                 )}
               >
                 {tabItem.icon}
@@ -82,10 +81,14 @@ export function RealtimeRankingCard() {
           
           {tab === "watch" && (
             <div className="py-12 text-center">
-              <Eye className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">관심목록을 만들어보세요</h3>
-              <p className="text-sm text-gray-500 mb-4">관심 있는 종목을 저장하고 쉽게 확인하세요</p>
-              <TossButton variant="primary" size="sm">
+              <Eye className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+              <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                관심목록을 만들어보세요
+              </h3>
+              <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
+                관심 있는 종목을 저장하고 쉽게 확인하세요
+              </p>
+              <TossButton variant="default" size="sm">
                 <Star className="h-4 w-4" />
                 관심목록 시작하기
               </TossButton>
@@ -96,4 +99,3 @@ export function RealtimeRankingCard() {
     </TossCard>
   );
 }
-

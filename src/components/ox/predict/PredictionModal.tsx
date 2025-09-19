@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -10,10 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Prediction,
-  PredictionChoice,
-} from "@/types/prediction";
+import { Prediction, PredictionChoice } from "@/types/prediction";
 import { cn } from "@/lib/utils";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { useDashboardFilters } from "@/hooks/useDashboard";
@@ -68,6 +66,8 @@ type PredictionModalState = {
   readonly existingPrediction: Prediction | null;
   readonly isMutating: boolean;
   readonly isPredictionsLoading: boolean;
+  readonly effectiveDate: string;
+  readonly strategyType: string;
   readonly formatPrice: (value: PriceValue) => string;
   readonly handlePrediction: (choice: PredictionChoice) => Promise<void>;
   readonly handleCancel: () => Promise<void>;
@@ -122,21 +122,11 @@ function usePredictionModalState({
     data: currentPriceResponse,
     isLoading: isCurrentPriceLoading,
     isError: isCurrentPriceError,
-    error: currentPriceError,
-    isFetching: isCurrentPriceFetching,
-    status: currentPriceStatus,
   } = useCurrentPrice(normalizedSymbol, {
     enabled: open && !!normalizedSymbol,
   });
 
   const currentPriceData = currentPriceResponse?.price;
-
-  // 간단한 상태 로그
-  console.log(`🔍 [${normalizedSymbol}] Current Price:`, {
-    hasData: !!currentPriceData,
-    loading: isCurrentPriceLoading,
-    error: isCurrentPriceError
-  });
 
   const previousTradingDay = useMemo(() => {
     if (!effectiveDate) return null;
@@ -167,16 +157,9 @@ function usePredictionModalState({
 
   const previousEodPrice = previousEodResponse?.eod_price;
 
-  // 간단한 상태 로그
-  console.log(`🔍 [${normalizedSymbol}] EOD Price:`, {
-    hasData: !!previousEodPrice,
-    loading: isPreviousEodLoading,
-    error: isPreviousEodError
-  });
-
   // Type guards
   const isValidPrice = (value: unknown): value is number => {
-    return typeof value === 'number' && !isNaN(value) && isFinite(value);
+    return typeof value === "number" && !isNaN(value) && isFinite(value);
   };
 
   const isValidPriceValue = (value: PriceValue): value is number => {
@@ -188,35 +171,18 @@ function usePredictionModalState({
   }, []);
 
   const priceData = useMemo((): ValidatedPriceData => {
+    const currentPrice = validateAndExtractPrice(
+      currentPriceData?.current_price,
+    );
+    const previousClose =
+      validateAndExtractPrice(previousEodPrice?.close_price) ??
+      validateAndExtractPrice(currentPriceData?.previous_close);
 
-    const currentPrice = validateAndExtractPrice(currentPriceData?.current_price);
-    const previousClose = validateAndExtractPrice(previousEodPrice?.close_price) ??
-                         validateAndExtractPrice(currentPriceData?.previous_close);
-
-    // 4. 검증 실패 이유 상세 분석
-    if (!isValidPriceValue(currentPrice) || !isValidPriceValue(previousClose) || previousClose === 0) {
-      console.group('🚨 가격 데이터 검증 실패 상세 분석');
-
-      console.log('현재가 검증 실패 이유:', {
-        '값': currentPrice,
-        'null 여부': currentPrice === null,
-        'number 타입 여부': typeof currentPrice === 'number',
-        'NaN 여부': currentPrice !== null ? isNaN(currentPrice) : 'N/A',
-        'Finite 여부': currentPrice !== null ? isFinite(currentPrice) : 'N/A',
-      });
-
-      console.log('전일종가 검증 실패 이유:', {
-        '값': previousClose,
-        'null 여부': previousClose === null,
-        'number 타입 여부': typeof previousClose === 'number',
-        'NaN 여부': previousClose !== null ? isNaN(previousClose) : 'N/A',
-        'Finite 여부': previousClose !== null ? isFinite(previousClose) : 'N/A',
-        '0인지 여부': previousClose === 0,
-      });
-
-      console.groupEnd();
-      console.groupEnd();
-
+    if (
+      !isValidPriceValue(currentPrice) ||
+      !isValidPriceValue(previousClose) ||
+      previousClose === 0
+    ) {
       return {
         currentPrice,
         previousClose,
@@ -226,43 +192,22 @@ function usePredictionModalState({
       };
     }
 
-    // 5. 계산 과정 상세 로그
     const calculatedDiff = currentPrice - previousClose;
     const calculatedPct = (calculatedDiff / previousClose) * 100;
 
-    console.log('🧮 계산 과정:', {
-      '현재가': currentPrice,
-      '전일종가': previousClose,
-      '계산된 차이': calculatedDiff,
-      '계산된 퍼센트': calculatedPct,
-    });
+    const priceDiff =
+      validateAndExtractPrice(currentPriceData?.change) ?? calculatedDiff;
+    const changePct =
+      validateAndExtractPrice(currentPriceData?.change_percent) ??
+      calculatedPct;
 
-    const priceDiff = validateAndExtractPrice(currentPriceData?.change) ?? calculatedDiff;
-    const changePct = validateAndExtractPrice(currentPriceData?.change_percent) ?? calculatedPct;
-
-    console.log('📈 최종 데이터 선택:', {
-      'API 제공 차이': currentPriceData?.change,
-      'API 제공 퍼센트': currentPriceData?.change_percent,
-      '최종 선택된 차이': priceDiff,
-      '최종 선택된 퍼센트': changePct,
-      '계산값 사용여부 (차이)': priceDiff === calculatedDiff,
-      '계산값 사용여부 (퍼센트)': changePct === calculatedPct,
-    });
-
-    const changeDirection: ChangeDirection =
-      !isValidPriceValue(changePct) ? null :
-      changePct > 0 ? "UP" :
-      changePct < 0 ? "DOWN" : "FLAT";
-
-    console.log('🎯 최종 결과:', {
-      currentPrice,
-      previousClose,
-      priceDiff,
-      changePct,
-      changeDirection,
-    });
-
-    console.groupEnd();
+    const changeDirection: ChangeDirection = !isValidPriceValue(changePct)
+      ? null
+      : changePct > 0
+        ? "UP"
+        : changePct < 0
+          ? "DOWN"
+          : "FLAT";
 
     return {
       currentPrice,
@@ -288,7 +233,8 @@ function usePredictionModalState({
   const isPriceDifferenceLoading =
     isCurrentPriceLoading || isPreviousEodLoading;
   const isPriceDifferenceError =
-    isCurrentPriceError || (isPreviousEodError && !isValidPriceValue(priceData.previousClose));
+    isCurrentPriceError ||
+    (isPreviousEodError && !isValidPriceValue(priceData.previousClose));
 
   const formatPrice = useCallback((value: PriceValue): string => {
     if (!isValidPriceValue(value)) return "--";
@@ -313,13 +259,13 @@ function usePredictionModalState({
   const handlePrediction = useCallback(
     async (choice: PredictionChoice): Promise<void> => {
       // Early validation with type guards
-      if (!normalizedSymbol || normalizedSymbol.trim() === '') {
-        console.warn('Invalid symbol provided to handlePrediction');
+      if (!normalizedSymbol || normalizedSymbol.trim() === "") {
+        console.warn("Invalid symbol provided to handlePrediction");
         return;
       }
 
       if (!Object.values(PredictionChoice).includes(choice)) {
-        console.error('Invalid prediction choice:', choice);
+        console.error("Invalid prediction choice:", choice);
         return;
       }
 
@@ -339,7 +285,7 @@ function usePredictionModalState({
         if (!existingPrediction) {
           await submitPrediction.mutateAsync({
             symbol: normalizedSymbol.trim(),
-            choice
+            choice,
           });
           toast.success("예측 완료", {
             description: `${normalizedSymbol} ${choice === PredictionChoice.UP ? "상승" : "하락"} 예측이 제출되었습니다.`,
@@ -361,9 +307,10 @@ function usePredictionModalState({
 
         onClose();
       } catch (error) {
-        console.error('Prediction submission failed:', error);
+        console.error("Prediction submission failed:", error);
         toast.error("예측 처리 실패", {
-          description: "예측 요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.",
+          description:
+            "예측 요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.",
         });
       }
     },
@@ -381,7 +328,7 @@ function usePredictionModalState({
 
   const handleCancel = useCallback(async (): Promise<void> => {
     if (!existingPrediction?.id) {
-      console.warn('No existing prediction to cancel');
+      console.warn("No existing prediction to cancel");
       return;
     }
 
@@ -404,7 +351,7 @@ function usePredictionModalState({
       });
       onClose();
     } catch (error) {
-      console.error('Prediction cancellation failed:', error);
+      console.error("Prediction cancellation failed:", error);
       toast.error("예측 취소 실패", {
         description: "예측을 취소하지 못했습니다. 잠시 후 다시 시도해주세요.",
       });
@@ -437,6 +384,8 @@ function usePredictionModalState({
     existingPrediction,
     isMutating,
     isPredictionsLoading,
+    effectiveDate,
+    strategyType: strategy_type ?? "",
     formatPrice,
     handlePrediction,
     handleCancel,
@@ -459,6 +408,7 @@ function PredictionModalContent(state: PredictionModalState) {
     existingPrediction,
     isMutating,
     isPredictionsLoading,
+    effectiveDate,
     formatPrice,
     handlePrediction,
     handleCancel,
@@ -466,44 +416,6 @@ function PredictionModalContent(state: PredictionModalState) {
   } = state;
 
   const { currentPrice, priceDiff, changePct, changeDirection } = priceData;
-
-  console.group(`🎨 [${normalizedSymbol}] PredictionModal 렌더링 분석`);
-
-  console.log('🔄 로딩/에러 상태:', {
-    '현재가 로딩중': isCurrentPriceLoading,
-    '현재가 에러': isCurrentPriceError,
-    '가격차이 로딩중': isPriceDifferenceLoading,
-    '가격차이 에러': isPriceDifferenceError,
-    '렌더링 가능여부': shouldRender,
-  });
-
-  console.log('💸 렌더링에 사용될 가격 데이터:', {
-    '현재가': currentPrice,
-    '가격차이': priceDiff,
-    '변동퍼센트': changePct,
-    '변동방향': changeDirection,
-    '현재가 포맷결과': formatPrice(currentPrice),
-    '가격차이 포맷결과': formatPrice(priceDiff),
-  });
-
-  console.log('🖼️ UI 표시 조건 분석:', {
-    '현재가 섹션': {
-      '로딩중': isCurrentPriceLoading,
-      '에러': isCurrentPriceError,
-      '정상표시': !isCurrentPriceLoading && !isCurrentPriceError,
-      '표시할값': formatPrice(currentPrice),
-    },
-    '전일대비 섹션': {
-      '로딩중': isPriceDifferenceLoading,
-      '에러': isPriceDifferenceError,
-      '정상표시': !isPriceDifferenceLoading && !isPriceDifferenceError,
-      '차이값': priceDiff,
-      '퍼센트값': changePct,
-      '퍼센트 null여부': changePct === null,
-    },
-  });
-
-  console.groupEnd();
 
   if (!shouldRender) {
     return null;
@@ -592,11 +504,21 @@ function PredictionModalContent(state: PredictionModalState) {
             </div>
             <div className="text-right sm:text-left">
               <div className="text-sm text-gray-500">AI 상승 확률</div>
-              <div className="text-lg font-semibold">
-                {resolvedProbability ? `[상승] ${resolvedProbability}` : "N/A"}
-              </div>
-              {aiModel && (
-                <div className="mt-1 text-xs text-gray-500">{aiModel}</div>
+              {resolvedProbability ? (
+                <Link
+                  href={{
+                    pathname: `/dashboard/d/${normalizedSymbol}`,
+                    query: {
+                      model: aiModel || "OPENAI",
+                      date: effectiveDate,
+                    },
+                  }}
+                  className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-600 hover:to-blue-700 hover:shadow-md"
+                >
+                  {resolvedProbability}%
+                </Link>
+              ) : (
+                <div className="text-lg font-semibold text-gray-400">N/A</div>
               )}
             </div>
           </div>

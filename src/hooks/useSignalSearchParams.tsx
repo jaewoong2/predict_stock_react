@@ -11,6 +11,7 @@ import {
   useRef,
 } from "react";
 import { useLocalPagination } from "./useLocalPagination";
+import { format } from "date-fns";
 
 // URL search arams에 의해 관리되는 파라미터
 export interface SignalURLSearchParams {
@@ -125,7 +126,7 @@ export function SignalSearchParamsProvider({
 
     if (!urlParams.date) {
       const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
+      const formattedDate = format(today, "yyyy-MM-dd");
       initialUpdates.date = formattedDate;
       needsUpdate = true;
     }

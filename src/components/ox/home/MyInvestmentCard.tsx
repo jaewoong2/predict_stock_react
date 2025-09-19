@@ -20,18 +20,17 @@ export function MyInvestmentCard() {
 
   return (
     <div className="space-y-4">
-      {/* 포인트 & 예측 상태 */}
-      <TossCard variant="gradient" padding="lg" className="relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10" />
-        <div className="absolute -right-12 -top-12 h-24 w-24 rounded-full bg-white/5" />
-        
-        <TossCardContent className="space-y-4">
+      <TossCard padding="lg" className="relative overflow-hidden">
+        <TossCardContent className="space-y-5">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 mb-1">내 투자 현황</h2>
-              <p className="text-sm text-gray-600">오늘의 예측으로 포인트를 획득하세요</p>
+              <h2 className="mb-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                내 투자 현황
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                오늘의 예측으로 포인트를 획득하세요
+              </p>
             </div>
             <Link href="/ox/points">
               <TossButton variant="ghost" size="sm">
@@ -82,9 +81,9 @@ export function MyInvestmentCard() {
 
           {/* Bottom tip */}
           {remainingPredictions === 0 && (
-            <div className="bg-white/50 rounded-xl p-3 border border-white/20">
-              <div className="flex items-center gap-2 text-sm text-gray-700">
-                <Zap className="h-4 w-4 text-yellow-600" />
+            <div className="rounded-xl bg-slate-50 p-3 dark:bg-[#161b26]">
+              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                <Zap className="h-4 w-4 text-amber-500" />
                 <span>광고 시청하면 예측 기회를 1회 추가할 수 있어요</span>
               </div>
             </div>

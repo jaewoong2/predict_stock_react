@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, TrendingUp, FileText, BarChart3 } from "lucide-react";
+import { LayoutDashboard, TrendingUp, FileText, BarChart3, Target } from "lucide-react";
 
 const navigationItems = [
   {
     name: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "OX",
+    href: "/ox/dashboard",
+    icon: Target,
   },
   {
     name: "ETF",
@@ -32,11 +37,13 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden lg:flex lg:w-fit lg:flex-col">
+    <div className="hidden lg:flex lg:w-fit lg:flex-col lg:fixed lg:h-screen lg:z-10">
       <div className="flex flex-grow flex-col border-r border-gray-200 bg-white pt-4 pb-4">
         <nav className="flex-1 space-y-1 px-2">
           {navigationItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = item.href === "/ox/dashboard" 
+              ? pathname.startsWith("/ox")
+              : pathname === item.href;
             const Icon = item.icon;
 
             return (

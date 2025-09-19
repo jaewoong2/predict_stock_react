@@ -141,7 +141,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="rounded-md border">
+      <div className="rounded-2xl bg-white shadow-none dark:bg-[#11131a]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -183,7 +183,7 @@ export function SignalDataTable<TData extends SignalData, TValue>({
                       row.toggleSelected();
                     }
                   }}
-                  className="hover:bg-muted/50 data-[state=selected]:bg-muted cursor-pointer"
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -208,8 +208,8 @@ export function SignalDataTable<TData extends SignalData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2">
-        <div className="text-muted-foreground flex w-full items-center justify-start gap-4 text-sm">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex w-full items-center justify-start gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
           <span>
             {(() => {
               const tablePageSize = table.getState().pagination.pageSize || 0;
@@ -231,10 +231,10 @@ export function SignalDataTable<TData extends SignalData, TValue>({
               return `${currentStart}-${currentEnd} / ${totalData}`;
             })()}
           </span>
-          <div className="flex items-center py-4">
+          <div className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
+                <Button variant="outline" className="ml-auto h-9 rounded-xl px-3 text-xs">
                   {table.getState().pagination.pageSize}
                 </Button>
               </DropdownMenuTrigger>
@@ -258,36 +258,38 @@ export function SignalDataTable<TData extends SignalData, TValue>({
             </DropdownMenu>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="cursor-pointer"
-          onClick={() =>
-            onPaginationChange &&
-            onPaginationChange(
-              table.getState().pagination.pageIndex - 1,
-              table.getState().pagination.pageSize,
-            )
-          }
-          disabled={!table.getCanPreviousPage()}
-        >
-          <ChevronLeft className="h-4 w-4 transform" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="cursor-pointer"
-          onClick={() =>
-            onPaginationChange &&
-            onPaginationChange(
-              table.getState().pagination.pageIndex + 1,
-              table.getState().pagination.pageSize,
-            )
-          }
-          disabled={!table.getCanNextPage()}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 w-9 rounded-xl"
+            onClick={() =>
+              onPaginationChange &&
+              onPaginationChange(
+                table.getState().pagination.pageIndex - 1,
+                table.getState().pagination.pageSize,
+              )
+            }
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 w-9 rounded-xl"
+            onClick={() =>
+              onPaginationChange &&
+              onPaginationChange(
+                table.getState().pagination.pageIndex + 1,
+                table.getState().pagination.pageSize,
+              )
+            }
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

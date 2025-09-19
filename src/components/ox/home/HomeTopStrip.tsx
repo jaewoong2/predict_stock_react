@@ -14,11 +14,11 @@ export function HomeTopStrip({ activeTab = "home" }: HomeTopStripProps) {
   const tradingDay = today?.session?.trading_day ?? "";
 
   return (
-    <div className="sticky top-0 z-10 -mx-4 mb-3 border-b bg-white/90 px-4 py-2 backdrop-blur dark:bg-black/60">
+    <div className="sticky top-0 z-10 -mx-4 mb-3 bg-white px-4 py-2 dark:bg-[#0f1118]">
       {/* Market Indices Row removed: no external index trend calls */}
       <div className="mb-2 flex items-center justify-between text-xs">
-        <div className="text-gray-500">지수 정보는 표시하지 않습니다</div>
-        <Link href="#" className="text-gray-500 dark:text-gray-400">
+        <div className="text-slate-400">지수 정보는 표시하지 않습니다</div>
+        <Link href="#" className="text-slate-400 dark:text-slate-500">
           <Search className="h-5 w-5" />
         </Link>
       </div>
@@ -34,7 +34,7 @@ export function HomeTopStrip({ activeTab = "home" }: HomeTopStripProps) {
         <TabLink href="/ox/news" active={activeTab === "news"}>
           뉴스
         </TabLink>
-        <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+        <div className="ml-auto text-xs text-slate-400 dark:text-slate-500">
           {tradingDay && <span className="mr-2">{tradingDay}</span>}
           <span
             className={
@@ -73,8 +73,8 @@ function TabLink({
       href={href}
       className={
         active
-          ? "border-b-2 border-black pb-1 text-black dark:border-white dark:text-white"
-          : "pb-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          ? "border-b-2 border-[#2b6ef2] pb-1 text-[#2b6ef2] dark:text-slate-100"
+          : "pb-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
       }
     >
       {children}

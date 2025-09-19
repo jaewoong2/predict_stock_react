@@ -17,9 +17,7 @@ export function MobileTabBar() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 md:hidden">
-      {/* Glass morphism background */}
-      <div className="bg-white/80 backdrop-blur-xl border-t border-gray-200/50 shadow-lg">
-        {/* Safe area padding for iOS */}
+      <div className="bg-white/95 backdrop-blur-sm dark:bg-[#0f1118]/95">
         <div className="pb-safe">
           <ul className="mx-auto grid max-w-md grid-cols-5 px-2 py-1">
             {items.map(({ href, label, icon: Icon }) => {
@@ -29,19 +27,14 @@ export function MobileTabBar() {
                   <Link 
                     href={href} 
                     className={cn(
-                      "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 active:scale-95",
+                      "relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs font-medium text-slate-500 transition-colors",
                       active 
-                        ? "bg-blue-600 text-white shadow-lg" 
-                        : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+                        ? "bg-slate-100 text-[#2b6ef2] dark:bg-[#1a2030] dark:text-slate-100"
+                        : "hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-[#1a2030] dark:text-slate-400"
                     )}
                   >
                     <Icon className="h-5 w-5" />
-                    <span className="text-xs font-medium">{label}</span>
-                    
-                    {/* Active indicator dot */}
-                    {active && (
-                      <div className="absolute -top-1 h-1 w-1 rounded-full bg-white" />
-                    )}
+                    <span>{label}</span>
                   </Link>
                 </li>
               );
@@ -52,4 +45,3 @@ export function MobileTabBar() {
     </nav>
   );
 }
-

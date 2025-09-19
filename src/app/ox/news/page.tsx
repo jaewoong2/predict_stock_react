@@ -10,8 +10,8 @@ export default function OxNewsPage() {
   const today = format(new Date(), "yyyy-MM-dd");
 
   return (
-    <div>
-      <div className="mx-auto px-4 py-6">
+    <div className="min-h-screen bg-white dark:bg-[#090b11]">
+      <div className="mx-auto max-w-3xl px-4 py-6">
         <SectionHeader
           icon={<Newspaper className="h-8 w-8" />}
           iconVariant="orange"

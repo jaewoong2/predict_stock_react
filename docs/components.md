@@ -586,3 +586,57 @@ NEXT_PUBLIC_MAX_SLOTS=10
 
 - ETF 탭 데이터 소스 — 보류(미필요)
   - 결정: 초기 범위에서 제외. 필요 시 별도 서비스/훅 설계
+
+---
+
+## 🎨 UI & Interaction Rules (Toss 스타일 가이드)
+
+### 1. 전역 톤 & 공간
+- **배경**: 페이지 루트는 항상 `bg-white` (다크 모드 `#090b11`). 중첩 카드도 동일 톤을 사용해 중첩 그림자를 지양합니다.
+- **여백**: 페이지 좌우 기본 여백 16px → 24px(`sm`), 40px(`lg`). 섹션 간 수직 간격은 24px 또는 40px 두 단계로 통일합니다.
+- **라운드**: 기본 카드/버튼은 `rounded-3xl`(24px) 혹은 `rounded-xl`(12px)로 반복 사용해 시각 일관성을 유지합니다.
+- **Safe Area**: 플로팅 요소, 모바일 탭바 등은 `supports-[env(...)]`를 사용해 노치/홈바 여백을 자동 반영합니다.
+
+### 2. Borderless & Shadowless 원칙
+- **원칙**: 모든 패널/카드는 `border-none shadow-none`이 기본입니다. 레이아웃 구분은 `spacing`과 `background tone`으로 해결합니다.
+- **톤 구분**: 섹션을 나눌 때는 `bg-slate-50` / `bg-slate-100` 같은 밝기 레벨을 사용하고, 테두리는 꼭 필요한 경우에만 1px 헤어라인(`border-slate-200/60`)을 사용합니다.
+- **표/리스트**: 행 구분은 `hover:bg-slate-50`와 1px `divide-y` 정도만 허용하며, 외곽 보더는 사용하지 않습니다.
+- **레이어링**: 모달/플로팅은 `backdrop-blur`와 투명도를 허용하지만 drop shadow는 사용하지 않고, 경계는 공간과 색 대비로 제공합니다.
+
+### 3. 타이포그래피 계층
+- **제목**: 메인 헤딩 `text-3xl font-semibold`, 카드 제목 `text-lg font-semibold`.
+- **본문**: `text-sm text-slate-600`(라이트), `text-slate-300`(다크) — 설명 문장은 60자 내외 유지.
+- **메타**: `text-[11px] uppercase tracking-wide` 패턴을 재사용해 상태/라벨 표현.
+- **강조 수치**: `text-2xl font-semibold` + 주요 색상(`[#2b6ef2]`, `emerald-500`)으로 표현.
+
+### 4. 컬러 팔레트
+- **Primary Blue**: `#2b6ef2` (활성 탭, 기본 버튼).
+- **Neutrals**: 본문 `text-slate-500`, 다크 모드 `text-slate-400`.
+- **상승/하락**: 상승 `text-red-500`, 하락 `text-blue-500`, 중립 `text-slate-400`.
+- **패널 배경**: 기본은 `bg-white` / `dark:bg-[#0f1118]`, 구분이 필요하면 `bg-slate-50` 정도의 톤 차이만 사용합니다.
+
+### 5. 컴포넌트별 적용 규칙
+- **FloatingInfo** (`src/components/ox/layout/FloatingInfo.tsx`)
+  - 상단 고정, `max-w-3xl` 카드. Liquid glass 스타일(`bg-white/65 + backdrop-blur`)과 얇은 투명 보더/소프트 쉐도우를 허용하는 유일한 예외.
+  - 정보는 세션/쿨다운/포인트 3개 섹션으로 구성하며, 타이포와 아이콘 대비를 우선으로 사용.
+- **Dashboard** (`src/app/ox/dashboard/page.tsx`, `dashboard-stats.tsx`, `DashboardClient.tsx`)
+  - 패널/통계 카드는 보더 없이 공간과 배경 톤으로만 구분합니다.
+  - 필터 영역은 배경 톤(`bg-slate-50`)과 여백으로 묶고, 버튼/배지는 Toss 계열 색상/타이포를 준수합니다.
+- **Signal Data Table** (`src/components/signal/SignalDataTable.tsx`)
+  - 테이블 외곽 보더를 없애고, 헤더는 `bg-slate-50`, 본문은 `divide-y`로만 구분합니다.
+  - 페이지네이션 버튼은 `h-9 w-9 rounded-xl`, 텍스트는 11~12px 메타 타입 적용.
+- **모바일 홈/뉴스** (`src/app/ox/home/page.tsx`, `src/app/ox/news/page.tsx`)
+  - 상단 스트립과 탭바는 화이트 베이스, 활성 탭은 파란 언더라인. 카드 내부는 TossStatCard 규칙을 그대로 사용.
+
+### 6. React Native 마이그레이션 고려
+- Drop shadow 미사용 정책은 RN `Shadow` 제한을 미리 고려한 것.
+- 모든 색상은 Tailwind 토큰 기반이므로 RN에서도 hex 배치가 용이.
+- `rounded-3xl` 등 큰 라운드는 RN에서 `borderRadius: 24` 등으로 변환 예정.
+- `backdrop-blur`는 RN에서 투명 오버레이로 대체 가능하도록 설계.
+
+### 7. 작업 체크리스트
+1. 새 컴포넌트 작성 시 기본 배경을 화이트(다크 `#0f1118`)로 지정하고 그림자를 제거했는지 확인.
+2. 구분이 필요하면 보더/패딩/타이포 계층으로 해결하고, 중복 정보는 제거.
+3. 다크 모드의 대비가 충분한지 `dark:` 클래스까지 검수.
+4. 텍스트는 제목/본문/메타 3단계만 사용해 계층을 명확히 유지.
+5. Toss 규칙에서 벗어나는 경우 이 문서를 업데이트한 뒤 변경을 진행.

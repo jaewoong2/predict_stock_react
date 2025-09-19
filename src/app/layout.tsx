@@ -57,7 +57,7 @@ export default function RootLayout({
                 <Header />
                 <div className="flex min-h-screen">
                   <Sidebar />
-                  <main className="w-full flex-1 lg:w-[calc(100%-96px)]">
+                  <main className="w-full flex-1 lg:ml-[96px]">
                     {safeChidren}
                   </main>
                 </div>

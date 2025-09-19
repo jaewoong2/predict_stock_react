@@ -35,35 +35,35 @@ export function TossStatCard({
       variant={variant === "gradient" ? "gradient" : "default"}
       className={cn(
         "relative overflow-hidden",
-        isClickable && "cursor-pointer hover:scale-105 active:scale-95",
-        variant === "minimal" && "bg-gray-50 border-gray-200",
-        className
+        isClickable && "cursor-pointer transition-transform hover:-translate-y-1",
+        variant === "minimal" && "bg-slate-50 dark:bg-[#151b24]",
+        className,
       )}
       onClick={onClick}
     >
-      {/* Background decoration */}
       {variant === "gradient" && (
-        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10" />
+        <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/20 dark:bg-white/5" />
       )}
-      
+
       <div className="relative">
-        {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-            <div className="flex items-end gap-2">
-              <span className="text-2xl font-bold text-gray-900 leading-none">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              {title}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold text-slate-900 leading-none dark:text-slate-50">
                 {typeof value === "number" ? value.toLocaleString() : value}
               </span>
               {change && (
                 <span
                   className={cn(
-                    "text-sm font-semibold",
-                    {
-                      "text-red-600": change.type === "positive",
-                      "text-blue-600": change.type === "negative", 
-                      "text-gray-500": change.type === "neutral",
-                    }
+                    "text-xs font-semibold",
+                    change.type === "positive"
+                      ? "text-red-500"
+                      : change.type === "negative"
+                        ? "text-blue-500"
+                        : "text-slate-400",
                   )}
                 >
                   {change.type === "positive" && "+"}
@@ -72,15 +72,13 @@ export function TossStatCard({
               )}
             </div>
             {subtitle && (
-              <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
+              <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{subtitle}</p>
             )}
           </div>
-          
+
           {icon && (
-            <div className="flex-shrink-0 ml-3">
-              <div className="p-2 rounded-xl bg-blue-100 text-blue-600">
-                {icon}
-              </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-[#1c2533] dark:text-slate-300">
+              {icon}
             </div>
           )}
         </div>

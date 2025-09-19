@@ -6,20 +6,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const tossButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px",
   {
     variants: {
       variant: {
-        default: "bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl",
-        primary: "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-        success: "bg-green-600 text-white hover:bg-green-700 shadow-lg hover:shadow-xl",
-        warning: "bg-yellow-500 text-white hover:bg-yellow-600 shadow-lg hover:shadow-xl",
-        danger: "bg-red-600 text-white hover:bg-red-700 shadow-lg hover:shadow-xl",
-        outline: "border-2 border-gray-200 bg-transparent text-gray-700 hover:bg-gray-50 hover:border-gray-300",
-        ghost: "bg-transparent text-gray-700 hover:bg-gray-100",
-        link: "text-blue-600 underline-offset-4 hover:underline",
-        glass: "bg-white/80 backdrop-blur-sm text-gray-700 border border-white/20 shadow-lg hover:bg-white/90",
+        default: "bg-[#2b6ef2] text-white hover:bg-[#1f5cd8]",
+        primary: "bg-[#2b6ef2] text-white hover:bg-[#1f5cd8]",
+        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-[#171a24] dark:text-slate-100",
+        success: "bg-green-500 text-white hover:bg-green-600",
+        warning: "bg-amber-500 text-white hover:bg-amber-600",
+        danger: "bg-red-500 text-white hover:bg-red-600",
+        outline: "border border-slate-200 bg-transparent text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-[#1c1f2b]",
+        ghost: "bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-[#1c1f2b]",
+        link: "text-[#2b6ef2] underline-offset-4 hover:underline",
+        glass: "border border-white/40 bg-white/70 backdrop-blur-sm text-slate-700 hover:bg-white/80 dark:border-white/10 dark:bg-white/10 dark:text-slate-200",
       },
       size: {
         sm: "h-9 px-3 text-xs",
@@ -51,7 +51,7 @@ export interface TossButtonProps
 const TossButton = React.forwardRef<HTMLButtonElement, TossButtonProps>(
   ({ className, variant, size, fullWidth, asChild = false, loading = false, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    
+
     return (
       <Comp
         className={cn(tossButtonVariants({ variant, size, fullWidth, className }))}

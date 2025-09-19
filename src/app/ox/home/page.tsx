@@ -7,7 +7,7 @@ import { MobileTabBar } from "@/components/ox/home/MobileTabBar";
 
 export default function OxHomePage() {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen w-full bg-white dark:bg-[#090b11]">
       {/* Content Container */}
       <div className="mx-auto w-full max-w-full px-4 py-2 md:max-w-xl">
         <HomeTopStrip activeTab="home" />

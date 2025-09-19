@@ -17,18 +17,15 @@ const TossCard = React.forwardRef<HTMLDivElement, TossCardProps>(
       <div
         ref={ref}
         className={cn(
-          // Base styles
-          "rounded-2xl border transition-all duration-200",
-          // Variants
+          "rounded-3xl transition-colors duration-200",
           {
-            "border-gray-100 bg-white shadow-none": variant === "default",
-            "border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-sm":
+            "bg-white shadow-none dark:bg-[#11131a]": variant === "default",
+            "bg-gradient-to-br from-white to-slate-50 shadow-none dark:from-[#11131a] dark:to-[#151823]":
               variant === "gradient",
-            "border-white/20 bg-white/80 shadow-none backdrop-blur-sm":
+            "bg-white/80 backdrop-blur-sm shadow-none dark:bg-white/5":
               variant === "glass",
-            "border-gray-100 bg-white": variant === "elevated",
+            "bg-white dark:bg-[#11131a]": variant === "elevated",
           },
-          // Padding
           {
             "p-3": padding === "sm",
             "p-4": padding === "md",
