@@ -444,7 +444,7 @@ function PredictionModalContent(state: PredictionModalState) {
 
       <div className="space-y-4">
         <div className="rounded-xl border p-4">
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <div className="text-sm text-gray-500">현재가</div>
               {isCurrentPriceLoading ? (

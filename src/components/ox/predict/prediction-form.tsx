@@ -127,7 +127,6 @@ export function PredictionForm({ initialSymbol }: PredictionFormProps) {
               )}
             />
             <span className="text-sm font-medium">
-              세션 상태:
               {session?.session?.phase === SessionPhase.OPEN
                 ? "예측 가능"
                 : "예측 마감"}

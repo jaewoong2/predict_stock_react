@@ -219,17 +219,17 @@ export const getPredictionChoiceText = (choice: PredictionChoice): string => {
 export const getPredictionStatusColor = (status: PredictionStatus): string => {
   switch (status) {
     case PredictionStatus.PENDING:
-      return "text-yellow-600";
+      return "bg-yellow-600";
     case PredictionStatus.LOCKED:
-      return "text-blue-600";
+      return "bg-blue-600";
     case PredictionStatus.CORRECT:
-      return "text-green-600";
+      return "bg-emerald-400";
     case PredictionStatus.INCORRECT:
-      return "text-red-600";
+      return "bg-red-600";
     case PredictionStatus.VOID:
-      return "text-gray-600";
+      return "bg-gray-600";
     default:
-      return "text-gray-600";
+      return "bg-gray-600";
   }
 };
 

@@ -68,36 +68,29 @@ export function Header() {
       {/* Left Section */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <div
-              className={cn(
-                "h-2 w-2 animate-pulse rounded-full",
-                getSessionStatusColor(),
-              )}
-            />
-            <span className="text-sm font-medium">세션 상태</span>
-          </div>
           <Badge variant="outline" className="text-xs">
+            <div className="flex items-center space-x-2">
+              <div
+                className={cn(
+                  "h-2 w-2 animate-pulse rounded-full",
+                  getSessionStatusColor(),
+                )}
+              />
+            </div>
             {getSessionStatusText()}
           </Badge>
-        </div>
-
-        {session?.session?.trading_day && (
-          <div className="text-muted-foreground text-sm">
-            거래일: {session.session.trading_day}
+          <div className="flex">
+            <Badge variant="outline" className="text-xs">
+              <Coins className="h-4 w-4 text-yellow-500" />
+              {pointsBalance?.balance?.toLocaleString() || 0} P
+            </Badge>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Right Section */}
       <div className="flex items-center space-x-4">
         {/* Points Display */}
-        <div className="bg-muted flex items-center space-x-2 rounded-md px-3 py-1">
-          <Coins className="h-4 w-4 text-yellow-500" />
-          <span className="text-sm font-medium">
-            {pointsBalance?.balance?.toLocaleString() || 0} P
-          </span>
-        </div>
 
         {/* Notifications */}
         <Button variant="ghost" size="sm" className="relative">
