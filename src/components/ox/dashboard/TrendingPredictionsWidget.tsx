@@ -21,14 +21,16 @@ import type {
 /**
  * 예측 트렌드 위젯
  *
- * API 구조:
- * 1. "확률 높은 종목" - 별도의 기존 API 사용 (TODO: API 엔드포인트 확인 필요)
- * 2. "롱/숏 예측 많은 종목" - GET /api/ox/predictions/direction-stats (✅ 연동 완료)
+ * 데이터 소스:
+ * 1. "확률 높은 종목" - 시그널 데이터 (useSignalDataByDate) ✅
+ * 2. "롱/숏 예측 많은 종목" - GET /api/ox/predictions/direction-stats ✅
+ * 
+ * 참고: TrendingPredictionsContainer에서 시그널 데이터를 가져와서 전달합니다.
  */
 interface TrendingPredictionsWidgetProps {
   date?: string; // 조회할 날짜 (기본: 오늘)
   limit?: number; // 각 카테고리별 최대 종목 수 (기본: 5)
-  highProbability?: HighProbabilityStock[]; // TODO: 별도 API에서 가져오기
+  highProbability?: HighProbabilityStock[]; // 시그널 데이터에서 추출된 확률 높은 종목
 }
 
 // Mock 데이터 (API 연동 전 테스트용)

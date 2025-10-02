@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CompactMarketChanges } from "@/components/ox/dashboard/market/CompactMarketChanges";
-import { TrendingPredictionsWidget } from "@/components/ox/dashboard/TrendingPredictionsWidget";
+import { TrendingPredictionsContainer } from "@/components/ox/dashboard/TrendingPredictionsContainer";
 
 const panelClassName = "rounded-3xl bg-white shadow-none dark:bg-[#0f1118]";
 
@@ -53,7 +53,7 @@ export default function DashboardPage() {
           <Card className={panelClassName}>
             <CardContent className="px-6 py-6">
               <Suspense fallback={<TrendingSkeleton />}>
-                <TrendingPredictionsWidget date={today} limit={5} />
+                <TrendingPredictionsContainer date={today} limit={5} />
               </Suspense>
             </CardContent>
           </Card>
