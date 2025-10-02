@@ -24,7 +24,7 @@ import type {
  * 데이터 소스:
  * 1. "확률 높은 종목" - 시그널 데이터 (useSignalDataByDate) ✅
  * 2. "롱/숏 예측 많은 종목" - GET /api/ox/predictions/direction-stats ✅
- * 
+ *
  * 참고: TrendingPredictionsContainer에서 시그널 데이터를 가져와서 전달합니다.
  */
 interface TrendingPredictionsWidgetProps {
