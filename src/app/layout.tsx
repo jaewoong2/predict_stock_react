@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import Freesentation from "./fonts";
-import Header from "@/components/header";
-import Sidebar from "@/components/navigation/Sidebar";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
 import { Suspense } from "react";
@@ -11,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import GlobalAuthModal from "@/components/auth/GlobalAuthModal";
 import { FloatingInfo } from "@/components/ox/layout/FloatingInfo";
 import { Toaster } from "@/components/ui/sonner";
+import { ConditionalLayout } from "@/components/ConditionalLayout";
 
 // export const metadata: Metadata = {
 //   title: "Stock Predict AI LLM",
@@ -54,13 +53,7 @@ export default function RootLayout({
           <ReactQueryProvider>
             <AuthProvider>
               <DashboardProvider>
-                <Header />
-                <div className="flex min-h-screen">
-                  <Sidebar />
-                  <main className="w-full flex-1 lg:ml-[96px]">
-                    {safeChidren}
-                  </main>
-                </div>
+                <ConditionalLayout>{safeChidren}</ConditionalLayout>
                 {safeModal}
                 <GlobalAuthModal />
                 <FloatingInfo />

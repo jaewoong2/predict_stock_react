@@ -5,10 +5,14 @@ import { OxNewsSection } from "@/components/ox/dashboard/news/OxNewsSection";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CompactMarketChanges } from "@/components/ox/dashboard/market/CompactMarketChanges";
+import { TrendingPredictionsWidget } from "@/components/ox/dashboard/TrendingPredictionsWidget";
 
 const panelClassName = "rounded-3xl bg-white shadow-none dark:bg-[#0f1118]";
 
 export default function DashboardPage() {
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#090b11]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 pt-8 pb-16 sm:px-6 lg:px-10">
@@ -40,6 +44,24 @@ export default function DashboardPage() {
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              🔥 인기 예측 트렌드
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              지금 가장 핫한 종목과 다른 투자자들의 예측 트렌드를 확인하세요.
+            </p>
+          </div>
+          <Card className={panelClassName}>
+            <CardContent className="px-6 py-6">
+              <Suspense fallback={<TrendingSkeleton />}>
+                <TrendingPredictionsWidget date={today} limit={5} />
+              </Suspense>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
               시장 뉴스 & 전망
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
@@ -66,6 +88,10 @@ export default function DashboardPage() {
             </Suspense>
           </CardContent>
         </Card>
+
+        <Suspense fallback={<MarketChangeSkeleton />}>
+          <CompactMarketChanges date={today} />
+        </Suspense>
       </div>
     </div>
   );
@@ -149,6 +175,53 @@ function PredictionsSkeleton() {
               <Skeleton className="h-9 w-20 rounded-full" />
             </div>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MarketChangeSkeleton() {
+  return (
+    <div className="rounded-3xl bg-white p-6 shadow-none dark:bg-[#0f1118]">
+      <div className="mb-6 flex gap-2">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-2xl bg-slate-50 p-4 dark:bg-[#11131a]"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-8 w-8 rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-3 w-12" />
+                </div>
+              </div>
+              <Skeleton className="h-7 w-16 rounded-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TrendingSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-3">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-10 w-40" />
+        ))}
+      </div>
+      <div className="space-y-3">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Skeleton key={i} className="h-20 w-full" />
         ))}
       </div>
     </div>

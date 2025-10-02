@@ -21,6 +21,7 @@ import {
   Target,
   History,
   Settings,
+  LineChart,
 } from "lucide-react";
 
 const navigation = [
@@ -53,6 +54,12 @@ const navigation = [
     href: "/ox/stats",
     icon: BarChart3,
     description: "상세 통계 및 분석",
+  },
+  {
+    name: "마켓 데이터",
+    href: "/market",
+    icon: LineChart,
+    description: "시장 분석 대시보드",
   },
   {
     name: "프로필",
