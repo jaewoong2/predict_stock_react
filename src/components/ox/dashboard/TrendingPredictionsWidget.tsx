@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TickerAvatar } from "@/components/atomic/atoms/TickerAvatar";
-import { TrendingUp, TrendingDown, Target, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePredictionDirectionStats } from "@/hooks/usePredictionTrends";
 import type {
@@ -186,8 +192,10 @@ export function TrendingPredictionsWidget({
   });
 
   // 실제 데이터 또는 Mock 데이터 사용
-  const mostLongPredictions = data?.mostLongPredictions || MOCK_LONG_PREDICTIONS;
-  const mostShortPredictions = data?.mostShortPredictions || MOCK_SHORT_PREDICTIONS;
+  const mostLongPredictions =
+    data?.mostLongPredictions || MOCK_LONG_PREDICTIONS;
+  const mostShortPredictions =
+    data?.mostShortPredictions || MOCK_SHORT_PREDICTIONS;
 
   if (isLoading) {
     return <LoadingSkeleton />;

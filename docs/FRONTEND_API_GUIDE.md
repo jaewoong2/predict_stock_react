@@ -40,20 +40,6 @@
 
 ## 배치 작업으로 수집되는 데이터
 
-### 실행 엔드포인트
-```
-POST /batch/execute
-Authorization: Bearer {token}
-```
-
-이 엔드포인트가 실행하는 작업 목록:
-1. **신호 분석** (`signals/signals/by-only-ai`)
-2. **시장 분석** (`news/market-analysis`)
-3. **시장 예측 (Major)** (`news/market-forecast?source=Major`)
-4. **시장 예측 (Minor)** (`news/market-forecast?source=Minor`)
-5. **뉴스 요약** (`news/summary`)
-6. **리서치 분석** (`research/analysis`)
-7. **ETF 포트폴리오** (`news/etf/portfolio`)
 8. **내부자 거래 트렌드** (`news/insider-trend`)
 9. **애널리스트 목표가** (`news/analyst-price-targets`)
 10. **ETF 자금 흐름** (`news/etf/flows`)
