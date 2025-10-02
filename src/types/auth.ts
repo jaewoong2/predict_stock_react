@@ -55,7 +55,7 @@ export type UserUpdate = z.infer<typeof UserUpdateSchema>;
 // ============================================================================
 
 export const OAuthAuthorizeParamsSchema = z.object({
-  provider: z.enum(["google", "kakao"]),
+  provider: z.enum(["google", "kakao", "apple"]),
   client_redirect: z.string().url(),
 });
 
@@ -136,6 +136,7 @@ export interface AuthState {
 
 export interface AuthContextValue extends AuthState {
   isLoading: boolean;
+  isProfileLoading: boolean;
   showLoginModal: boolean;
   login: (token: string) => void;
   logout: () => void;

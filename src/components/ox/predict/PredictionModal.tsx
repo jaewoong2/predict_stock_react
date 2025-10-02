@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import dayjs from "dayjs";
 import { useCurrentPrice, useEodPrice } from "@/hooks/usePrice";
+import { UnauthorizedError } from "@/services/api";
 
 type BasePredictionModalProps = {
   symbol?: string | null;
@@ -43,6 +44,21 @@ type UsePredictionModalStateProps = BasePredictionModalProps & {
 type PriceValue = number | null;
 type PercentageValue = number | null;
 type ChangeDirection = "UP" | "DOWN" | "FLAT" | null;
+
+const isAuthenticationError = (error: unknown): boolean => {
+  if (error instanceof UnauthorizedError) return true;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { status?: number } }).response?.status ===
+      "number"
+  ) {
+    const status = (error as { response: { status: number } }).response.status;
+    return status === 401 || status === 403;
+  }
+  return false;
+};
 
 interface ValidatedPriceData {
   readonly currentPrice: PriceValue;
@@ -307,6 +323,13 @@ function usePredictionModalState({
 
         onClose();
       } catch (error) {
+        if (isAuthenticationError(error)) {
+          showLogin();
+          toast.error("로그인이 필요합니다", {
+            description: "예측을 제출하려면 로그인이 필요합니다.",
+          });
+          return;
+        }
         console.error("Prediction submission failed:", error);
         toast.error("예측 처리 실패", {
           description:
@@ -351,6 +374,13 @@ function usePredictionModalState({
       });
       onClose();
     } catch (error) {
+      if (isAuthenticationError(error)) {
+        showLogin();
+        toast.error("로그인이 필요합니다", {
+          description: "예측을 취소하려면 로그인이 필요합니다.",
+        });
+        return;
+      }
       console.error("Prediction cancellation failed:", error);
       toast.error("예측 취소 실패", {
         description: "예측을 취소하지 못했습니다. 잠시 후 다시 시도해주세요.",
@@ -412,7 +442,6 @@ function PredictionModalContent(state: PredictionModalState) {
     formatPrice,
     handlePrediction,
     handleCancel,
-    close,
   } = state;
 
   const { currentPrice, priceDiff, changePct, changeDirection } = priceData;
@@ -423,64 +452,64 @@ function PredictionModalContent(state: PredictionModalState) {
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <div className="flex items-center justify-center overflow-hidden rounded-full bg-black/10 p-[3px]">
+      <DialogHeader className="space-y-1.5">
+        <DialogTitle className="flex items-center gap-2.5 text-xl font-semibold">
+          <div className="flex items-center justify-center overflow-hidden rounded-full bg-gray-100 p-1.5">
             <img
-              width={28}
-              height={28}
+              width={24}
+              height={24}
               loading="lazy"
               src={logoUrl}
               alt={`${normalizedSymbol} logo`}
-              className="h-7 w-7"
+              className="h-6 w-6"
             />
           </div>
           {normalizedSymbol}
         </DialogTitle>
-        <DialogDescription>
-          전일 대비 변동과 AI 확률을 확인하고 예측을 제출하세요.
+        <DialogDescription className="flex w-full justify-start text-sm text-gray-600">
+          오늘 주가를 예측해보세요
         </DialogDescription>
       </DialogHeader>
 
       <div className="space-y-4">
-        <div className="rounded-xl border p-4">
+        <div className="rounded-lg border border-gray-200 p-4">
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <div className="text-sm text-gray-500">현재가</div>
+              <div className="mb-1.5 text-xs font-medium text-gray-500">
+                현재가
+              </div>
               {isCurrentPriceLoading ? (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   로딩 중...
                 </div>
               ) : isCurrentPriceError ? (
-                <div className="text-sm text-red-500">
-                  데이터를 불러오지 못했습니다
-                </div>
+                <div className="text-xs text-red-500">데이터 오류</div>
               ) : (
-                <div className="text-lg font-semibold">
+                <div className="text-base font-semibold text-gray-900">
                   {formatPrice(currentPrice)}
                 </div>
               )}
             </div>
             <div>
-              <div className="text-sm text-gray-500">전일 대비</div>
+              <div className="mb-1.5 text-xs font-medium text-gray-500">
+                전일 대비
+              </div>
               {isPriceDifferenceLoading ? (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   로딩 중...
                 </div>
               ) : isPriceDifferenceError ? (
-                <div className="text-sm text-red-500">
-                  데이터를 불러오지 못했습니다
-                </div>
+                <div className="text-xs text-red-500">데이터 오류</div>
               ) : (
                 <>
                   <div
                     className={cn(
-                      "text-lg font-semibold",
+                      "text-base font-semibold",
                       changeDirection === "UP" && "text-green-600",
                       changeDirection === "DOWN" && "text-red-600",
-                      changeDirection === "FLAT" && "text-gray-600",
+                      changeDirection === "FLAT" && "text-gray-900",
                     )}
                   >
                     {priceDiff === null
@@ -490,7 +519,7 @@ function PredictionModalContent(state: PredictionModalState) {
                   {changePct !== null && (
                     <div
                       className={cn(
-                        "text-sm",
+                        "text-xs",
                         changeDirection === "UP" && "text-green-600",
                         changeDirection === "DOWN" && "text-red-600",
                         changeDirection === "FLAT" && "text-gray-600",
@@ -503,7 +532,9 @@ function PredictionModalContent(state: PredictionModalState) {
               )}
             </div>
             <div className="text-right sm:text-left">
-              <div className="text-sm text-gray-500">AI 상승 확률</div>
+              <div className="mb-1.5 text-xs font-medium text-gray-500">
+                AI 상승 확률
+              </div>
               {resolvedProbability ? (
                 <Link
                   href={{
@@ -513,12 +544,12 @@ function PredictionModalContent(state: PredictionModalState) {
                       date: effectiveDate,
                     },
                   }}
-                  className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-blue-600 hover:to-blue-700 hover:shadow-md"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#3182F6] px-3 py-1.5 text-base font-bold text-white transition-colors hover:bg-[#1B64DA]"
                 >
                   {resolvedProbability}%
                 </Link>
               ) : (
-                <div className="text-lg font-semibold text-gray-400">N/A</div>
+                <div className="text-base font-semibold text-gray-400">N/A</div>
               )}
             </div>
           </div>
@@ -526,11 +557,13 @@ function PredictionModalContent(state: PredictionModalState) {
 
         {existingPrediction ? (
           <div className="space-y-3">
-            <div className="bg-muted/40 rounded-lg border p-3">
+            <div className="rounded-lg border border-gray-200 p-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm text-gray-500">내 예측</div>
-                  <div className="text-base font-semibold">
+                  <div className="mb-0.5 text-xs font-medium text-gray-500">
+                    내 예측
+                  </div>
+                  <div className="text-base font-semibold text-gray-900">
                     {existingPrediction.choice === PredictionChoice.UP
                       ? "상승"
                       : "하락"}
@@ -542,6 +575,7 @@ function PredictionModalContent(state: PredictionModalState) {
                       ? "default"
                       : "destructive"
                   }
+                  className="text-xs font-medium"
                 >
                   {existingPrediction.choice === PredictionChoice.UP
                     ? "UP"
@@ -552,25 +586,25 @@ function PredictionModalContent(state: PredictionModalState) {
 
             <div className="grid grid-cols-2 gap-2">
               <Button
-                size="lg"
+                size="default"
                 disabled={
                   isMutating ||
                   isPredictionsLoading ||
                   existingPrediction?.choice === PredictionChoice.UP
                 }
-                className="bg-green-500 text-white hover:bg-green-600"
+                className="h-10 rounded-lg bg-green-500 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-50"
                 onClick={() => handlePrediction(PredictionChoice.UP)}
               >
                 상승으로 수정
               </Button>
               <Button
-                size="lg"
+                size="default"
                 disabled={
                   isMutating ||
                   isPredictionsLoading ||
                   existingPrediction?.choice === PredictionChoice.DOWN
                 }
-                className="bg-red-500 text-white hover:bg-red-600"
+                className="h-10 rounded-lg bg-red-500 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
                 onClick={() => handlePrediction(PredictionChoice.DOWN)}
               >
                 하락으로 수정
@@ -581,6 +615,7 @@ function PredictionModalContent(state: PredictionModalState) {
               variant="outline"
               disabled={isMutating || isPredictionsLoading}
               onClick={handleCancel}
+              className="h-10 w-full rounded-lg text-sm font-medium"
             >
               예측 취소
             </Button>
@@ -588,16 +623,16 @@ function PredictionModalContent(state: PredictionModalState) {
         ) : (
           <div className="grid grid-cols-2 gap-2">
             <Button
-              size="lg"
-              className="bg-green-500 text-white hover:bg-green-600"
+              size="default"
+              className="h-10 rounded-lg bg-green-500 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-50"
               disabled={isMutating || isPredictionsLoading}
               onClick={() => handlePrediction(PredictionChoice.UP)}
             >
               상승 예측
             </Button>
             <Button
-              size="lg"
-              className="bg-red-500 text-white hover:bg-red-600"
+              size="default"
+              className="h-10 rounded-lg bg-red-500 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
               disabled={isMutating || isPredictionsLoading}
               onClick={() => handlePrediction(PredictionChoice.DOWN)}
             >
@@ -605,12 +640,6 @@ function PredictionModalContent(state: PredictionModalState) {
             </Button>
           </div>
         )}
-
-        <div className="flex justify-end pt-2">
-          <Button variant="outline" onClick={close}>
-            닫기
-          </Button>
-        </div>
       </div>
     </>
   );
@@ -649,7 +678,7 @@ export function PredictionModal({
         }
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <PredictionModalContent {...state} />
       </DialogContent>
     </Dialog>
@@ -680,7 +709,7 @@ export function PredictionModalOverlay({
 
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <PredictionModalContent {...state} />
       </DialogContent>
     </Dialog>

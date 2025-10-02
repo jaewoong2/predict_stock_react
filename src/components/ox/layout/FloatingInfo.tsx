@@ -16,6 +16,7 @@ import {
 import { usePointsBalance } from "@/hooks/usePoints";
 import { cn } from "@/lib/utils";
 import { useCooldownStatus } from "@/hooks/useCooldownStatus";
+import { useAuth } from "@/hooks/useAuth";
 
 const LAYOUT_SPRING = {
   type: "spring" as const,
@@ -31,6 +32,7 @@ interface FloatingInfoProps {
 export function FloatingInfo({ className }: FloatingInfoProps) {
   const [showDock, setShowDock] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isAuthenticated, showLogin } = useAuth();
 
   const { data: session } = useTodaySession();
   const tradingDay = session?.session?.trading_day || "";
@@ -117,26 +119,27 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
     : "세션이 열리면 다시 예측할 수 있어요.";
 
   const cooldownSummaryText = useMemo(() => {
+    if (!isAuthenticated) return "";
     if (isLoading) return "슬롯 상태 확인 중";
     if (cooldownError) return "슬롯 상태를 불러오지 못했습니다";
     if (!cooldown) return "슬롯 정보 없음";
 
     if (cooldown.has_active_cooldown) {
       if (cooldownCountdown) {
-        return `충전 까지 ${cooldownCountdown}`;
+        return `${cooldownCountdown}`;
       }
       return "진행 중";
     }
 
     return "";
-  }, [isLoading, cooldownError, cooldown, cooldownCountdown]);
+  }, [isAuthenticated, isLoading, cooldownError, cooldown, cooldownCountdown]);
 
   return (
     <AnimatePresence>
       {showDock && (
         <motion.div
           className={cn(
-            "fixed inset-x-0 top-4 z-[60] px-4 supports-[env(safe-area-inset-top)]:pt-[calc(env(safe-area-inset-top)+8px)] sm:top-20 sm:right-auto sm:left-1/2 sm:w-auto sm:-translate-x-1/2 sm:px-0",
+            "fixed inset-x-0 top-4 left-1/2 z-[60] w-fit -translate-x-1/2 supports-[env(safe-area-inset-top)]:pt-[calc(env(safe-area-inset-top)+8px)] sm:top-20 sm:right-auto sm:left-1/2 sm:w-auto sm:-translate-x-1/2 sm:px-0",
             className,
           )}
           initial={{ opacity: 0, y: -16, scale: 0.98 }}
@@ -150,7 +153,21 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
           }}
         >
           <LayoutGroup id="floating-info">
-            <div className="mx-auto flex w-full max-w-[440px] justify-center">
+            <div className="mx-auto flex w-full max-w-[350px] justify-center">
+              {!isCollapsed && (
+                <motion.button
+                  type="button"
+                  onClick={() => setIsCollapsed(true)}
+                  className="absolute -top-2 -right-2 z-[70] flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-black/5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10 dark:focus-visible:ring-white/20"
+                  aria-label="플로팅 정보 접기"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </motion.button>
+              )}
               <motion.div
                 layout
                 layoutId="floating-info-shell"
@@ -159,7 +176,7 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                 className={cn(
                   "relative flex overflow-hidden border text-[11px] shadow-[0_24px_55px_-28px_rgba(15,23,42,0.48)] backdrop-blur-[22px] transition-[border,background] dark:border-white/12 dark:bg-[#121624]/70 dark:hover:border-white/18 dark:hover:bg-[#121624]/80",
                   isCollapsed
-                    ? "h-12 w-12 items-center justify-center border-white/55 bg-white/80 text-slate-900 hover:border-white hover:bg-white focus-visible:ring-2 focus-visible:ring-white/60 dark:border-white/12 dark:bg-[#121624]/80 dark:text-slate-50 dark:hover:border-white/25 dark:hover:bg-[#121624]/90 dark:focus-visible:ring-white/20"
+                    ? "h-12 w-12 items-center justify-center border-white/55 bg-white/80 text-slate-900 shadow-lg hover:border-white hover:bg-white focus-visible:ring-2 focus-visible:ring-white/60 dark:border-white/12 dark:bg-[#121624]/80 dark:text-slate-50 dark:hover:border-white/25 dark:hover:bg-[#121624]/90 dark:focus-visible:ring-white/20"
                     : "w-full items-center gap-2 bg-white px-3 py-2 hover:border-white/55 hover:bg-white/70 sm:gap-3 sm:px-4 sm:py-[10px]",
                 )}
               >
@@ -233,21 +250,12 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                     >
                       <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-white/25 dark:bg-white/10" />
 
-                      <button
-                        type="button"
-                        onClick={() => setIsCollapsed(true)}
-                        className="absolute top-2.5 right-2.5 z-10 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-900/5 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-white/20"
-                        aria-label="플로팅 정보 접기"
-                      >
-                        <X className="h-3.5 w-3.5" strokeWidth={2.5} />
-                      </button>
-
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <motion.div
                             layoutId="floating-info-indicator"
                             transition={LAYOUT_SPRING}
-                            className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10"
+                            className="flex items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10"
                           >
                             <motion.div
                               layoutId="floating-info-dot-wrapper"
@@ -284,54 +292,70 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                                   {isMarketOpen ? "LIVE" : "CLOSED"}
                                 </span>
                               </div>
-                              <span className="text-[10px] font-medium text-slate-500 dark:text-slate-300">
-                                {isMarketOpen
-                                  ? `예측 ${remainingSlots}회 남음`
-                                  : `오늘 예측 ${totalPredictions}회`}
-                              </span>
+                              {isAuthenticated ? (
+                                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-300">
+                                  {isMarketOpen
+                                    ? `예측 ${remainingSlots}회 남음`
+                                    : `오늘 예측 ${totalPredictions}회`}
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={showLogin}
+                                  className="text-left text-[10px] font-medium text-slate-500 underline-offset-2 transition hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/60 dark:text-slate-300 dark:focus-visible:ring-white/20"
+                                >
+                                  로그인하면 예측 정보를 확인할 수 있어요
+                                </button>
+                              )}
                             </div>
                           </motion.div>
                         </TooltipTrigger>
                         <TooltipContent
                           sideOffset={12}
-                          className="max-w-xs text-xs"
+                          className={
+                            isAuthenticated ? "max-w-xs text-xs" : "hidden"
+                          }
                         >
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold">
-                              세션 정보
-                            </div>
-                            <div className="text-slate-500 dark:text-slate-300">
-                              Phase: {sessionPhase}
-                            </div>
-                            {tradingDay && (
-                              <div className="text-slate-500 dark:text-slate-300">
-                                거래일: {tradingDay}
+                          {isAuthenticated ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="text-sm font-semibold">
+                                  세션 정보
+                                </div>
+                                <div className="text-slate-500 dark:text-slate-300">
+                                  Phase: {sessionPhase}
+                                </div>
+                                {tradingDay && (
+                                  <div className="text-slate-500 dark:text-slate-300">
+                                    거래일: {tradingDay}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                          <div className="space-y-1 pt-2">
-                            <div className="text-sm font-semibold">
-                              예측 현황
-                            </div>
-                            <div className="text-slate-500 dark:text-slate-300">
-                              예측 가능: {remainingSlots}회
-                            </div>
-                            <div className="text-slate-500 dark:text-slate-300">
-                              {predictionStatusDescription}
-                            </div>
-                            <div className="text-slate-500 dark:text-slate-300">
-                              오늘 등록: {totalPredictions}회
-                            </div>
-                          </div>
+                              <div className="space-y-1 pt-2">
+                                <div className="text-sm font-semibold">
+                                  예측 현황
+                                </div>
+                                <div className="text-slate-500 dark:text-slate-300">
+                                  예측 가능: {remainingSlots}회
+                                </div>
+                                <div className="text-slate-500 dark:text-slate-300">
+                                  {predictionStatusDescription}
+                                </div>
+                                <div className="text-slate-500 dark:text-slate-300">
+                                  오늘 등록: {totalPredictions}회
+                                </div>
+                              </div>
+                            </>
+                          ) : null}
                         </TooltipContent>
                       </Tooltip>
 
-                      {cooldownSummaryText ? (
+                      {isAuthenticated && cooldownSummaryText ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <motion.div
                               layout
-                              className="flex flex-1 items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10"
+                              className="flex items-center gap-2 rounded-[16px] px-2 py-1.5 transition-colors hover:bg-white/35 sm:px-3 dark:hover:bg-white/10"
                               initial={{ opacity: 0, y: 6 }}
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, y: -6 }}
@@ -360,32 +384,50 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
 
                       <span className="hidden h-7 w-px bg-white/30 sm:block dark:bg-white/10" />
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <motion.div
-                            layout
-                            className="flex min-w-[96px] items-center justify-end gap-2 rounded-[16px] px-2 py-1.5 text-right transition-colors hover:bg-white/35 sm:justify-center sm:px-3 sm:text-left dark:hover:bg-white/10"
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -6 }}
-                            transition={{
-                              duration: 0.24,
-                              ease: [0.22, 0.68, 0, 1],
-                              delay: 0.02,
-                            }}
-                          >
-                            <div className="flex h-7 w-7 items-center justify-center rounded-[16px] bg-amber-400/18 text-amber-500 dark:bg-amber-500/18 dark:text-amber-200">
-                              <Coins className="h-3.5 w-3.5" />
-                            </div>
-                            <span className="text-[11.5px] font-semibold text-slate-900 dark:text-slate-50">
-                              {(pointsBalance?.balance ?? 0).toLocaleString()} P
-                            </span>
-                          </motion.div>
-                        </TooltipTrigger>
-                        <TooltipContent sideOffset={12} className="text-xs">
-                          현재 적립된 포인트 잔액입니다.
-                        </TooltipContent>
-                      </Tooltip>
+                      {isAuthenticated ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <motion.div
+                              layout
+                              className="flex min-w-[96px] items-center justify-end gap-2 rounded-[16px] px-2 py-1.5 text-right transition-colors hover:bg-white/35 sm:justify-center sm:px-3 sm:text-left dark:hover:bg-white/10"
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -6 }}
+                              transition={{
+                                duration: 0.24,
+                                ease: [0.22, 0.68, 0, 1],
+                                delay: 0.02,
+                              }}
+                            >
+                              <div className="flex h-7 w-7 items-center justify-center rounded-[16px] bg-amber-400/18 text-amber-500 dark:bg-amber-500/18 dark:text-amber-200">
+                                <Coins className="h-3.5 w-3.5" />
+                              </div>
+                              <span className="text-[11.5px] font-semibold text-slate-900 dark:text-slate-50">
+                                {(pointsBalance?.balance ?? 0).toLocaleString()}{" "}
+                                P
+                              </span>
+                            </motion.div>
+                          </TooltipTrigger>
+                          <TooltipContent sideOffset={12} className="text-xs">
+                            현재 적립된 포인트 잔액입니다.
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        <motion.button
+                          type="button"
+                          onClick={showLogin}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{
+                            duration: 0.24,
+                            ease: [0.22, 0.68, 0, 1],
+                            delay: 0.02,
+                          }}
+                        >
+                          로그인
+                        </motion.button>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>

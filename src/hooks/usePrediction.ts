@@ -12,6 +12,7 @@ import {
   PredictionHistoryParams,
   PredictionStats,
 } from "../types/prediction";
+import { useAuth } from "./useAuth";
 
 // ============================================================================
 // Query Keys
@@ -96,6 +97,7 @@ export const useCancelPrediction = () => {
  * 예측 이력 조회 훅 (무한 스크롤)
  */
 export const usePredictionHistory = (params?: PredictionHistoryParams) => {
+  const { isAuthenticated } = useAuth();
   return useInfiniteQuery({
     queryKey: PREDICTION_KEYS.history(params),
     queryFn: ({ pageParam = 0 }: { pageParam?: number }) =>
@@ -111,6 +113,7 @@ export const usePredictionHistory = (params?: PredictionHistoryParams) => {
     },
     initialPageParam: 0,
     staleTime: 2 * 60 * 1000, // 2분
+    enabled: isAuthenticated,
   });
 };
 
@@ -118,10 +121,11 @@ export const usePredictionHistory = (params?: PredictionHistoryParams) => {
  * 특정 날짜 예측 조회 훅
  */
 export const usePredictionsForDay = (tradingDay: string) => {
+  const { isAuthenticated } = useAuth();
   return useQuery({
     queryKey: PREDICTION_KEYS.forDay(tradingDay),
     queryFn: () => predictionService.getUserPredictionsForDay(tradingDay),
-    enabled: !!tradingDay,
+    enabled: isAuthenticated && !!tradingDay,
     staleTime: 30 * 1000, // 30초
   });
 };
@@ -130,10 +134,11 @@ export const usePredictionsForDay = (tradingDay: string) => {
  * 남은 예측 슬롯 조회 훅
  */
 export const useRemainingPredictions = (tradingDay: string) => {
+  const { isAuthenticated } = useAuth();
   return useQuery({
     queryKey: PREDICTION_KEYS.remaining(tradingDay),
     queryFn: () => predictionService.getRemainingPredictions(tradingDay),
-    enabled: !!tradingDay,
+    enabled: isAuthenticated && !!tradingDay,
     refetchInterval: 30 * 1000, // 30초마다 갱신
   });
 };

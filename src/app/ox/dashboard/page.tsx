@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { DashboardStats } from "@/components/ox/dashboard/dashboard-stats";
 import DashboardClient from "@/components/dashboard/DashboardClient";
+import { OxNewsSection } from "@/components/ox/dashboard/news/OxNewsSection";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,20 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </Suspense>
+
+        <section className="space-y-4">
+          <div className="space-y-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              시장 뉴스 & 전망
+            </h2>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              오늘의 주요 뉴스와 전문가 시장 전망을 확인하세요.
+            </p>
+          </div>
+          <Suspense fallback={<NewsSkeleton />}>
+            <OxNewsSection />
+          </Suspense>
+        </section>
 
         <Card className={panelClassName}>
           <CardHeader className="px-0">
@@ -88,6 +103,18 @@ function StatsSkeleton() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function NewsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="h-96 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="h-80 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+        <div className="h-80 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+      </div>
+    </div>
   );
 }
 

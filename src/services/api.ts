@@ -6,6 +6,13 @@ import {
   deleteClientCookie,
 } from "@/lib/cookies";
 
+export class UnauthorizedError extends Error {
+  constructor(message: string = "UNAUTHORIZED") {
+    super(message);
+    this.name = "UnauthorizedError";
+  }
+}
+
 // 기존 API 기본 URL 설정
 const getBaseUrl = () => {
   if (process.env.NODE_ENV === "development") {
@@ -85,18 +92,16 @@ const createCustomFetch = (baseUrlGetter: () => string) => {
           if (typeof window !== "undefined") {
             try {
               deleteClientCookie(TOKEN_COOKIE_KEY);
-              const url = new URL(window.location.href);
-              if (url.searchParams.get("login") !== "1") {
-                url.searchParams.set("login", "1");
-                // 로그인 이후 돌아올 next는 현재 페이지로 유지
-                window.location.href = url.toString();
-              }
+              window.dispatchEvent(
+                new CustomEvent("auth:unauthorized", {
+                  detail: { url: fullUrl, status: response.status },
+                }),
+              );
             } catch (e) {
               console.error("Failed to handle 401 unauthorized:", e);
             }
           }
-          // 상위에서 구분 가능하도록 에러 throw
-          throw new Error("UNAUTHORIZED");
+          throw new UnauthorizedError();
         }
 
         // Axios와 유사한 에러 객체 형태로 reject
@@ -121,19 +126,7 @@ const createCustomFetch = (baseUrlGetter: () => string) => {
       // Axios와 유사하게 response.data 형태로 반환
       return { data };
     } catch (error: unknown) {
-      if (error instanceof Error && error.message === "UNAUTHORIZED") {
-        if (typeof window !== "undefined") {
-          try {
-            deleteClientCookie(TOKEN_COOKIE_KEY);
-            const url = new URL(window.location.href);
-            if (url.searchParams.get("login") !== "1") {
-              url.searchParams.set("login", "1");
-              window.location.href = url.toString();
-            }
-          } catch (e) {
-            console.error("Failed to redirect on unauthorized:", e);
-          }
-        }
+      if (error instanceof UnauthorizedError) {
         throw error;
       }
 

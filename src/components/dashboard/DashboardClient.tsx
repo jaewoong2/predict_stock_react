@@ -2,7 +2,10 @@
 
 import React, { useCallback, useEffect, useMemo, memo } from "react";
 import { SignalAPIResponse, SignalData } from "@/types/signal";
-import { createColumns, PredictionModalTrigger } from "@/components/signal/columns";
+import {
+  createColumns,
+  PredictionModalTrigger,
+} from "@/components/signal/columns";
 import {
   useDashboardFilters,
   useDashboardAiModels,
@@ -22,6 +25,7 @@ import {
 import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
 import { useSignalDataByDate } from "@/hooks/useSignal";
+import { useAuth } from "@/hooks/useAuth";
 
 type Props = {
   initialData?: SignalAPIResponse;
@@ -38,6 +42,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
 
   const router = useRouter();
   const mounted = useMounted();
+  const { isAuthenticated, showLogin } = useAuth();
 
   const { favorites, toggleFavorite } = useFavoriteTickers();
 
@@ -274,6 +279,11 @@ const DashboardClient = memo(({ initialData }: Props) => {
 
   const openPredictionModal = useCallback(
     ({ symbol, aiProbability, aiModel }: PredictionModalTrigger) => {
+      if (!isAuthenticated) {
+        showLogin();
+        return;
+      }
+
       const params = new URLSearchParams();
       if (aiProbability) {
         params.set("probability", aiProbability);
@@ -287,7 +297,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
         { scroll: false },
       );
     },
-    [router],
+    [router, isAuthenticated, showLogin],
   );
 
   const columns = useMemo(
@@ -348,7 +358,10 @@ const DashboardClient = memo(({ initialData }: Props) => {
                         )
                       }
                     >
-                      <XIcon size={12} className="text-slate-400 hover:text-slate-600" />
+                      <XIcon
+                        size={12}
+                        className="text-slate-400 hover:text-slate-600"
+                      />
                     </button>
                   </Badge>
                 ))}

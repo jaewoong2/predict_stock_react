@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { cooldownService } from "../services/cooldownService";
 import { CooldownStatus } from "../types/cooldown";
+import { useAuth } from "./useAuth";
 
 // ============================================================================
 // Query Keys
@@ -34,11 +35,12 @@ export const useCooldownStatus = (options?: UseCooldownStatusOptions) => {
     staleTime = 30 * 1000,
     refetchInterval = 30 * 1000,
   } = options || {};
+  const { isAuthenticated } = useAuth();
 
   return useQuery<CooldownStatus>({
     queryKey: COOLDOWN_KEYS.status(),
     queryFn: cooldownService.getCooldownStatus,
-    enabled,
+    enabled: isAuthenticated && enabled,
     staleTime,
     refetchInterval,
   });

@@ -28,6 +28,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AiModelSelect } from "./AiModelSelect";
+import { useAuth } from "@/hooks/useAuth";
 import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
 import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
 import { useDashboardFilters } from "@/hooks/useDashboard";
@@ -110,6 +111,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 }) => {
   const router = useRouter();
   const { strategy_type, setParams } = useDashboardFilters();
+  const { isAuthenticated, showLogin } = useAuth();
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
 
@@ -255,9 +257,19 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
               ]?.text || data.signal.probability}
             </Badge>
           )}
-          <Link href={`/ox/dashboard/predict/${data.signal.ticker}`}>
-            <Button size="sm" variant="secondary">예측</Button>
-          </Link>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              if (!isAuthenticated) {
+                showLogin();
+                return;
+              }
+              router.push(`/ox/dashboard/predict/${data.signal.ticker}`);
+            }}
+          >
+            예측
+          </Button>
         </div>
       </div>
 

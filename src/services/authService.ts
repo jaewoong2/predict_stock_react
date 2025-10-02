@@ -34,6 +34,16 @@ export const authService = {
     window.location.href = url;
   },
 
+  /**
+   * Magic Link 발송
+   */
+  sendMagicLink: async (email: string): Promise<{ message: string }> => {
+    return await oxApi.postWithBaseResponse<{ message: string }>(
+      "/auth/magic-link/send",
+      { email },
+    );
+  },
+
   // ============================================================================
   // Token Management
   // ============================================================================

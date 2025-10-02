@@ -21,6 +21,7 @@ import {
 import { useTodaySession } from "@/hooks/useSession";
 import { PredictionChoice } from "@/types/prediction";
 import { cn } from "@/lib/utils";
+import { UnauthorizedError } from "@/services/api";
 
 interface PredictionButtonProps {
   symbol: string;
@@ -37,6 +38,21 @@ type PredictionState =
   | "confirming"
   | "confirmed"
   | "failed";
+
+const isAuthenticationError = (error: unknown): boolean => {
+  if (error instanceof UnauthorizedError) return true;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: { status?: number } }).response?.status ===
+      "number"
+  ) {
+    const status = (error as { response: { status: number } }).response.status;
+    return status === 401 || status === 403;
+  }
+  return false;
+};
 
 export function PredictionButton({
   symbol,
@@ -132,6 +148,16 @@ export function PredictionButton({
         setOptimisticId(null);
       }, 2000);
     } catch (error) {
+      if (isAuthenticationError(error)) {
+        setPredictionState("idle");
+        setOptimisticId(null);
+        showLogin();
+        toast.error("로그인이 필요합니다", {
+          description: "예측을 제출하려면 로그인이 필요합니다.",
+        });
+        return;
+      }
+
       // 9. 실패 처리 - Optimistic 상태 롤백
       setPredictionState("failed");
       toast.error("예측 실패", {

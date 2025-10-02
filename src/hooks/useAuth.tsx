@@ -77,7 +77,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
 
-  const [authState, setAuthState] = useState<Pick<AuthState, "token" | "isAuthenticated">>({
+  const [authState, setAuthState] = useState<
+    Pick<AuthState, "token" | "isAuthenticated">
+  >({
     token: null,
     isAuthenticated: false,
   });
@@ -91,7 +93,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const now = Math.floor(Date.now() / 1000);
       const exp = typeof payload.exp === "number" ? payload.exp : null;
-      const maxAgeSeconds = exp ? Math.max(exp - now, 60 * 60) : 60 * 60 * 24 * 7;
+      const maxAgeSeconds = exp
+        ? Math.max(exp - now, 60 * 60)
+        : 60 * 60 * 24 * 7;
 
       setClientCookie(TOKEN_COOKIE_KEY, token, { maxAgeSeconds });
     } catch {
@@ -116,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       deleteClientCookie(TOKEN_COOKIE_KEY);
     }
     setAuthState({ token: null, isAuthenticated: false });
-    setShowLoginModal(true);
+    setShowLoginModal(false);
     setIsInitializing(false);
     queryClient.clear();
   }, [queryClient]);
@@ -151,10 +155,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (storedToken) {
         deleteClientCookie(TOKEN_COOKIE_KEY);
       }
-      setShowLoginModal(true);
+      setAuthState({ token: null, isAuthenticated: false });
+      setShowLoginModal(false);
     }
     setIsInitializing(false);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleUnauthorized = () => {
+      logout();
+    };
+
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, [logout]);
 
   useEffect(() => {
     if (!searchParams) return;
@@ -165,7 +184,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const {
     data: user,
-    isLoading: isProfileLoading,
+    isLoading: isUserProfileLoading,
     isError: isProfileError,
   } = useQuery<User, Error>({
     queryKey: AUTH_KEYS.profile(),
@@ -181,13 +200,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [isProfileError, logout]);
 
-  const isLoading = isInitializing || (authState.isAuthenticated && isProfileLoading);
+  const isLoading = isInitializing;
+  const isProfileLoading = authState.isAuthenticated && isUserProfileLoading;
 
   const contextValue: AuthContextValue = {
     token: authState.token,
     isAuthenticated: authState.isAuthenticated,
     user: user ?? null,
     isLoading,
+    isProfileLoading,
     showLoginModal,
     login,
     logout,

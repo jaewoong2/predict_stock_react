@@ -16,6 +16,7 @@ import {
   usePredictionsForDay,
 } from "@/hooks/usePrediction";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 import { TickerAvatar } from "@/components/atomic/atoms/TickerAvatar";
 import { PredictionStatus, getPredictionStatusColor } from "@/types/prediction";
@@ -125,6 +126,7 @@ const avatarVariants = {
 } satisfies Variants;
 
 export function DashboardStats() {
+  const { isAuthenticated, showLogin } = useAuth();
   const { data: pointsBalance } = usePointsBalance();
   const { data: session } = useTodaySession();
   const { data: predictionStats } = usePredictionStats();
@@ -249,8 +251,12 @@ export function DashboardStats() {
     );
   }, [predictions]);
 
-  const factChips = useMemo(
-    () => [
+  const factChips = useMemo(() => {
+    if (!isAuthenticated) {
+      return [];
+    }
+
+    return [
       {
         label: "누적 정확도",
         value: `${
@@ -267,13 +273,13 @@ export function DashboardStats() {
         label: "포인트",
         value: `${(pointsBalance?.balance ?? 0).toLocaleString()} P`,
       },
-    ],
-    [
-      pointsBalance?.balance,
-      predictionStats?.accuracy_rate,
-      remainingPredictions,
-    ],
-  );
+    ];
+  }, [
+    isAuthenticated,
+    pointsBalance?.balance,
+    predictionStats?.accuracy_rate,
+    remainingPredictions,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -319,6 +325,7 @@ export function DashboardStats() {
             <Select value={selectedDay} onValueChange={handleDayChange}>
               <SelectTrigger
                 size="sm"
+                disabled={!isAuthenticated}
                 className="h-auto rounded-full border-none bg-transparent px-0 py-0 font-semibold text-slate-500 shadow-none focus-visible:ring-0 dark:text-slate-400"
               >
                 <SelectValue placeholder="오늘" />
@@ -337,24 +344,27 @@ export function DashboardStats() {
             </Select>
           </div>
           <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-            {predictions.length > 0
-              ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 ${summary.incorrect}, 대기 ${summary.pending}${
-                  summary.void ? `, 무효 ${summary.void}` : ""
-                }`
-              : "해당 날짜에 등록된 예측이 없어요"}
+            {isAuthenticated
+              ? predictions.length > 0
+                ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 ${summary.incorrect}, 대기 ${summary.pending}${
+                    summary.void ? `, 무효 ${summary.void}` : ""
+                  }`
+                : "해당 날짜에 등록된 예측이 없어요"
+              : null}
           </div>
           <div className="flex flex-wrap gap-2">
-            {factChips.map((chip) => (
-              <div
-                key={chip.label}
-                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-[#161b26] dark:text-slate-300"
-              >
-                <span className="mr-1 text-slate-400 dark:text-slate-500">
-                  {chip.label}
-                </span>
-                <span>{chip.value}</span>
-              </div>
-            ))}
+            {isAuthenticated &&
+              factChips.map((chip) => (
+                <div
+                  key={chip.label}
+                  className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-[#161b26] dark:text-slate-300"
+                >
+                  <span className="mr-1 text-slate-400 dark:text-slate-500">
+                    {chip.label}
+                  </span>
+                  <span>{chip.value}</span>
+                </div>
+              ))}
           </div>
         </div>
 
