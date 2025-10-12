@@ -1,6 +1,5 @@
 "use client";
 
-import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useMarketForecast, useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { format } from "date-fns";
 import { MarketNewsCard } from "./MarketNewsCard";
@@ -9,6 +8,9 @@ import {
   NewsRecommendationsResponse,
   MarketForecastResponse,
 } from "@/types/news";
+import { useDateRangeError } from "@/hooks/useDateRangeError";
+import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useRouter } from "next/navigation";
 
 interface OxNewsSectionProps {
   initialNewsData?: MarketNewsResponse;
@@ -26,10 +28,15 @@ export function OxNewsSection({
   initialMajorForecast,
   initialMinorForecast,
 }: OxNewsSectionProps) {
-  const { date } = useSignalSearchParams();
-  const effectiveDate = date || format(new Date(), "yyyy-MM-dd");
+  const { submittedDate } = useDashboardFilters();
+  const router = useRouter();
+  const effectiveDate = submittedDate || format(new Date(), "yyyy-MM-dd");
 
-  const { data: newsData, isLoading: isLoadingNews } = useMarketNewsSummary(
+  const handleDateReset = () => {
+    router.replace("/ox/dashboard", { scroll: false });
+  };
+
+  const { data: newsData, isLoading: isLoadingNews, error: newsError } = useMarketNewsSummary(
     {
       news_type: "market",
       news_date: effectiveDate,
@@ -40,15 +47,18 @@ export function OxNewsSection({
     },
   );
 
-  const { data: majorForecast } = useMarketForecast(effectiveDate, "Major", {
+  const { data: majorForecast, error: majorForecastError } = useMarketForecast(effectiveDate, "Major", {
     initialData: initialMajorForecast,
     enabled: !initialMajorForecast,
   });
 
-  const { data: minorForecast } = useMarketForecast(effectiveDate, "Minor", {
+  const { data: minorForecast, error: minorForecastError } = useMarketForecast(effectiveDate, "Minor", {
     initialData: initialMinorForecast,
     enabled: !initialMinorForecast,
   });
+
+  const combinedError = newsError || majorForecastError || minorForecastError;
+  const { ErrorModal } = useDateRangeError({ error: combinedError, onDateReset: handleDateReset });
 
   if (isLoadingNews) {
     return (
@@ -63,6 +73,8 @@ export function OxNewsSection({
   }
 
   return (
+    <>
+      <ErrorModal />
     <div className="flex space-y-6 overflow-scroll">
       {/* Market News with Forecast - Full Width */}
       {newsData?.result && (
@@ -75,5 +87,6 @@ export function OxNewsSection({
         </div>
       )}
     </div>
+    </>
   );
 }

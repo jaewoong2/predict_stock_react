@@ -44,8 +44,6 @@ export function MarketNewsCard({
   const latestMajor = majorForecast?.at(-1);
   const latestMinor = minorForecast?.at(-1);
 
-  console.log(latestMajor, latestMinor);
-
   const handleForecastClick = (
     major: MarketForecastResponse,
     minor?: MarketForecastResponse,

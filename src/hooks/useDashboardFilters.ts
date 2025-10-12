@@ -66,7 +66,8 @@ export function useDashboardFilters() {
     if (aiModelFilterConditions.length > 0)
       params.set("condition", aiModelFilterConditions.join(","));
 
-    if (params.toString() !== searchParams.toString()) {
+    const currentParams = new URLSearchParams(window.location.search);
+    if (params.toString() !== currentParams.toString()) {
       router.replace("?" + params.toString(), { scroll: false });
     }
   }, [
@@ -77,7 +78,6 @@ export function useDashboardFilters() {
     aiModelFilterConditions,
     router,
     todayString,
-    searchParams,
   ]);
 
   useEffect(() => {

@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Command } from "lucide-react";
+import { Search, Command, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FundamentalSearchModal } from "./FundamentalSearchModal";
+import { useLogout } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export function OxNavBar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { mutate: logout, isPending } = useLogout();
+  const router = useRouter();
 
   return (
     <>
@@ -35,9 +40,24 @@ export function OxNavBar() {
             </kbd>
           </button>
 
-          {/* Right side - can add user menu, notifications, etc */}
+          {/* Right side - Logout Button */}
           <div className="flex items-center gap-4">
-            {/* Placeholder for future items */}
+            <Button
+              onClick={() => {
+                logout(undefined, {
+                  onSuccess: () => {
+                    router.push("/login");
+                  },
+                });
+              }}
+              disabled={isPending}
+              variant="ghost"
+              size="sm"
+              className="gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">로그아웃</span>
+            </Button>
           </div>
         </div>
       </nav>

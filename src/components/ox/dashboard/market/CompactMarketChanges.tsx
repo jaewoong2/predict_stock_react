@@ -7,30 +7,38 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { useDateRangeError } from "@/hooks/useDateRangeError";
+import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useRouter } from "next/navigation";
 
-interface CompactMarketChangesProps {
-  date: string;
-}
-
-export function CompactMarketChanges({ date }: CompactMarketChangesProps) {
+export function CompactMarketChanges() {
   const [activeTab, setActiveTab] = useState("price");
+  const { submittedDate } = useDashboardFilters();
+  const router = useRouter();
 
-  const { data: priceData, isLoading: priceLoading } = useGetTickerByDiffrences(
+  const handleDateReset = () => {
+    router.replace("/ox/dashboard", { scroll: false });
+  };
+
+  const { data: priceData, isLoading: priceLoading, error: priceError } = useGetTickerByDiffrences(
     {
       direction: "desc",
       limit: 10,
       field: "close_change",
-      target_date: date,
+      target_date: submittedDate,
     },
   );
 
-  const { data: volumeData, isLoading: volumeLoading } =
+  const { data: volumeData, isLoading: volumeLoading, error: volumeError } =
     useGetTickerByDiffrences({
       direction: "desc",
       limit: 10,
       field: "volume_change",
-      target_date: date,
+      target_date: submittedDate,
     });
+
+  const combinedError = priceError || volumeError;
+  const { ErrorModal } = useDateRangeError({ error: combinedError, onDateReset: handleDateReset });
 
   if (priceLoading || volumeLoading) {
     return <LoadingSkeleton />;
@@ -41,13 +49,18 @@ export function CompactMarketChanges({ date }: CompactMarketChangesProps) {
     (!volumeData || volumeData.length === 0)
   ) {
     return (
-      <div className="rounded-3xl bg-white p-6 text-center text-sm text-slate-500 dark:bg-[#0f1118] dark:text-slate-400">
-        데이터를 불러올 수 없습니다.
-      </div>
+      <>
+        <ErrorModal />
+        <div className="rounded-3xl bg-white p-6 text-center text-sm text-slate-500 dark:bg-[#0f1118] dark:text-slate-400">
+          데이터를 불러올 수 없습니다.
+        </div>
+      </>
     );
   }
 
   return (
+    <>
+      <ErrorModal />
     <div className="rounded-3xl bg-white p-6 shadow-none dark:bg-[#0f1118]">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 grid w-full max-w-md grid-cols-2 bg-slate-100 dark:bg-[#151b24]">
@@ -66,14 +79,15 @@ export function CompactMarketChanges({ date }: CompactMarketChangesProps) {
         </TabsList>
 
         <TabsContent value="price" className="mt-0">
-          <StockGrid data={priceData} date={date} type="price" />
+          <StockGrid data={priceData} date={submittedDate} type="price" />
         </TabsContent>
 
         <TabsContent value="volume" className="mt-0">
-          <StockGrid data={volumeData} date={date} type="volume" />
+          <StockGrid data={volumeData} date={submittedDate} type="volume" />
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 }
 

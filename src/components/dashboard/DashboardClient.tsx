@@ -26,12 +26,14 @@ import { useFavoriteTickers } from "@/hooks/useFavoriteTickers";
 import useMounted from "@/hooks/useMounted";
 import { useSignalDataByDate } from "@/hooks/useSignal";
 import { useAuth } from "@/hooks/useAuth";
+import { useDateRangeError } from "@/hooks/useDateRangeError";
 
 type Props = {
   initialData?: SignalAPIResponse;
+  onDateReset?: () => void;
 };
 
-const DashboardClient = memo(({ initialData }: Props) => {
+const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
   const { date, q, strategy_type, setParams } = useDashboardFilters();
   const {
     availableAiModels,
@@ -55,10 +57,20 @@ const DashboardClient = memo(({ initialData }: Props) => {
       : [];
   }, [q]);
 
-  const { data: signalApiResponse, isLoading } = useSignalDataByDate(date!, {
+  const { data: signalApiResponse, isLoading, error } = useSignalDataByDate(date!, {
     initialData: initialData,
     enabled: !!date,
   });
+
+  const handleDateReset = () => {
+    // URL에서 date 파라미터 제거 (오늘 날짜로 리셋)
+    router.replace("/ox/dashboard", { scroll: false });
+    if (onDateReset) {
+      onDateReset();
+    }
+  };
+
+  const { ErrorModal } = useDateRangeError({ error, onDateReset: handleDateReset });
 
   const allAvailableTickersForSearch = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
@@ -324,7 +336,9 @@ const DashboardClient = memo(({ initialData }: Props) => {
   );
 
   return (
-    <SignalListWrapper
+    <>
+      <ErrorModal />
+      <SignalListWrapper
       columns={columns}
       data={sortedSignals}
       onRowClick={handleRowClick}
@@ -402,6 +416,7 @@ const DashboardClient = memo(({ initialData }: Props) => {
         </div>
       </div>
     </SignalListWrapper>
+    </>
   );
 });
 

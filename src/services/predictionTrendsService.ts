@@ -41,14 +41,14 @@ function mapApiStockToTrendingStock(apiStock: ApiTrendingStock): TrendingStock {
 export const predictionTrendsService = {
   /**
    * 롱/숏 예측 통계 조회
-   * GET /predictions/direction-stats
+   * GET /predictions/trends
    */
   getDirectionStats: async (params?: {
     date?: string;
     limit?: number;
   }): Promise<PredictionDirectionStatsResponse> => {
     const queryParams = new URLSearchParams();
-    
+
     if (params?.date) {
       queryParams.append("date", params.date);
     }
@@ -57,7 +57,7 @@ export const predictionTrendsService = {
     }
 
     const queryString = queryParams.toString();
-    const url = `/predictions/direction-stats${queryString ? `?${queryString}` : ""}`;
+    const url = `/predictions/trends${queryString ? `?${queryString}` : ""}`;
 
     const response = await oxApi.get<ApiPredictionDirectionStatsResponse>(url);
 
