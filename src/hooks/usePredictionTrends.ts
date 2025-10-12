@@ -28,6 +28,7 @@ export function usePredictionDirectionStats(
     queryFn: () => predictionTrendsService.getDirectionStats(params),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
+    retry: false, // 에러 시 재시도 안 함
     ...options,
   });
 }

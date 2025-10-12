@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-import "@/styles/globals.css";
 import Freesentation from "./fonts";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import Script from "next/script";
@@ -11,6 +9,7 @@ import { FloatingInfo } from "@/components/ox/layout/FloatingInfo";
 import { Toaster } from "@/components/ui/sonner";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 
+import "../app/globals.css";
 // export const metadata: Metadata = {
 //   title: "Stock Predict AI LLM",
 //   description: "Predict stock prices with AI models",

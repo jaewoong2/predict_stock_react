@@ -187,31 +187,20 @@ export function TrendingPredictionsWidget({
 }: TrendingPredictionsWidgetProps) {
   const [activeTab, setActiveTab] = useState<TabType>("high-probability");
 
-  // 롱/숏 예측 통계 API 호출
-  const { data, isLoading, error } = usePredictionDirectionStats({
-    date,
-    limit,
-  });
+  // 롱/숏 예측 통계 API 호출 - 임시로 비활성화 (브랜치 이슈)
+  const { data, isLoading, error } = usePredictionDirectionStats(
+    {
+      date,
+      limit,
+    },
+    {
+      enabled: false, // API 호출 완전 비활성화
+    }
+  );
 
-  // 실제 데이터 또는 Mock 데이터 사용
-  const mostLongPredictions =
-    data?.mostLongPredictions || MOCK_LONG_PREDICTIONS;
-  const mostShortPredictions =
-    data?.mostShortPredictions || MOCK_SHORT_PREDICTIONS;
-
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-2xl bg-slate-50 p-8 text-center dark:bg-[#0f1118]">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          데이터를 불러오는 중 오류가 발생했습니다.
-        </p>
-      </div>
-    );
-  }
+  // Mock 데이터 사용 (API 비활성화 중)
+  const mostLongPredictions = MOCK_LONG_PREDICTIONS;
+  const mostShortPredictions = MOCK_SHORT_PREDICTIONS;
 
   return (
     <div className="space-y-6">
@@ -222,7 +211,7 @@ export function TrendingPredictionsWidget({
           className={cn(
             "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
             activeTab === "high-probability"
-              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30"
+              ? "bg-purple-600 text-white dark:bg-purple-500"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
           )}
         >
@@ -233,7 +222,7 @@ export function TrendingPredictionsWidget({
             className={cn(
               "ml-1",
               activeTab === "high-probability"
-                ? "bg-white/20 text-white"
+                ? "bg-purple-700 text-white dark:bg-purple-600"
                 : "bg-slate-200 dark:bg-[#1a2030]",
             )}
           >
@@ -246,7 +235,7 @@ export function TrendingPredictionsWidget({
           className={cn(
             "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
             activeTab === "long"
-              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30"
+              ? "bg-emerald-600 text-white dark:bg-emerald-500"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
           )}
         >
@@ -257,7 +246,7 @@ export function TrendingPredictionsWidget({
             className={cn(
               "ml-1",
               activeTab === "long"
-                ? "bg-white/20 text-white"
+                ? "bg-emerald-700 text-white dark:bg-emerald-600"
                 : "bg-slate-200 dark:bg-[#1a2030]",
             )}
           >
@@ -270,7 +259,7 @@ export function TrendingPredictionsWidget({
           className={cn(
             "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
             activeTab === "short"
-              ? "bg-gradient-to-r from-rose-500 to-orange-500 text-white shadow-lg shadow-rose-500/30"
+              ? "bg-rose-600 text-white dark:bg-rose-500"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
           )}
         >
@@ -281,7 +270,7 @@ export function TrendingPredictionsWidget({
             className={cn(
               "ml-1",
               activeTab === "short"
-                ? "bg-white/20 text-white"
+                ? "bg-rose-700 text-white dark:bg-rose-600"
                 : "bg-slate-200 dark:bg-[#1a2030]",
             )}
           >
@@ -354,11 +343,11 @@ function HighProbabilityCard({
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold",
               rank === 1
-                ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white"
+                ? "bg-amber-400 text-amber-900"
                 : rank === 2
-                  ? "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700"
+                  ? "bg-slate-300 text-slate-700 dark:bg-slate-600 dark:text-slate-100"
                   : rank === 3
-                    ? "bg-gradient-to-br from-amber-600 to-amber-700 text-white"
+                    ? "bg-amber-600 text-white"
                     : "bg-slate-100 text-slate-600 dark:bg-[#1a2030] dark:text-slate-300",
             )}
           >
@@ -466,11 +455,11 @@ function TrendingStockCard({
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold",
               rank === 1
-                ? "bg-gradient-to-br from-yellow-400 to-orange-500 text-white"
+                ? "bg-amber-400 text-amber-900"
                 : rank === 2
-                  ? "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-700"
+                  ? "bg-slate-300 text-slate-700 dark:bg-slate-600 dark:text-slate-100"
                   : rank === 3
-                    ? "bg-gradient-to-br from-amber-600 to-amber-700 text-white"
+                    ? "bg-amber-600 text-white"
                     : "bg-slate-100 text-slate-600 dark:bg-[#1a2030] dark:text-slate-300",
             )}
           >

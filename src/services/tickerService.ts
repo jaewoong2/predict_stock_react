@@ -9,6 +9,7 @@ import {
   StockData,
   TickerOrderByRequest,
 } from "../types/ticker";
+import { TickerLookupResponse, TickerLookupParams } from "../types/ticker-lookup";
 import api from "./api";
 
 export const tickerService = {
@@ -114,5 +115,19 @@ export const tickerService = {
       console.error("인기 주식 정보를 가져오는 중 오류 발생:", error);
       return [];
     }
+  },
+
+  // 티커 검색 (Lookup API)
+  lookupTicker: async ({
+    query,
+    limit = 10,
+  }: TickerLookupParams): Promise<TickerLookupResponse> => {
+    const response = await api.get<TickerLookupResponse>(
+      `/tickers/lookup/${encodeURIComponent(query)}`,
+      {
+        params: { limit },
+      }
+    );
+    return response.data;
   },
 };

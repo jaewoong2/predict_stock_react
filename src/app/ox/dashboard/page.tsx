@@ -41,10 +41,11 @@ export default function DashboardPage() {
           </Card>
         </Suspense>
 
+
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              🔥 인기 예측 트렌드
+              인기 예측 트렌드
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               지금 가장 핫한 종목과 다른 투자자들의 예측 트렌드를 확인하세요.
@@ -227,3 +228,4 @@ function TrendingSkeleton() {
     </div>
   );
 }
+

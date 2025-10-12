@@ -220,9 +220,8 @@ export function MarketNewsCard({
           </div>
         </div>
 
-        {/* News Detail Drawer */}
         <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-          <DrawerContent className="mx-auto h-full max-h-[80vh] w-fit pb-10 !select-text max-sm:max-h-[70vh] max-sm:w-[calc(100%-14px)]">
+          <DrawerContent className="mx-auto h-full max-h-[80vh] w-[calc(100%-32px)] pb-10 !select-text max-sm:max-h-[70vh] max-sm:w-[calc(100%-14px)]">
             <div className="mx-auto h-full w-full max-w-4xl overflow-y-scroll px-6 max-sm:px-4">
               <DrawerHeader>
                 <DrawerClose asChild>

@@ -325,7 +325,6 @@ export function DashboardStats() {
             <Select value={selectedDay} onValueChange={handleDayChange}>
               <SelectTrigger
                 size="sm"
-                disabled={!isAuthenticated}
                 className="h-auto rounded-full border-none bg-transparent px-0 py-0 font-semibold text-slate-500 shadow-none focus-visible:ring-0 dark:text-slate-400"
               >
                 <SelectValue placeholder="오늘" />

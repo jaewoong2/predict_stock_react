@@ -46,7 +46,7 @@ export function MarketDataDashboard() {
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              🎯 애널리스트 목표가
+              애널리스트 목표가
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               주요 증권사의 목표가 변경 사항을 확인하세요.
@@ -63,7 +63,7 @@ export function MarketDataDashboard() {
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              💰 ETF 자금 흐름
+              ETF 자금 흐름
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               ETF별 자금 유입/유출 현황을 파악하세요.
@@ -81,7 +81,7 @@ export function MarketDataDashboard() {
           <section className="space-y-4">
             <div className="space-y-2">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-                💧 유동성 지표
+                유동성 지표
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300">
                 M2 통화량과 RRP 잔액 추이
@@ -97,7 +97,7 @@ export function MarketDataDashboard() {
           <section className="space-y-4">
             <div className="space-y-2">
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-                📊 시장 폭 지표
+                시장 폭 지표
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-300">
                 VIX, 상승/하락 종목 수
@@ -115,7 +115,7 @@ export function MarketDataDashboard() {
         <section className="space-y-4">
           <div className="space-y-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">
-              👔 내부자 거래 트렌드
+              내부자 거래 트렌드
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
               임원 및 내부자들의 주식 거래 동향을 확인하세요.
