@@ -57,20 +57,16 @@ const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
       : [];
   }, [q]);
 
-  const { data: signalApiResponse, isLoading, error } = useSignalDataByDate(date!, {
+  const {
+    data: signalApiResponse,
+    isLoading,
+    error,
+  } = useSignalDataByDate(date!, {
     initialData: initialData,
     enabled: !!date,
   });
 
-  const handleDateReset = () => {
-    // URL에서 date 파라미터 제거 (오늘 날짜로 리셋)
-    router.replace("/ox/dashboard", { scroll: false });
-    if (onDateReset) {
-      onDateReset();
-    }
-  };
-
-  const { ErrorModal } = useDateRangeError({ error, onDateReset: handleDateReset });
+  const { ErrorModal } = useDateRangeError({ error });
 
   const allAvailableTickersForSearch = useMemo(() => {
     if (!signalApiResponse?.signals) return [];
@@ -339,83 +335,83 @@ const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
     <>
       <ErrorModal />
       <SignalListWrapper
-      columns={columns}
-      data={sortedSignals}
-      onRowClick={handleRowClick}
-      isLoading={isLoading || !mounted}
-      totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
-    >
-      <div className="mb-6 space-y-4 rounded-2xl bg-slate-50 p-4 dark:bg-[#151b24]">
-        <div className="flex w-full flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <SignalSearchInput
-              selectedTickers={currentSelectedTickersArray}
-              onSelectedTickersChange={handleSelectedTickersChange}
-              availableTickers={allAvailableTickersForSearch}
-              placeholder="티커 선택"
-            />
-            {currentSelectedTickersArray.length > 0 && (
-              <div className="flex flex-wrap gap-1 py-2">
-                {currentSelectedTickersArray.map((ticker) => (
-                  <Badge
-                    className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:border-slate-700 dark:bg-[#161b26] dark:text-slate-300"
-                    key={ticker}
-                  >
-                    {ticker}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleSelectedTickersChange(
-                          currentSelectedTickersArray.filter(
-                            (t) => t !== ticker,
-                          ),
-                        )
-                      }
+        columns={columns}
+        data={sortedSignals}
+        onRowClick={handleRowClick}
+        isLoading={isLoading || !mounted}
+        totalItems={signalApiResponse?.signals?.length || sortedSignals.length}
+      >
+        <div className="mb-6 space-y-4 rounded-2xl bg-slate-50 p-4 dark:bg-[#151b24]">
+          <div className="flex w-full flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
+            <div className="flex min-w-0 flex-1 flex-col">
+              <SignalSearchInput
+                selectedTickers={currentSelectedTickersArray}
+                onSelectedTickersChange={handleSelectedTickersChange}
+                availableTickers={allAvailableTickersForSearch}
+                placeholder="티커 선택"
+              />
+              {currentSelectedTickersArray.length > 0 && (
+                <div className="flex flex-wrap gap-1 py-2">
+                  {currentSelectedTickersArray.map((ticker) => (
+                    <Badge
+                      className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:border-slate-700 dark:bg-[#161b26] dark:text-slate-300"
+                      key={ticker}
                     >
-                      <XIcon
-                        size={12}
-                        className="text-slate-400 hover:text-slate-600"
-                      />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
+                      {ticker}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleSelectedTickersChange(
+                            currentSelectedTickersArray.filter(
+                              (t) => t !== ticker,
+                            ),
+                          )
+                        }
+                      >
+                        <XIcon
+                          size={12}
+                          className="text-slate-400 hover:text-slate-600"
+                        />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex-shrink-0">
+              <StrategySelect
+                value={strategy_type}
+                onChange={handleStrategyChange}
+                placeholder="전략 선택"
+                className="min-w-[140px] shadow-none"
+              />
+            </div>
           </div>
-          <div className="flex-shrink-0">
-            <StrategySelect
-              value={strategy_type}
-              onChange={handleStrategyChange}
-              placeholder="전략 선택"
-              className="min-w-[140px] shadow-none"
+
+          <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <InfoIcon className="h-4 w-4 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="ml-2 max-w-xs text-sm">
+                <p className="leading-relaxed">
+                  LLM 모델 필터링 방식을 선택합니다. <br />
+                  <strong>OR</strong>은 선택된 모델 중 하나라도 포함된 시그널을
+                  보여주고, <strong>AND</strong>는 모든 모델을 동시에 만족하는
+                  시그널만 표시합니다.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+            <AiModelFilterPanel
+              availableModels={availableAiModels}
+              selectedModels={selectedAiModels}
+              conditions={aiModelFilterConditions}
+              onModelsChange={handleModelsChange}
+              onConditionChange={handleConditionChange}
             />
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InfoIcon className="h-4 w-4 cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent className="ml-2 max-w-xs text-sm">
-              <p className="leading-relaxed">
-                LLM 모델 필터링 방식을 선택합니다. <br />
-                <strong>OR</strong>은 선택된 모델 중 하나라도 포함된 시그널을
-                보여주고, <strong>AND</strong>는 모든 모델을 동시에 만족하는
-                시그널만 표시합니다.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-          <AiModelFilterPanel
-            availableModels={availableAiModels}
-            selectedModels={selectedAiModels}
-            conditions={aiModelFilterConditions}
-            onModelsChange={handleModelsChange}
-            onConditionChange={handleConditionChange}
-          />
-        </div>
-      </div>
-    </SignalListWrapper>
+      </SignalListWrapper>
     </>
   );
 });

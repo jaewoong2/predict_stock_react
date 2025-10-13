@@ -16,29 +16,30 @@ export function CompactMarketChanges() {
   const { submittedDate } = useDashboardFilters();
   const router = useRouter();
 
-  const handleDateReset = () => {
-    router.replace("/ox/dashboard", { scroll: false });
-  };
+  const {
+    data: priceData,
+    isLoading: priceLoading,
+    error: priceError,
+  } = useGetTickerByDiffrences({
+    direction: "desc",
+    limit: 10,
+    field: "close_change",
+    target_date: submittedDate,
+  });
 
-  const { data: priceData, isLoading: priceLoading, error: priceError } = useGetTickerByDiffrences(
-    {
-      direction: "desc",
-      limit: 10,
-      field: "close_change",
-      target_date: submittedDate,
-    },
-  );
-
-  const { data: volumeData, isLoading: volumeLoading, error: volumeError } =
-    useGetTickerByDiffrences({
-      direction: "desc",
-      limit: 10,
-      field: "volume_change",
-      target_date: submittedDate,
-    });
+  const {
+    data: volumeData,
+    isLoading: volumeLoading,
+    error: volumeError,
+  } = useGetTickerByDiffrences({
+    direction: "desc",
+    limit: 10,
+    field: "volume_change",
+    target_date: submittedDate,
+  });
 
   const combinedError = priceError || volumeError;
-  const { ErrorModal } = useDateRangeError({ error: combinedError, onDateReset: handleDateReset });
+  const { ErrorModal } = useDateRangeError({ error: combinedError });
 
   if (priceLoading || volumeLoading) {
     return <LoadingSkeleton />;
@@ -61,32 +62,32 @@ export function CompactMarketChanges() {
   return (
     <>
       <ErrorModal />
-    <div className="rounded-3xl bg-white p-6 shadow-none dark:bg-[#0f1118]">
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid w-full max-w-md grid-cols-2 bg-slate-100 dark:bg-[#151b24]">
-          <TabsTrigger 
-            value="price"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f1118]"
-          >
-            주가 상승률
-          </TabsTrigger>
-          <TabsTrigger 
-            value="volume"
-            className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f1118]"
-          >
-            거래량 상승률
-          </TabsTrigger>
-        </TabsList>
+      <div className="rounded-3xl bg-white p-6 shadow-none dark:bg-[#0f1118]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-6 grid w-full max-w-md grid-cols-2 bg-slate-100 dark:bg-[#151b24]">
+            <TabsTrigger
+              value="price"
+              className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f1118]"
+            >
+              주가 상승률
+            </TabsTrigger>
+            <TabsTrigger
+              value="volume"
+              className="data-[state=active]:bg-white dark:data-[state=active]:bg-[#0f1118]"
+            >
+              거래량 상승률
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="price" className="mt-0">
-          <StockGrid data={priceData} date={submittedDate} type="price" />
-        </TabsContent>
+          <TabsContent value="price" className="mt-0">
+            <StockGrid data={priceData} date={submittedDate} type="price" />
+          </TabsContent>
 
-        <TabsContent value="volume" className="mt-0">
-          <StockGrid data={volumeData} date={submittedDate} type="volume" />
-        </TabsContent>
-      </Tabs>
-    </div>
+          <TabsContent value="volume" className="mt-0">
+            <StockGrid data={volumeData} date={submittedDate} type="volume" />
+          </TabsContent>
+        </Tabs>
+      </div>
     </>
   );
 }

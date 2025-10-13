@@ -44,7 +44,6 @@ export const useAdWatchHistory = (pagination?: PaginationParams) => {
   return useQuery({
     queryKey: ADS_KEYS.history(pagination),
     queryFn: () => adService.getAdWatchHistory(pagination),
-    keepPreviousData: true,
   });
 };
 
@@ -73,11 +72,11 @@ export const useCompleteAdWatch = () => {
     mutationFn: (data: AdWatchRequest) => adService.completeAdWatch(data),
     onSuccess: () => {
       // 관련 데이터 무효화
-      queryClient.invalidateQueries(ADS_KEYS.availableSlots());
-      queryClient.invalidateQueries(ADS_KEYS.history());
-      queryClient.invalidateQueries(ADS_KEYS.todayCount());
+      queryClient.invalidateQueries({ queryKey: ADS_KEYS.availableSlots() });
+      queryClient.invalidateQueries({ queryKey: ADS_KEYS.history() });
+      queryClient.invalidateQueries({ queryKey: ADS_KEYS.todayCount() });
       // 예측 관련 쿼리도 무효화
-      queryClient.invalidateQueries(["predictions", "remaining"]);
+      queryClient.invalidateQueries({ queryKey: ["predictions", "remaining"] });
     },
   });
 };
@@ -91,10 +90,10 @@ export const useUnlockSlot = () => {
   return useMutation({
     mutationFn: (data: SlotUnlockRequest) => adService.unlockSlot(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(ADS_KEYS.availableSlots());
-      queryClient.invalidateQueries(ADS_KEYS.history());
+      queryClient.invalidateQueries({ queryKey: ADS_KEYS.availableSlots() });
+      queryClient.invalidateQueries({ queryKey: ADS_KEYS.history() });
       // 예측 관련 쿼리도 무효화
-      queryClient.invalidateQueries(["predictions", "remaining"]);
+      queryClient.invalidateQueries({ queryKey: ["predictions", "remaining"] });
     },
   });
 };

@@ -279,11 +279,10 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
                               />
                             </motion.div>
                             <div className="flex flex-1 flex-col gap-0.5 text-slate-900 dark:text-slate-50">
-                              <div className="flex items-center text-[12px] font-semibold">
-                                <span>{sessionPhase}</span>
+                              <div className="flex items-center gap-3 text-[12px] font-semibold">
                                 <span
                                   className={cn(
-                                    "rounded-full text-[9px] font-medium ring-1",
+                                    "rounded-full text-[11px] font-medium ring-1",
                                     isMarketOpen
                                       ? "bg-white/70 text-emerald-500 ring-white/50 dark:bg-white/10 dark:text-emerald-200 dark:ring-white/15"
                                       : "bg-white/70 text-slate-500 ring-white/50 dark:bg-white/10 dark:text-slate-200 dark:ring-white/15",

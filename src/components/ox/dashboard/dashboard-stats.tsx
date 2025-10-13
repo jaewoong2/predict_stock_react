@@ -283,43 +283,7 @@ export function DashboardStats() {
 
   return (
     <div className="space-y-6">
-      {/* 세션 상태 배너 */}
-      <div
-        className={cn(
-          "relative overflow-hidden rounded-2xl bg-slate-50 p-6 text-sm shadow-none dark:bg-[#151b24]",
-        )}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-3">
-              <div
-                className={cn(
-                  "h-2.5 w-2.5 rounded-full",
-                  isMarketOpen ? "bg-emerald-500" : "bg-slate-400",
-                )}
-              />
-              <span className="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-                시장 현황
-              </span>
-            </div>
-            <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {sessionStatus}
-            </div>
-          </div>
-          <div
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase",
-              isMarketOpen
-                ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"
-                : "bg-slate-100 text-slate-600 dark:bg-slate-800/60 dark:text-slate-300",
-            )}
-          >
-            {isMarketOpen ? "LIVE" : "CLOSED"}
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4 rounded-2xl bg-white shadow-none dark:bg-[#11131a]">
+      <div className="space-y-2 rounded-2xl bg-white shadow-none dark:bg-[#11131a]">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-400 uppercase dark:text-slate-500">
             <Select value={selectedDay} onValueChange={handleDayChange}>
@@ -342,18 +306,20 @@ export function DashboardStats() {
               </SelectContent>
             </Select>
           </div>
-          <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-            {isAuthenticated
-              ? predictions.length > 0
-                ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 ${summary.incorrect}, 대기 ${summary.pending}${
-                    summary.void ? `, 무효 ${summary.void}` : ""
-                  }`
-                : "해당 날짜에 등록된 예측이 없어요"
-              : null}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {isAuthenticated &&
-              factChips.map((chip) => (
+
+          {isAuthenticated
+            ? predictions.length > 0 && (
+                <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                  ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 $
+                  {summary.incorrect}, 대기 ${summary.pending}$
+                  {summary.void ? `, 무효 ${summary.void}` : ""}` : "해당 날짜에
+                  등록된 예측이 없어요"
+                </div>
+              )
+            : null}
+          {factChips.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {factChips.map((chip) => (
                 <div
                   key={chip.label}
                   className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-[#161b26] dark:text-slate-300"
@@ -364,7 +330,8 @@ export function DashboardStats() {
                   <span>{chip.value}</span>
                 </div>
               ))}
-          </div>
+            </div>
+          )}
         </div>
 
         {sortedPredictions.length > 0 ? (

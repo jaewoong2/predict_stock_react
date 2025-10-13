@@ -229,10 +229,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </div>
           </div>
 
-          {/* Social Login Buttons - Circle */}
-          <div className="flex items-center justify-center gap-4">
+          {/* Social Login Buttons */}
+          <div className="space-y-2">
             <button
-              className="flex h-8 w-8 items-center justify-center rounded-full border-0 bg-white shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               disabled={
                 isLoading ||
                 oauthLogin.isPending ||
@@ -242,14 +242,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={() => onLogin("google")}
             >
               {oauthLogin.isPending ? (
-                <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <GoogleIcon />
               )}
+              <span>Google로 로그인</span>
             </button>
 
             <button
-              className="flex h-8 w-8 items-center justify-center rounded-full border-0 bg-[#FEE500] transition-all hover:bg-[#FDD835] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border-0 bg-[#FEE500] text-sm font-medium text-[#3C1E1E] transition-all hover:bg-[#FDD835] disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
                 isLoading ||
                 oauthLogin.isPending ||
@@ -259,14 +260,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={() => onLogin("kakao")}
             >
               {oauthLogin.isPending ? (
-                <Loader2 className="h-6 w-6 animate-spin text-[#3C1E1E]" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <KakaoIcon />
               )}
+              <span>카카오로 로그인</span>
             </button>
 
             <button
-              className="flex h-14 w-14 items-center justify-center rounded-full border-0 bg-black text-white transition-all hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border-0 bg-black text-sm font-medium text-white transition-all hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={
                 isLoading ||
                 oauthLogin.isPending ||
@@ -276,10 +278,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={() => onLogin("apple")}
             >
               {oauthLogin.isPending ? (
-                <Loader2 className="h-6 w-6 animate-spin text-white" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <AppleIcon />
               )}
+              <span>Apple로 로그인</span>
             </button>
           </div>
         </div>

@@ -208,9 +208,9 @@ export const sessionService = {
       end_date: endDate,
     });
 
-    const response = await oxApi.getWithBaseResponse<{ trading_days: string[] }>(
-      `/session/trading-days?${queryString}`,
-    );
+    const response = await oxApi.getWithBaseResponse<{
+      trading_days: string[];
+    }>(`/session/trading-days?${queryString}`);
     return response.trading_days;
   },
 };
@@ -308,7 +308,7 @@ export const createSessionSummary = (
     }
   }
 
-  if (session.status === "OPEN") {
+  if (session.phase === "OPEN") {
     return {
       isActive: true,
       canPredict: true,

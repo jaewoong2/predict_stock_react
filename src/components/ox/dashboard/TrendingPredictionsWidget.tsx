@@ -42,8 +42,8 @@ export function TrendingPredictionsWidget({
           className={cn(
             "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
             activeTab === "long"
-              ? "bg-emerald-600 text-white dark:bg-emerald-500"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
+              ? "border border-emerald-600 text-slate-600 dark:border-emerald-500"
+              : "border bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
           )}
         >
           <TrendingUp className="h-4 w-4" />
@@ -66,7 +66,7 @@ export function TrendingPredictionsWidget({
           className={cn(
             "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all",
             activeTab === "short"
-              ? "bg-rose-600 text-white dark:bg-rose-500"
+              ? "border border-rose-600 text-slate-600 dark:border-rose-500"
               : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-[#151b24] dark:text-slate-300 dark:hover:bg-[#1a2030]",
           )}
         >

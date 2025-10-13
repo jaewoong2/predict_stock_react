@@ -88,8 +88,9 @@ export function LiquidityWidget({ targetDate }: LiquidityWidgetProps) {
                 fontSize: "12px",
               }}
               labelFormatter={(date) => new Date(date).toLocaleDateString()}
-              formatter={(value: number | null, name: string) => {
-                if (value === null) return ["N/A", name];
+              formatter={(value: number, name: string) => {
+                if (value === undefined || typeof value !== "number")
+                  return ["N/A", name];
                 return [
                   name === "m2"
                     ? `$${value.toFixed(1)}T`
