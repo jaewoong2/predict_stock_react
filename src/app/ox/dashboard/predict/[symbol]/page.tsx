@@ -1,10 +1,61 @@
-"use client";
+import PredictSymbolPageClient from "./PredictSymbolPageClient";
+import { Metadata } from "next";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { PredictionModalOverlay } from "@/components/ox/predict/PredictionModal";
-import { Button } from "@/components/ui/button";
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ symbol: string }>;
+  searchParams: Promise<{ probability?: string; model?: string }>;
+}): Promise<Metadata> {
+  const { symbol } = await params;
+  const { model = "AI" } = await searchParams;
+
+  return {
+    title: `Predict ${symbol} O/X | ${model} Model`,
+    description: `Make your O/X prediction for ${symbol} stock price using ${model} AI forecast.`,
+    keywords: [
+      "stock game",
+      "O/X prediction",
+      "stock forecast game",
+      "AI prediction",
+      "market prediction",
+      symbol,
+      model,
+    ],
+    authors: [{ name: "Spam Finance" }],
+    category: "Finance",
+    creator: "Spam Finance Team",
+    publisher: "Spam Finance",
+    robots: "index, follow",
+    alternates: {
+      canonical: `https://stock.bamtoly.com/ox/dashboard/predict/${symbol}`,
+    },
+    openGraph: {
+      title: `Predict ${symbol} O/X | ${model} Model`,
+      description: `Make your O/X prediction for ${symbol} stock price using ${model} AI forecast.`,
+      url: `https://stock.bamtoly.com/ox/dashboard/predict/${symbol}`,
+      siteName: "Spam Finance",
+      locale: "ko_KR",
+      type: "website",
+      images: [
+        {
+          url: "https://stock.bamtoly.com/og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${symbol} O/X Prediction Game Preview`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Predict ${symbol} O/X | ${model} Model`,
+      description: `Make your O/X prediction for ${symbol} stock price using ${model} AI forecast.`,
+      images: ["https://stock.bamtoly.com/twitter-image.jpg"],
+      creator: "@spamfinance",
+    },
+  };
+}
 
 export default function PredictSymbolPage({
   params,
@@ -13,29 +64,7 @@ export default function PredictSymbolPage({
   params: Promise<{ symbol: string }>;
   searchParams: Promise<{ probability?: string; model?: string }>;
 }) {
-  const router = useRouter();
-  const { symbol } = use(params);
-  const { probability = null, model = null } = use(searchParams);
-
   return (
-    <div className="container mx-auto max-w-2xl py-10">
-      <Button
-        variant="ghost"
-        className="mb-6 flex items-center gap-2"
-        onClick={() => router.back()}
-      >
-        <ArrowLeft className="h-4 w-4" />
-        대시보드로 돌아가기
-      </Button>
-
-      <div className="rounded-lg border bg-background p-6 shadow-sm">
-        <PredictionModalOverlay
-          symbol={symbol}
-          aiProbability={probability}
-          aiModel={model}
-          onClose={() => router.back()}
-        />
-      </div>
-    </div>
+    <PredictSymbolPageClient params={params} searchParams={searchParams} />
   );
 }
