@@ -4,13 +4,14 @@ import { useState } from "react";
 import { Search, Command, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FundamentalSearchModal } from "./FundamentalSearchModal";
-import { useLogout } from "@/hooks/useAuth";
+import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 export function OxNavBar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { mutate: logout, isPending } = useLogout();
+  const { isAuthenticated, showLogin } = useAuth();
   const router = useRouter();
 
   return (
@@ -35,21 +36,33 @@ export function OxNavBar() {
 
           {/* Right side - Logout Button */}
           <div className="flex flex-shrink-0 items-center gap-4">
-            <Button
-              onClick={() => {
-                logout(undefined, {
-                  onSuccess: () => {
-                    router.push("/login");
-                  },
-                });
-              }}
-              disabled={isPending}
-              variant="ghost"
-              size="sm"
-              className="gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
-            >
-              <span className="">로그아웃</span>
-            </Button>
+            {isAuthenticated ? (
+              <Button
+                onClick={() => {
+                  logout(undefined, {
+                    onSuccess: () => {
+                      router.push("/login");
+                    },
+                  });
+                }}
+                disabled={isPending}
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
+              >
+                <LogOut className="h-4 w-4" aria-hidden />
+                <span>로그아웃</span>
+              </Button>
+            ) : (
+              <Button
+                onClick={showLogin}
+                variant="default"
+                size="sm"
+                className="px-4 font-semibold"
+              >
+                로그인
+              </Button>
+            )}
           </div>
         </div>
       </nav>

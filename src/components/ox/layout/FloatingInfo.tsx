@@ -153,31 +153,31 @@ export function FloatingInfo({ className }: FloatingInfoProps) {
           }}
         >
           <LayoutGroup id="floating-info">
-            <div className="mx-auto flex w-full max-w-[350px] justify-center">
+            <div className="mx-auto flex w-full max-w-[280px] justify-center px-2 sm:max-w-[350px] sm:px-0">
               {!isCollapsed && (
                 <motion.button
                   type="button"
                   onClick={() => setIsCollapsed(true)}
-                  className="absolute -top-2 -right-2 z-[70] flex h-7 w-7 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-black/5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10 dark:focus-visible:ring-white/20"
+                  className="absolute -top-2 -right-2 z-[70] flex h-6 w-6 items-center justify-center rounded-full bg-white text-slate-400 ring-1 ring-black/5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/40 sm:h-7 sm:w-7 dark:bg-slate-800 dark:text-slate-300 dark:ring-white/10 dark:focus-visible:ring-white/20"
                   aria-label="플로팅 정보 접기"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2.5} />
                 </motion.button>
               )}
               <motion.div
                 layout
                 layoutId="floating-info-shell"
-                animate={{ borderRadius: isCollapsed ? 999 : 20 }}
+                animate={{ borderRadius: isCollapsed ? 999 : 16 }}
                 transition={LAYOUT_SPRING}
                 className={cn(
                   "relative flex overflow-hidden border text-[11px] shadow-[0_24px_55px_-28px_rgba(15,23,42,0.48)] backdrop-blur-[22px] transition-[border,background] dark:border-white/12 dark:bg-[#121624]/70 dark:hover:border-white/18 dark:hover:bg-[#121624]/80",
                   isCollapsed
-                    ? "h-12 w-12 items-center justify-center border-white/55 bg-white/80 text-slate-900 shadow-lg hover:border-white hover:bg-white focus-visible:ring-2 focus-visible:ring-white/60 dark:border-white/12 dark:bg-[#121624]/80 dark:text-slate-50 dark:hover:border-white/25 dark:hover:bg-[#121624]/90 dark:focus-visible:ring-white/20"
-                    : "w-full items-center gap-2 bg-white px-3 py-2 hover:border-white/55 hover:bg-white/70 sm:gap-3 sm:px-4 sm:py-[10px]",
+                    ? "h-10 w-10 items-center justify-center border-white/55 bg-white/80 text-slate-900 shadow-lg hover:border-white hover:bg-white focus-visible:ring-2 focus-visible:ring-white/60 sm:h-12 sm:w-12 dark:border-white/12 dark:bg-[#121624]/80 dark:text-slate-50 dark:hover:border-white/25 dark:hover:bg-[#121624]/90 dark:focus-visible:ring-white/20"
+                    : "w-full items-center gap-1.5 bg-white px-2 py-1.5 hover:border-white/55 hover:bg-white/70 sm:gap-3 sm:px-4 sm:py-[10px]",
                 )}
               >
                 <motion.span

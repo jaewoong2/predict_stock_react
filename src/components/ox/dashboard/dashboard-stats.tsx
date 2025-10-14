@@ -126,7 +126,7 @@ const avatarVariants = {
 } satisfies Variants;
 
 export function DashboardStats() {
-  const { isAuthenticated, showLogin } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { data: pointsBalance } = usePointsBalance();
   const { data: session } = useTodaySession();
   const { data: predictionStats } = usePredictionStats();
@@ -144,6 +144,12 @@ export function DashboardStats() {
     return resolveMaxStackColumns(window.innerWidth);
   });
   const [isStackFocused, setIsStackFocused] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.matchMedia("(hover: none)").matches;
+  });
 
   useEffect(() => {
     if (effectiveDay) {
@@ -165,6 +171,31 @@ export function DashboardStats() {
 
     return () => {
       window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(hover: none)");
+    setIsTouchDevice(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsTouchDevice(event.matches);
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleChange);
+      return () => {
+        mediaQuery.removeEventListener("change", handleChange);
+      };
+    }
+
+    mediaQuery.addListener(handleChange);
+    return () => {
+      mediaQuery.removeListener(handleChange);
     };
   }, []);
 
@@ -282,6 +313,8 @@ export function DashboardStats() {
     remainingPredictions,
   ]);
 
+  const stackAnimationState = isTouchDevice || isStackFocused ? "hover" : "rest";
+
   return (
     <div className="space-y-6">
       <div className="space-y-2 rounded-2xl bg-white shadow-none dark:bg-[#11131a]">
@@ -308,16 +341,15 @@ export function DashboardStats() {
             </Select>
           </div>
 
-          {isAuthenticated
-            ? predictions.length > 0 && (
-                <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                  ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 $
-                  {summary.incorrect}, 대기 ${summary.pending}$
-                  {summary.void ? `, 무효 ${summary.void}` : ""}` : "해당 날짜에
-                  등록된 예측이 없어요"
-                </div>
-              )
-            : null}
+          {isAuthenticated && (
+            <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              {predictions.length > 0
+                ? `${predictions.length}건 · 정답 ${summary.correct}, 오답 ${summary.incorrect}, 대기 ${summary.pending}${
+                    summary.void ? `, 무효 ${summary.void}` : ""
+                  }`
+                : "해당 날짜에 등록된 예측이 없어요"}
+            </div>
+          )}
           {factChips.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {factChips.map((chip) => (
@@ -338,9 +370,9 @@ export function DashboardStats() {
         {sortedPredictions.length > 0 ? (
           <motion.div
             className="relative flex min-h-[2.5rem] items-start"
-            initial="rest"
-            animate={isStackFocused ? "hover" : "rest"}
-            whileHover="hover"
+            initial={isTouchDevice ? "hover" : "rest"}
+            animate={stackAnimationState}
+            whileHover={isTouchDevice ? undefined : "hover"}
             onFocusCapture={() => setIsStackFocused(true)}
             onBlurCapture={(event) => {
               const next = event.relatedTarget as HTMLElement | null;
