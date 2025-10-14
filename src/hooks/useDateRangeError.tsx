@@ -27,8 +27,6 @@ export function useDateRangeError({ error }: UseDateRangeErrorOptions) {
 
   useEffect(() => {
     if (error) {
-      console.log("useDateRangeError - Full error:", error);
-
       const apiError = error as any;
 
       // 다양한 에러 응답 형태 지원
@@ -36,8 +34,6 @@ export function useDateRangeError({ error }: UseDateRangeErrorOptions) {
         apiError?.response?.data?.detail ||
         apiError?.detail ||
         apiError?.message;
-
-      console.log("useDateRangeError - Extracted detail:", detail);
 
       if (detail && typeof detail === "string" && (
         detail.includes("30 days") ||

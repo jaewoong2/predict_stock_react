@@ -4,7 +4,7 @@ import type { PredictionDirectionStatsResponse } from "@/types/prediction-trends
 
 /**
  * 롱/숏 예측 통계 조회 Hook
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading } = usePredictionDirectionStats({
@@ -21,7 +21,7 @@ export function usePredictionDirectionStats(
   options?: Omit<
     UseQueryOptions<PredictionDirectionStatsResponse>,
     "queryKey" | "queryFn"
-  >
+  >,
 ) {
   return useQuery({
     queryKey: ["prediction-direction-stats", params?.date, params?.limit],
@@ -32,4 +32,3 @@ export function usePredictionDirectionStats(
     ...options,
   });
 }
-

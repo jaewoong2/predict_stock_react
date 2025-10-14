@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TickerAvatar } from "@/components/atomic/atoms/TickerAvatar";
@@ -22,6 +22,11 @@ export function TrendingPredictionsWidget({
   limit = 5,
 }: TrendingPredictionsWidgetProps) {
   const [activeTab, setActiveTab] = useState<TabType>("long");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data, isLoading, error } = usePredictionDirectionStats({
     date,
@@ -32,6 +37,11 @@ export function TrendingPredictionsWidget({
 
   const mostLongPredictions = data?.mostLongPredictions || [];
   const mostShortPredictions = data?.mostShortPredictions || [];
+
+  // Prevent hydration mismatch by showing loading state until mounted
+  if (!mounted || isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

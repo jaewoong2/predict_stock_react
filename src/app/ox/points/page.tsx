@@ -6,10 +6,10 @@ import { MobileTabBar } from "@/components/ox/home/MobileTabBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Coins, TrendingUp } from "lucide-react";
 
-// export const metadata: Metadata = {
-//   title: "포인트 관리 | O/X 예측",
-//   description: "포인트 잔액 조회, 거래 내역 확인, 포인트 내보내기",
-// };
+export const metadata: Metadata = {
+  title: "포인트 관리 | O/X 예측",
+  description: "포인트 잔액 조회, 거래 내역 확인, 포인트 내보내기",
+};
 
 function LoadingSpinner() {
   return (

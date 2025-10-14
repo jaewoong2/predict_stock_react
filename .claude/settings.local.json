@@ -14,7 +14,8 @@
       "mcp__serena__replace_regex",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Read(//Users/jaeung2/Desktop/**)"
+      "Read(//Users/jaeung2/Desktop/**)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

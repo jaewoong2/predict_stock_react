@@ -132,12 +132,11 @@ export function DashboardStats() {
   const { data: predictionStats } = usePredictionStats();
   const { date: urlDate, setParams } = useSignalSearchParams();
 
-  const initialTradingDay =
-    session?.session?.trading_day || new Date().toISOString().split("T")[0];
+  const initialTradingDay = session?.session?.trading_day;
 
   const effectiveDay = urlDate || initialTradingDay;
 
-  const [selectedDay, setSelectedDay] = useState(effectiveDay);
+  const [selectedDay, setSelectedDay] = useState(effectiveDay || "");
   const [maxStackColumns, setMaxStackColumns] = useState(() => {
     if (typeof window === "undefined") {
       return DEFAULT_MAX_STACK_COLUMNS;
@@ -187,6 +186,8 @@ export function DashboardStats() {
   const predictions = todayPredictions?.predictions ?? [];
 
   const dayOptions = useMemo(() => {
+    if (!initialTradingDay) return [];
+
     const baseDate = new Date(`${initialTradingDay}T00:00:00Z`);
     const options = Array.from({ length: 7 }, (_, i) => -i).map((offset) => {
       const target = new Date(baseDate);

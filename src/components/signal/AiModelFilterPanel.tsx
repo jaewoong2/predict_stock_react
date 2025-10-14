@@ -33,7 +33,6 @@ export const AiModelFilterPanel = React.memo(
     };
 
     const handleConditionToggle = (index: number) => {
-      console.log(conditions);
       const current = conditions[index] ?? "OR";
       onConditionChange(index, current === "OR" ? "AND" : "OR");
     };

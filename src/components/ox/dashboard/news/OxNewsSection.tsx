@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useMarketForecast, useMarketNewsSummary } from "@/hooks/useMarketNews";
 import { format } from "date-fns";
 import { MarketNewsCard } from "./MarketNewsCard";
@@ -9,7 +10,7 @@ import {
   MarketForecastResponse,
 } from "@/types/news";
 import { useDateRangeError } from "@/hooks/useDateRangeError";
-import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useRouter } from "next/navigation";
 
 interface OxNewsSectionProps {
@@ -24,9 +25,15 @@ export function OxNewsSection({
   initialMajorForecast,
   initialMinorForecast,
 }: OxNewsSectionProps) {
-  const { submittedDate } = useDashboardFilters();
+  const { date } = useSignalSearchParams();
   const router = useRouter();
-  const effectiveDate = submittedDate || format(new Date(), "yyyy-MM-dd");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const effectiveDate = date || format(new Date(), "yyyy-MM-dd");
 
   const {
     data: newsData,
@@ -64,7 +71,8 @@ export function OxNewsSection({
   const combinedError = newsError || majorForecastError || minorForecastError;
   const { ErrorModal } = useDateRangeError({ error: combinedError });
 
-  if (isLoadingNews) {
+  // Prevent hydration mismatch by showing loading state until mounted
+  if (!mounted || isLoadingNews) {
     return (
       <div className="space-y-6">
         <div className="h-96 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />

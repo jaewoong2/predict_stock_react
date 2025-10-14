@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingPredictionsWidget } from "./TrendingPredictionsWidget";
-import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 
 interface TrendingPredictionsContainerProps {
   limit?: number;
@@ -13,11 +13,11 @@ interface TrendingPredictionsContainerProps {
 export function TrendingPredictionsContainer({
   limit = 5,
 }: TrendingPredictionsContainerProps) {
-  const { submittedDate } = useDashboardFilters();
+  const { date } = useSignalSearchParams();
 
   return (
     <TrendingPredictionsWidget
-      date={submittedDate}
+      date={date || undefined}
       limit={limit}
     />
   );

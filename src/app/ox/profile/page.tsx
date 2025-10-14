@@ -6,10 +6,10 @@ import { MobileTabBar } from "@/components/ox/home/MobileTabBar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User, Settings } from "lucide-react";
 
-// export const metadata: Metadata = {
-//   title: "프로필 관리 | O/X 예측",
-//   description: "프로필 정보 수정, 계정 설정, 활동 내역 확인",
-// };
+export const metadata: Metadata = {
+  title: "프로필 관리 | O/X 예측",
+  description: "프로필 정보 수정, 계정 설정, 활동 내역 확인",
+};
 
 function LoadingSpinner() {
   return (

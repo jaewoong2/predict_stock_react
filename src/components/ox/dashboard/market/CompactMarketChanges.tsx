@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetTickerByDiffrences } from "@/hooks/useTicker";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,13 +8,18 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { useDateRangeError } from "@/hooks/useDateRangeError";
-import { useDashboardFilters } from "@/hooks/useDashboardFilters";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { useRouter } from "next/navigation";
 
 export function CompactMarketChanges() {
   const [activeTab, setActiveTab] = useState("price");
-  const { submittedDate } = useDashboardFilters();
+  const { date } = useSignalSearchParams();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     data: priceData,
@@ -24,7 +29,7 @@ export function CompactMarketChanges() {
     direction: "desc",
     limit: 10,
     field: "close_change",
-    target_date: submittedDate,
+    target_date: date || undefined,
   });
 
   const {
@@ -35,13 +40,14 @@ export function CompactMarketChanges() {
     direction: "desc",
     limit: 10,
     field: "volume_change",
-    target_date: submittedDate,
+    target_date: date || undefined,
   });
 
   const combinedError = priceError || volumeError;
   const { ErrorModal } = useDateRangeError({ error: combinedError });
 
-  if (priceLoading || volumeLoading) {
+  // Prevent hydration mismatch by showing loading state until mounted
+  if (!mounted || priceLoading || volumeLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -80,11 +86,11 @@ export function CompactMarketChanges() {
           </TabsList>
 
           <TabsContent value="price" className="mt-0">
-            <StockGrid data={priceData} date={submittedDate} type="price" />
+            <StockGrid data={priceData} date={date || ""} type="price" />
           </TabsContent>
 
           <TabsContent value="volume" className="mt-0">
-            <StockGrid data={volumeData} date={submittedDate} type="volume" />
+            <StockGrid data={volumeData} date={date || ""} type="volume" />
           </TabsContent>
         </Tabs>
       </div>
