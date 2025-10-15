@@ -15,7 +15,11 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Read(//Users/jaeung2/Desktop/**)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

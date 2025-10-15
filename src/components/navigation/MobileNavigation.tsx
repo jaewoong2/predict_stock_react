@@ -16,22 +16,22 @@ import {
 const navigationItems = [
   {
     name: "Dashboard",
-    href: "/dashboard",
+    href: "/",
     icon: LayoutDashboard,
   },
   {
     name: "ETF 분석",
-    href: "/etf",
+    href: "/legacy/etf",
     icon: TrendingUp,
   },
   {
     name: "이슈 분석",
-    href: "/research",
+    href: "/legacy/research",
     icon: FileText,
   },
   {
     name: "시장 분석",
-    href: "/market",
+    href: "/legacy/market",
     icon: BarChart3,
   },
 ];

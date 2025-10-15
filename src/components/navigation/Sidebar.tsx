@@ -13,7 +13,7 @@ const navigationItems = [
   },
   {
     name: "OX",
-    href: "/ox/dashboard",
+    href: "/",
     icon: Target,
   },
   {
@@ -41,7 +41,7 @@ export default function Sidebar() {
       <div className="flex flex-grow flex-col border-r border-gray-200 bg-white pt-4 pb-4">
         <nav className="flex-1 space-y-1 px-2">
           {navigationItems.map((item) => {
-            const isActive = item.href === "/ox/dashboard" 
+            const isActive = item.href === "/" 
               ? pathname.startsWith("/ox")
               : pathname === item.href;
             const Icon = item.icon;

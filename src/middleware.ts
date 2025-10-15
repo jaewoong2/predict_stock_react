@@ -60,9 +60,33 @@ export function middleware(req: NextRequest) {
     return redirectResponse;
   }
 
+  // Block legacy routes in production
+  if (process.env.NODE_ENV === "production") {
+    if (
+      req.nextUrl.pathname.startsWith("/legacy/") ||
+      req.nextUrl.pathname === "/legacy"
+    ) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  }
+
+  // Validate date parameter for all routes
+  const dateParam = url.searchParams.get("date");
+  if (dateParam) {
+    const selectedDate = new Date(dateParam);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    // If future date, redirect to today
+    if (selectedDate > today) {
+      url.searchParams.set("date", today.toISOString().split("T")[0]);
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (
-    req.nextUrl.pathname.startsWith("/dashboard") &&
-    !req.nextUrl.pathname.startsWith("/ox/")
+    req.nextUrl.pathname.startsWith("/legacy/dashboard")
   ) {
     return handleDashboardValidation(req, req.nextUrl.pathname);
   }

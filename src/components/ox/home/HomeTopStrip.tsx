@@ -28,7 +28,7 @@ export function HomeTopStrip({ activeTab = "home" }: HomeTopStripProps) {
         <TabLink href="/ox/home" active={activeTab === "home"}>
           홈
         </TabLink>
-        <TabLink href="/ox/dashboard" active={activeTab === "discover"}>
+        <TabLink href="/" active={activeTab === "discover"}>
           발견
         </TabLink>
         <TabLink href="/ox/news" active={activeTab === "news"}>

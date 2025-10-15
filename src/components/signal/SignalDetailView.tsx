@@ -129,7 +129,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!open) {
-        router.replace("/dashboard");
+        router.replace("/");
       }
     }, 500);
 

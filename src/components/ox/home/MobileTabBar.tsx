@@ -9,7 +9,7 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const items = [
     { href: "/ox/home", label: "홈", icon: Home },
-    { href: "/ox/dashboard", label: "발견", icon: Compass },
+    { href: "/", label: "발견", icon: Compass },
     { href: "/ox/predict", label: "예측", icon: Sparkles },
     { href: "/ox/points", label: "포인트", icon: Coins },
     { href: "/ox/profile", label: "프로필", icon: User },

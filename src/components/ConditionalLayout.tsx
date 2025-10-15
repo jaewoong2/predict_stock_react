@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Header from "@/components/header";
-import Sidebar from "@/components/navigation/Sidebar";
 
 export function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,14 +12,11 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
     return <main className="min-h-screen w-full">{children}</main>;
   }
 
-  // 다른 경로에서는 기존 레이아웃 유지
+  // 다른 경로에서는 헤더만 표시하고 전체 너비 사용
   return (
     <>
       <Header />
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="w-full flex-1 lg:ml-[96px]">{children}</main>
-      </div>
+      <main className="min-h-screen w-full">{children}</main>
     </>
   );
 }
