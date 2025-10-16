@@ -9,6 +9,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  Suspense,
 } from "react";
 import { useLocalPagination } from "./useLocalPagination";
 import { format } from "date-fns";
@@ -27,7 +28,8 @@ const SignalSearchParamsContext = createContext<SignalURLSearchParams | null>(
   null,
 );
 
-export function SignalSearchParamsProvider({
+// Internal component that uses useSearchParams
+function SignalSearchParamsProviderInner({
   children,
 }: {
   children: ReactNode;
@@ -83,7 +85,7 @@ export function SignalSearchParamsProvider({
         });
       }
     },
-    [searchParams, router, pathname],
+    [searchParams, router, pathname, setPage],
   );
   // URL search params 관리
   const urlParams: SignalURLSearchParams = useMemo(() => {
@@ -103,7 +105,7 @@ export function SignalSearchParamsProvider({
       strategy_type: searchParams.get("strategy_type"),
       setParams,
     };
-  }, [searchParams, pathname, router, setParams]);
+  }, [searchParams, setParams]);
 
   const debouncedSetParams = useCallback(
     (updates: Partial<SignalURLSearchParams>, delay = 500) => {
@@ -174,7 +176,10 @@ export function SignalSearchParamsProvider({
     debouncedSetParams,
   ]);
 
-  const value = useMemo(() => ({ ...urlParams, setParams }), [urlParams]);
+  const value = useMemo(
+    () => ({ ...urlParams, setParams }),
+    [urlParams, setParams],
+  );
 
   const safeChidren =
     typeof children === "object" && children !== null ? children : null;
@@ -183,6 +188,37 @@ export function SignalSearchParamsProvider({
     <SignalSearchParamsContext.Provider value={value}>
       {safeChidren}
     </SignalSearchParamsContext.Provider>
+  );
+}
+
+// Default fallback values for when Suspense is loading
+const defaultSearchParams: SignalURLSearchParams = {
+  date: format(new Date(), "yyyy-MM-dd"),
+  q: null,
+  models: [],
+  conditions: [],
+  strategy_type: null,
+  setParams: () => {},
+};
+
+// Outer provider that wraps with Suspense
+export function SignalSearchParamsProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return (
+    <Suspense
+      fallback={
+        <SignalSearchParamsContext.Provider value={defaultSearchParams}>
+          {children}
+        </SignalSearchParamsContext.Provider>
+      }
+    >
+      <SignalSearchParamsProviderInner>
+        {children}
+      </SignalSearchParamsProviderInner>
+    </Suspense>
   );
 }
 

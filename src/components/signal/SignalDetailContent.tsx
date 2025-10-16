@@ -29,7 +29,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AiModelSelect } from "./AiModelSelect";
 import { useAuth } from "@/hooks/useAuth";
-import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
+import { MarketNewsCard } from "@/components/ox/dashboard/news/MarketNewsCard";
 import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
 import { useDashboardFilters } from "@/hooks/useDashboard";
 import Link from "next/link";
@@ -186,7 +186,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
     <div className="mx-auto w-full max-w-6xl p-4 md:p-6">
       {marketNews?.result && marketNews.result.length > 0 && (
         <div className="mb-6">
-          <MarketNewsCarousel items={marketNews.result} />
+          <MarketNewsCard items={marketNews.result} />
         </div>
       )}
 
@@ -208,7 +208,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
                 value={aiModel}
                 onChange={(value) => {
                   router.replace(
-                    `/dashboard/d/${symbol}?model=${value}&date=${date}`,
+                    `/detail/${symbol}?model=${value}&date=${date}`,
                   );
                 }}
               />

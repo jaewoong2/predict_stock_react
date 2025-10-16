@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/drawer";
 import { format } from "date-fns";
 import { useMarketNewsSummary } from "@/hooks/useMarketNews";
-import { MarketNewsCarousel } from "../news/MarketNewsCarousel";
+import { MarketNewsCard } from "@/components/ox/dashboard/news/MarketNewsCard";
 import { cn, debounce } from "@/lib/utils";
 import {
   useSignalDataByNameAndDate,
@@ -150,9 +150,9 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                 &times;
               </button>
             </DrawerClose>
-            {marketNews?.result && (
+            {marketNews?.result && marketNews.result.length > 0 && (
               <div className="px-0 pb-4">
-                <MarketNewsCarousel items={marketNews?.result} />
+                <MarketNewsCard items={marketNews.result} />
               </div>
             )}
             <div className="flex items-center justify-between">
@@ -268,7 +268,7 @@ export const SignalDetailView: React.FC<SignalDetailViewProps> = ({
                     value={aiModel}
                     onChange={(value) => {
                       router.push(
-                        `/dashboard/d/${data.signal.ticker}?date=${date}&model=${value}`,
+                        `/detail/${data.signal.ticker}?date=${date}&model=${value}`,
                       );
                     }}
                   />

@@ -62,7 +62,7 @@ export const WeeklyActionCountCard: FC<WeeklyActionCountCardProps> = ({
           <div className="flex flex-wrap gap-2">
             {data.signals.map(({ ticker, count }) => (
               <Link
-                href={`/dashboard/d/${ticker}?model=OPENAI&date=${params.reference_date}`}
+                href={`/detail/${ticker}?model=OPENAI&date=${params.reference_date}`}
                 prefetch={false}
                 key={ticker + count.join("-")}
               >

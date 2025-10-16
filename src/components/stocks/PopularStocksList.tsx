@@ -244,7 +244,7 @@ function StockTable({
               >
                 <TableCell>
                   <Link
-                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                    href={`/detail/${symbol}?model=GOOGLE&date=${date}`}
                   >
                     <div className="flex items-center gap-2">
                       <div className="flex flex-col">
@@ -255,7 +255,7 @@ function StockTable({
                 </TableCell>
                 <TableCell>
                   <Link
-                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                    href={`/detail/${symbol}?model=GOOGLE&date=${date}`}
                   >
                     <div className="flex items-center gap-2">
                       <span>{formattedPrice}</span>
@@ -267,7 +267,7 @@ function StockTable({
                 </TableCell>
                 <TableCell className="text-right">
                   <Link
-                    href={`/dashboard/d/${symbol}?model=GOOGLE&date=${date}`}
+                    href={`/detail/${symbol}?model=GOOGLE&date=${date}`}
                   >
                     {formattedVolumeChange}
                   </Link>

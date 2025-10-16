@@ -538,7 +538,7 @@ function PredictionModalContent(state: PredictionModalState) {
               {resolvedProbability ? (
                 <Link
                   href={{
-                    pathname: `/dashboard/d/${normalizedSymbol}`,
+                    pathname: `/detail/${normalizedSymbol}`,
                     query: {
                       model: aiModel || "OPENAI",
                       date: effectiveDate,
