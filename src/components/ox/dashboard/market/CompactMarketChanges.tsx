@@ -125,7 +125,7 @@ function StockGrid({
         return (
           <Link
             key={stock.symbol}
-            href={`/dashboard/d/${stock.symbol}?model=GOOGLE&date=${date}`}
+            href={`/detail/${stock.symbol}?model=GOOGLE&date=${date}`}
             className="group rounded-2xl bg-slate-50 p-4 transition-all hover:bg-slate-100 dark:bg-[#11131a] dark:hover:bg-[#151b24]"
           >
             <div className="flex items-center justify-between">

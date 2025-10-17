@@ -19,6 +19,8 @@ import Link from "next/link";
 
 const Header = () => {
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout, isAuthenticated, showLogin } = useAuth();

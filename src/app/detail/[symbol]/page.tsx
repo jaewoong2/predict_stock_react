@@ -47,13 +47,13 @@ export async function generateStaticParams() {
 //     publisher: "Spam Finance",
 //     robots: "index, follow",
 //     alternates: {
-//       canonical: `https://stock.bamtoly.com/dashboard/d/${symbol}?model=${model}&date=${date}${strategy_type ? `&strategy_type=${strategy_type}` : ""}`,
+//       canonical: `https://stock.bamtoly.com/detail/${symbol}?model=${model}&date=${date}${strategy_type ? `&strategy_type=${strategy_type}` : ""}`,
 //     },
 //     openGraph: {
 //       title: `Forecast ${symbol} Prices | ${model} Model`,
 //       description:
 //         "Forecast US stock prices using AI models and market signals.",
-//       url: `https://stock.bamtoly.com/dashboard/d/${symbol}?model=${model}&date=${date}`,
+//       url: `https://stock.bamtoly.com/detail/${symbol}?model=${model}&date=${date}`,
 //       siteName: "Spam Finance",
 //       locale: "ko_KR",
 //       type: "website",

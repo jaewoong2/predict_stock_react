@@ -210,10 +210,6 @@ export function DashboardStats() {
   const { data: remainingPredictions } = useRemainingPredictions(selectedDay);
   const { data: todayPredictions } = usePredictionsForDay(selectedDay);
 
-  const sessionStatus =
-    session?.session?.phase === "OPEN" ? "예측 가능" : "예측 마감";
-  const isMarketOpen = session?.session?.phase === "OPEN";
-
   const predictions = todayPredictions?.predictions ?? [];
 
   const dayOptions = useMemo(() => {
@@ -313,7 +309,8 @@ export function DashboardStats() {
     remainingPredictions,
   ]);
 
-  const stackAnimationState = isTouchDevice || isStackFocused ? "hover" : "rest";
+  const stackAnimationState =
+    isTouchDevice || isStackFocused ? "hover" : "rest";
 
   return (
     <div className="space-y-6">

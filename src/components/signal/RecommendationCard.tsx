@@ -73,7 +73,7 @@ const RecommendationCard: FC<{
           <div className="flex flex-wrap gap-2">
             {data.results.map((item) => (
               <Link
-                href={`/dashboard/d/${item.ticker}?model=OPENAI&date=${date}`}
+                href={`/detail/${item.ticker}?model=OPENAI&date=${date}`}
                 key={item.ticker + date}
               >
                 <Badge

@@ -193,7 +193,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isMagicLinkSent || isLoading || isVerifying}
-                className="h-11 border-slate-200 bg-slate-50 pl-10 dark:border-slate-800 dark:bg-slate-900"
+                className="h-11 border-slate-200 bg-slate-50 pl-10 text-base dark:border-slate-800 dark:bg-slate-900"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleEmailLogin();
                 }}

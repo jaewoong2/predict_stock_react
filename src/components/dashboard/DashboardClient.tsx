@@ -119,7 +119,7 @@ const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
   const handleRowClick = useCallback(
     (signal: SignalData) => {
       router.push(
-        `/dashboard/d/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${date}`,
+        `/detail/${signal.signal.ticker}?model=${signal.signal.ai_model}&date=${date}`,
         { scroll: true },
       );
     },

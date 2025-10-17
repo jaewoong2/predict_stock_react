@@ -1,26 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "mcp__serena__read_file",
-      "mcp__serena__activate_project",
-      "mcp__sequential-thinking__sequentialthinking",
-      "mcp__serena__list_dir",
-      "mcp__serena__search_for_pattern",
-      "mcp__serena__check_onboarding_performed",
-      "mcp__serena__find_file",
-      "mcp__serena__find_symbol",
-      "mcp__serena__replace_symbol_body",
-      "Bash(git add:*)",
-      "mcp__serena__replace_regex",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Read(//Users/jaeung2/Desktop/**)",
-      "Bash(npm run build:*)",
-      "Bash(npx tsc:*)",
-      "Bash(npx eslint:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(rm:*)"
+      "Bash(cp:*)",
+      "Bash(find:*)",
+      "SlashCommand(/sc:cleanup)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(npm run build)",
+      "Bash(command:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git restore:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

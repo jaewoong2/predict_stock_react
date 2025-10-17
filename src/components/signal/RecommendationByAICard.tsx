@@ -70,7 +70,7 @@ const RecommendationByAiCard: FC<{
                 item.action === "buy" && (
                   <Link
                     key={item.ticker + item.ai_model + item.timestamp + index}
-                    href={`/dashboard/d/${item.ticker}?model=${item.ai_model || "OPENAI"}&strategy_type=AI_GENERATED&date=${date}`}
+                    href={`/detail/${item.ticker}?model=${item.ai_model || "OPENAI"}&strategy_type=AI_GENERATED&date=${date}`}
                   >
                     <Badge
                       variant={"secondary"}
