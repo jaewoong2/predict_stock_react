@@ -42,7 +42,7 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
       direction: "desc",
       limit: 20,
       field: "close_change",
-      target_date: date,
+      ...(date && { target_date: date }),
     },
   );
 
@@ -51,7 +51,7 @@ export function PopularStocksList({ date, viewType = "table" }: Props) {
       direction: "desc",
       limit: 20,
       field: "volume_change",
-      target_date: date,
+      ...(date && { target_date: date }),
     });
 
   if (priceLoading || volumeLoading) {

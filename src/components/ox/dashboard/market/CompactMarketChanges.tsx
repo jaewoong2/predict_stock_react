@@ -29,7 +29,7 @@ export function CompactMarketChanges() {
     direction: "desc",
     limit: 10,
     field: "close_change",
-    target_date: date || undefined,
+    ...(date && { target_date: date }),
   });
 
   const {
@@ -40,7 +40,7 @@ export function CompactMarketChanges() {
     direction: "desc",
     limit: 10,
     field: "volume_change",
-    target_date: date || undefined,
+    ...(date && { target_date: date }),
   });
 
   const combinedError = priceError || volumeError;

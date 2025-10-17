@@ -13,14 +13,23 @@ import {
 import { useLocalPagination } from "./useLocalPagination";
 import { format } from "date-fns";
 
+// setParams의 업데이트 타입
+export interface SignalURLSearchParamsUpdate {
+  date?: string | null;
+  q?: string | null;
+  models?: string[];
+  conditions?: ("OR" | "AND")[];
+  strategy_type?: string | null;
+}
+
 // URL search arams에 의해 관리되는 파라미터
 export interface SignalURLSearchParams {
-  date: string | null;
+  date: string; // 항상 존재 (기본값: 오늘 날짜)
   q: string | null;
   models: string[];
   conditions: ("OR" | "AND")[];
   strategy_type: string | null;
-  setParams: (updates: Partial<SignalURLSearchParams>) => void;
+  setParams: (updates: SignalURLSearchParamsUpdate) => void;
 }
 
 const SignalSearchParamsContext = createContext<SignalURLSearchParams | null>(
@@ -43,7 +52,7 @@ export function SignalSearchParamsProvider({
   });
 
   const setParams = useCallback(
-    (updates: Partial<SignalURLSearchParams>) => {
+    (updates: SignalURLSearchParamsUpdate) => {
       const newParams = new URLSearchParams(searchParams.toString());
       const apply = (key: string, value: unknown) => {
         if (
@@ -95,8 +104,13 @@ export function SignalSearchParamsProvider({
           .filter(Boolean)
           .map((c) => (c === "AND" ? "AND" : "OR"))
       : [];
+    
+    // date가 없으면 즉시 오늘 날짜로 설정
+    const dateParam = searchParams.get("date");
+    const date = dateParam || format(new Date(), "yyyy-MM-dd");
+    
     return {
-      date: searchParams.get("date"),
+      date,
       q: searchParams.get("q"),
       models: modelsParam ? modelsParam.split(",").filter(Boolean) : [],
       conditions: parsedConditions,

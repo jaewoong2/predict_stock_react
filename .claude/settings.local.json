@@ -19,7 +19,8 @@
       "Bash(npx tsc:*)",
       "Bash(npx eslint:*)",
       "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

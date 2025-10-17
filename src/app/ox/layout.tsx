@@ -1,4 +1,4 @@
-import { AuthGuard } from "../../../components/auth/auth-guard";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import { OxNavBar } from "@/components/ox/layout/OxNavBar";
 
 export default function OXLayout({ children }: { children: React.ReactNode }) {

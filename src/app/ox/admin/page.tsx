@@ -7,7 +7,7 @@ import { RewardStatusChip } from "@/components/ox/rewards/RewardStatusChip";
 import { RewardCatalogGrid } from "@/components/ox/rewards/RewardCatalogGrid";
 import { useRewardCatalog } from "@/hooks/useRewards";
 import { useUserList } from "@/hooks/useAuth";
-import { AuthGuard } from "../../../../components/auth/auth-guard";
+import { AuthGuard } from "@/components/auth/auth-guard";
 
 export default function AdminPage() {
   return (

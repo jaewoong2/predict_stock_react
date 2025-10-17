@@ -10,10 +10,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 
 import "../app/globals.css";
-// export const metadata: Metadata = {
-//   title: "Stock Predict AI LLM",
-//   description: "Predict stock prices with AI models",
-// };
 
 export default function RootLayout({
   children,
