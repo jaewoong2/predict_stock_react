@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "미국주식",
     "AI 주식분석",
     "주식예측",
-    "stock analysis",
+    "ai analysis",
     "AI prediction",
   ],
   authors: [{ name: "밤톨이" }],
@@ -17,18 +17,18 @@ export const metadata: Metadata = {
   publisher: "밤톨이",
   robots: "index, follow",
   alternates: {
-    canonical: "https://stock.bamtoly.com",
+    canonical: "https://ai.bamtoly.com",
   },
   openGraph: {
     title: "밤톨이 | AI로 분석하는 미국주식",
     description: "AI 기반 미국 주식 분석 및 예측 서비스",
-    url: "https://stock.bamtoly.com",
+    url: "https://ai.bamtoly.com",
     siteName: "밤톨이",
     locale: "ko_KR",
     type: "website",
     images: [
       {
-        url: "https://stock.bamtoly.com/og-image.jpg",
+        url: "https://ai.bamtoly.com/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "밤톨이 - AI 주식 분석",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "밤톨이 | AI로 분석하는 미국주식",
     description: "AI 기반 미국 주식 분석 및 예측 서비스",
-    images: ["https://stock.bamtoly.com/twitter-image.jpg"],
+    images: ["https://ai.bamtoly.com/twitter-image.jpg"],
     creator: "@bamtoly",
   },
 };

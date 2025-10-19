@@ -7,12 +7,16 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2, Mail } from "lucide-react";
-import { useAuth, useOAuthCallback } from "@/hooks/useAuth";
-import { useOAuthLogin } from "@/hooks/useAuth";
+import {
+  useAuth,
+  useOAuthCallback,
+  useOAuthLogin,
+  useSendMagicLink,
+  useMyProfile,
+} from "@/hooks/useAuth";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -66,13 +70,32 @@ const AppleIcon = () => (
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const oauthLogin = useOAuthLogin();
+  const sendMagicLink = useSendMagicLink();
   const handleOAuthCallback = useOAuthCallback();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const [isVerifying, setIsVerifying] = useState(false);
   const [email, setEmail] = useState("");
-  const [isMagicLinkSent, setIsMagicLinkSent] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+
+  // Magic Link 전송 후 인증 상태 폴링
+  const { data: pollingProfile } = useMyProfile({
+    enabled: isPolling && !isAuthenticated,
+    refetchInterval: isPolling && !isAuthenticated ? 2000 : false, // 2초마다 폴링
+    retry: false,
+  });
+
+  // 폴링으로 인증 성공 감지
+  useEffect(() => {
+    if (pollingProfile && isPolling) {
+      setIsPolling(false);
+      toast.success("로그인되었습니다!", {
+        description: `환영합니다, ${pollingProfile.nickname}님!`,
+      });
+      onClose();
+    }
+  }, [pollingProfile, isPolling, onClose]);
 
   // 현재 페이지를 콜백 대상으로 사용 (절대 URL)
   const clientRedirect = useMemo(() => {
@@ -135,26 +158,28 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     [clientRedirect, oauthLogin],
   );
 
-  const handleEmailLogin = useCallback(async () => {
+  const handleEmailLogin = useCallback(() => {
     if (!email || !email.includes("@")) {
       toast.error("유효한 이메일을 입력해주세요");
       return;
     }
 
-    try {
-      const { authService } = await import("@/services/authService");
-      await authService.sendMagicLink(email);
-      setIsMagicLinkSent(true);
-      toast.success("매직 링크를 전송했습니다!", {
-        description: "이메일을 확인해주세요",
-      });
-    } catch (error) {
-      console.error("Magic link error:", error);
-      toast.error("매직 링크 전송에 실패했습니다", {
-        description: "잠시 후 다시 시도해주세요",
-      });
-    }
-  }, [email]);
+    sendMagicLink.mutate(email, {
+      onSuccess: () => {
+        toast.success("매직 링크를 전송했습니다!", {
+          description: "이메일을 확인해주세요",
+        });
+        // 폴링 시작
+        setIsPolling(true);
+      },
+      onError: (error) => {
+        console.error("Magic link error:", error);
+        toast.error("매직 링크 전송에 실패했습니다", {
+          description: "잠시 후 다시 시도해주세요",
+        });
+      },
+    });
+  }, [email, sendMagicLink]);
 
   return (
     <Dialog
@@ -163,7 +188,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         if (!open) {
           onClose();
           setEmail("");
-          setIsMagicLinkSent(false);
+          setIsPolling(false);
+          sendMagicLink.reset();
         }
       }}
     >
@@ -192,10 +218,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isMagicLinkSent || isLoading || isVerifying}
+                disabled={sendMagicLink.isPending || isLoading || isVerifying || isPolling}
                 className="h-11 border-slate-200 bg-slate-50 pl-10 text-base dark:border-slate-800 dark:bg-slate-900"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleEmailLogin();
+                  if (e.key === "Enter" && !isPolling) handleEmailLogin();
                 }}
               />
             </div>
@@ -204,13 +230,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           {/* Submit Button */}
           <Button
             className="h-12 w-full bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-            disabled={isMagicLinkSent || isLoading || isVerifying}
+            disabled={sendMagicLink.isPending || isLoading || isVerifying || isPolling}
             onClick={handleEmailLogin}
           >
-            {isMagicLinkSent || isVerifying ? (
+            {sendMagicLink.isPending || isVerifying ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                이메일 확인 중...
+                매직 링크 전송 중...
+              </>
+            ) : isPolling ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                이메일 확인 대기 중...
               </>
             ) : (
               <>시작하기</>
@@ -268,7 +299,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </button>
 
             <button
-              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border-0 bg-black text-sm font-medium text-white transition-all hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex h-11 w-full items-center justify-center gap-3 rounded-lg border-0 bg-black text-sm font-medium text-white transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={
                 isLoading ||
                 oauthLogin.isPending ||

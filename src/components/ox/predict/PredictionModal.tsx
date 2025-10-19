@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Prediction, PredictionChoice } from "@/types/prediction";
 import { cn } from "@/lib/utils";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
-import { useDashboardFilters } from "@/hooks/useDashboard";
+import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import {
   useCancelPrediction,
   usePredictionsForDay,
@@ -84,6 +84,8 @@ type PredictionModalState = {
   readonly isPredictionsLoading: boolean;
   readonly effectiveDate: string;
   readonly strategyType: string;
+  readonly canPredict: boolean;
+  readonly isSelectedDateToday: boolean;
   readonly formatPrice: (value: PriceValue) => string;
   readonly handlePrediction: (choice: PredictionChoice) => Promise<void>;
   readonly handleCancel: () => Promise<void>;
@@ -97,7 +99,7 @@ function usePredictionModalState({
   open,
   onClose,
 }: UsePredictionModalStateProps): PredictionModalState {
-  const { date, strategy_type } = useDashboardFilters();
+  const { date, strategy_type } = useSignalSearchParams();
   const effectiveDate = date || new Date().toISOString().split("T")[0];
 
   const normalizedSymbol = symbol?.toUpperCase() ?? "";
@@ -125,6 +127,15 @@ function usePredictionModalState({
 
   const { isAuthenticated, showLogin } = useAuth();
   const isMarketOpen = session?.session?.phase === SessionPhase.OPEN;
+
+  // 선택된 날짜가 오늘인지 확인
+  const isSelectedDateToday = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    return effectiveDate === today;
+  }, [effectiveDate]);
+
+  // 예측 가능 여부: 오늘 날짜이고 마켓이 열려있어야 함
+  const canPredict = isSelectedDateToday && isMarketOpen;
 
   const submitPrediction = useSubmitPrediction();
   const updatePrediction = useUpdatePrediction();
@@ -164,9 +175,6 @@ function usePredictionModalState({
     data: previousEodResponse,
     isLoading: isPreviousEodLoading,
     isError: isPreviousEodError,
-    error: previousEodError,
-    isFetching: isPreviousEodFetching,
-    status: previousEodStatus,
   } = useEodPrice(normalizedSymbol, previousTradingDay ?? "", {
     enabled: open && !!previousTradingDay && !!normalizedSymbol,
   });
@@ -290,10 +298,16 @@ function usePredictionModalState({
         return;
       }
 
-      if (!isMarketOpen) {
-        toast.error("예측 불가", {
-          description: "현재 예측이 마감되었습니다.",
-        });
+      if (!canPredict) {
+        if (!isSelectedDateToday) {
+          toast.error("예측 불가", {
+            description: "과거 날짜는 예측할 수 없습니다.",
+          });
+        } else if (!isMarketOpen) {
+          toast.error("예측 불가", {
+            description: "현재 예측이 마감되었습니다.",
+          });
+        }
         return;
       }
 
@@ -416,6 +430,8 @@ function usePredictionModalState({
     isPredictionsLoading,
     effectiveDate,
     strategyType: strategy_type ?? "",
+    canPredict,
+    isSelectedDateToday,
     formatPrice,
     handlePrediction,
     handleCancel,
@@ -439,6 +455,8 @@ function PredictionModalContent(state: PredictionModalState) {
     isMutating,
     isPredictionsLoading,
     effectiveDate,
+    canPredict,
+    isSelectedDateToday,
     formatPrice,
     handlePrediction,
     handleCancel,
@@ -467,7 +485,9 @@ function PredictionModalContent(state: PredictionModalState) {
           {normalizedSymbol}
         </DialogTitle>
         <DialogDescription className="flex w-full justify-start text-sm text-gray-600">
-          오늘 주가를 예측해보세요
+          {isSelectedDateToday
+            ? "오늘 주가를 예측해보세요"
+            : `${effectiveDate} 주가 정보`}
         </DialogDescription>
       </DialogHeader>
 
@@ -588,6 +608,7 @@ function PredictionModalContent(state: PredictionModalState) {
               <Button
                 size="default"
                 disabled={
+                  !canPredict ||
                   isMutating ||
                   isPredictionsLoading ||
                   existingPrediction?.choice === PredictionChoice.UP
@@ -600,6 +621,7 @@ function PredictionModalContent(state: PredictionModalState) {
               <Button
                 size="default"
                 disabled={
+                  !canPredict ||
                   isMutating ||
                   isPredictionsLoading ||
                   existingPrediction?.choice === PredictionChoice.DOWN
@@ -613,7 +635,7 @@ function PredictionModalContent(state: PredictionModalState) {
 
             <Button
               variant="outline"
-              disabled={isMutating || isPredictionsLoading}
+              disabled={!canPredict || isMutating || isPredictionsLoading}
               onClick={handleCancel}
               className="h-10 w-full rounded-lg text-sm font-medium"
             >
@@ -625,7 +647,7 @@ function PredictionModalContent(state: PredictionModalState) {
             <Button
               size="default"
               className="h-10 rounded-lg bg-green-500 text-sm font-semibold text-white hover:bg-green-600 disabled:opacity-50"
-              disabled={isMutating || isPredictionsLoading}
+              disabled={!canPredict || isMutating || isPredictionsLoading}
               onClick={() => handlePrediction(PredictionChoice.UP)}
             >
               상승 예측
@@ -633,11 +655,20 @@ function PredictionModalContent(state: PredictionModalState) {
             <Button
               size="default"
               className="h-10 rounded-lg bg-red-500 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
-              disabled={isMutating || isPredictionsLoading}
+              disabled={!canPredict || isMutating || isPredictionsLoading}
               onClick={() => handlePrediction(PredictionChoice.DOWN)}
             >
               하락 예측
             </Button>
+          </div>
+        )}
+
+        {/* 과거 날짜 또는 마감된 경우 안내 메시지 */}
+        {!canPredict && (
+          <div className="rounded-lg text-sm text-amber-800">
+            {!isSelectedDateToday
+              ? "과거 날짜는 예측할 수 없습니다"
+              : "현재 예측이 마감되었습니다"}
           </div>
         )}
       </div>

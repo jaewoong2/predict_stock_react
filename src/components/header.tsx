@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Moon, Sun, LogOut, User, Settings } from "lucide-react";
+import { Moon, Sun, LogOut, User, Settings, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateNavigation } from "@/components/ui/date-navigation";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
+import { FundamentalSearchModal } from "@/components/ox/layout/FundamentalSearchModal";
 
 const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isFundamentalModalOpen, setIsFundamentalModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, logout, isAuthenticated, showLogin } = useAuth();
@@ -112,11 +114,11 @@ const Header = () => {
           {/* Left Section - Logo */}
           <div className="flex flex-1 items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-lg font-bold text-white">
-                S
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-700 to-orange-400 text-lg font-bold text-white">
+                B
               </div>
               <span className="hidden text-xl font-bold sm:inline-block">
-                Stock Predict
+                밤토리
               </span>
             </Link>
           </div>
@@ -130,8 +132,18 @@ const Header = () => {
             />
           </div>
 
-          {/* Right Section - Theme Toggle & User Menu */}
+          {/* Right Section - Search, Theme Toggle & User Menu */}
           <div className="flex flex-1 items-center justify-end space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsFundamentalModalOpen(true)}
+              className="cursor-pointer"
+              aria-label="기업 분석 검색"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+
             <Button
               variant="ghost"
               size="icon"
@@ -186,6 +198,12 @@ const Header = () => {
           </div>
         </nav>
       </header>
+
+      {/* Fundamental Search Modal */}
+      <FundamentalSearchModal
+        isOpen={isFundamentalModalOpen}
+        onClose={() => setIsFundamentalModalOpen(false)}
+      />
     </>
   );
 };

@@ -9,7 +9,10 @@ import {
   StockData,
   TickerOrderByRequest,
 } from "../types/ticker";
-import { TickerLookupResponse, TickerLookupParams } from "../types/ticker-lookup";
+import {
+  TickerLookupResponse,
+  TickerLookupParams,
+} from "../types/ticker-lookup";
 import api from "./api";
 
 export const tickerService = {
@@ -117,7 +120,6 @@ export const tickerService = {
     }
   },
 
-  // 티커 검색 (Lookup API)
   lookupTicker: async ({
     query,
     limit = 10,
@@ -126,7 +128,7 @@ export const tickerService = {
       `/tickers/lookup/${encodeURIComponent(query)}`,
       {
         params: { limit },
-      }
+      },
     );
     return response.data;
   },

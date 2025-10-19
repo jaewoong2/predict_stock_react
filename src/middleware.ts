@@ -85,13 +85,7 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  if (
-    req.nextUrl.pathname.startsWith("/legacy/dashboard")
-  ) {
-    return handleDashboardValidation(req, req.nextUrl.pathname);
-  }
-
-  return NextResponse.next();
+  return handleDashboardValidation(req, req.nextUrl.pathname);
 }
 
 function handleDashboardValidation(req: NextRequest, pathname: string) {

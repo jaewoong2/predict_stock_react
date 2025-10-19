@@ -9,7 +9,6 @@ import {
   type Variants,
 } from "framer-motion";
 import { usePointsBalance } from "@/hooks/usePoints";
-import { useTodaySession } from "@/hooks/useSession";
 import {
   useRemainingPredictions,
   usePredictionStats,
@@ -128,13 +127,10 @@ const avatarVariants = {
 export function DashboardStats() {
   const { isAuthenticated } = useAuth();
   const { data: pointsBalance } = usePointsBalance();
-  const { data: session } = useTodaySession();
   const { data: predictionStats } = usePredictionStats();
   const { date: urlDate, setParams } = useSignalSearchParams();
 
-  const initialTradingDay = session?.session?.trading_day;
-
-  const effectiveDay = urlDate || initialTradingDay;
+  const effectiveDay = urlDate;
 
   const [selectedDay, setSelectedDay] = useState(effectiveDay || "");
   const [maxStackColumns, setMaxStackColumns] = useState(() => {
@@ -213,21 +209,37 @@ export function DashboardStats() {
   const predictions = todayPredictions?.predictions ?? [];
 
   const dayOptions = useMemo(() => {
-    if (!initialTradingDay) return [];
+    const normalizedSelectedDay =
+      selectedDay || new Date().toISOString().split("T")[0];
+    const baseDate = new Date(`${normalizedSelectedDay}T00:00:00Z`);
 
-    const baseDate = new Date(`${initialTradingDay}T00:00:00Z`);
-    const options = Array.from({ length: 7 }, (_, i) => -i).map((offset) => {
+    const isWeekend = (date: Date) => {
+      const dayOfWeek = date.getUTCDay();
+      return dayOfWeek === 0 || dayOfWeek === 6;
+    };
+
+    const options: Array<{ value: string; label: string }> = [];
+    let offset = 0;
+    const maxLookback = 21;
+
+    while (options.length < 7 && offset <= maxLookback) {
       const target = new Date(baseDate);
-      target.setUTCDate(baseDate.getUTCDate() + offset);
-      const value = target.toISOString().split("T")[0];
-      const month = String(target.getUTCMonth() + 1).padStart(2, "0");
-      const day = String(target.getUTCDate()).padStart(2, "0");
-      const dateLabel = `${month}월 ${day}일`;
-      return {
-        value,
-        label: `${dateLabel}`,
-      };
-    });
+      target.setUTCDate(baseDate.getUTCDate() - offset);
+
+      if (!Number.isNaN(target.getTime()) && !isWeekend(target)) {
+        const value = target.toISOString().split("T")[0];
+        const month = String(target.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(target.getUTCDate()).padStart(2, "0");
+
+        options.push({
+          value,
+          label: `${month}월 ${day}일`,
+        });
+      }
+
+      offset += 1;
+    }
+
     if (
       selectedDay &&
       !options.some((option) => option.value === selectedDay)
@@ -245,7 +257,7 @@ export function DashboardStats() {
       }
     }
     return options;
-  }, [initialTradingDay, selectedDay]);
+  }, [selectedDay]);
 
   const sortedPredictions = useMemo(
     () =>

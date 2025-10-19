@@ -9,7 +9,7 @@ import { FloatingInfo } from "@/components/ox/layout/FloatingInfo";
 import { Toaster } from "@/components/ui/sonner";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 
-import "../app/globals.css";
+import "@/app/globals.css";
 
 export default function RootLayout({
   children,

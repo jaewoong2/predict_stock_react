@@ -408,6 +408,15 @@ export const useOAuthLogin = () => {
   });
 };
 
+/**
+ * Magic Link 전송 훅
+ */
+export const useSendMagicLink = () => {
+  return useMutation({
+    mutationFn: (email: string) => authService.sendMagicLink(email),
+  });
+};
+
 // ============================================================================
 // Utility Hooks
 // ============================================================================
