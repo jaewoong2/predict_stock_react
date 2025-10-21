@@ -53,16 +53,6 @@ export const predictionService = {
     return response.prediction;
   },
 
-  /**
-   * 예측 취소
-   */
-  cancelPrediction: async (predictionId: number): Promise<Prediction> => {
-    const response = await oxApi.deleteWithBaseResponse<{
-      prediction: Prediction;
-    }>(`/predictions/${predictionId}`);
-    return response.prediction;
-  },
-
   // ============================================================================
   // Prediction Queries
   // ============================================================================

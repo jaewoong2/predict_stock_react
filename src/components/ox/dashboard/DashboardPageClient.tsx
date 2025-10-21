@@ -177,7 +177,7 @@ export function DashboardPageClient() {
               오늘 예측 트렌드
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              지금 가장 핫한 종목 다른 투자자들의 예측 트렌드를 확인하세요.
+              다른 유저들은 어디에 예측을 했을까요?
             </p>
           </div>
           <Card className={panelClassName}>

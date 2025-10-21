@@ -57,14 +57,23 @@ export async function generateMetadata({
   };
 }
 
-export default function PredictSymbolPage({
+export default async function PredictSymbolPage({
   params,
   searchParams,
 }: {
   params: Promise<{ symbol: string }>;
   searchParams: Promise<{ probability?: string; model?: string }>;
 }) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+
   return (
-    <PredictSymbolPageClient params={params} searchParams={searchParams} />
+    <PredictSymbolPageClient
+      params={resolvedParams}
+      searchParams={{
+        probability: resolvedSearchParams?.probability ?? null,
+        model: resolvedSearchParams?.model ?? null,
+      }}
+    />
   );
 }

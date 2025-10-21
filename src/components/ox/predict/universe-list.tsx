@@ -110,7 +110,7 @@ export function UniverseList() {
                 </div>
               </div>
 
-              <PredictActionBar symbol={item.symbol} size="sm" variant="outline" showCancel />
+              <PredictActionBar symbol={item.symbol} size="sm" variant="outline" />
             </div>
           ))}
         </div>

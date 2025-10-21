@@ -1,6 +1,5 @@
 "use client";
 
-import { use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PredictionModalOverlay } from "@/components/ox/predict/PredictionModal";
@@ -10,12 +9,12 @@ export default function PredictSymbolPageClient({
   params,
   searchParams,
 }: {
-  params: Promise<{ symbol: string }>;
-  searchParams: Promise<{ probability?: string; model?: string }>;
+  params: { symbol: string };
+  searchParams: { probability?: string | null; model?: string | null };
 }) {
   const router = useRouter();
-  const { symbol } = use(params);
-  const { probability = null, model = null } = use(searchParams);
+  const { symbol } = params;
+  const { probability = null, model = null } = searchParams;
 
   return (
     <div className="container mx-auto max-w-2xl py-10">

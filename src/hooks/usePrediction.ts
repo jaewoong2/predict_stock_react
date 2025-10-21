@@ -1,9 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-} from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { predictionService } from "../services/predictionService";
 import {
   Prediction,
@@ -68,21 +63,6 @@ export const useUpdatePrediction = () => {
       predictionId: number;
       choice: PredictionUpdate["choice"];
     }) => predictionService.updatePrediction(predictionId, choice),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PREDICTION_KEYS.all });
-    },
-  });
-};
-
-/**
- * 예측 취소 훅
- */
-export const useCancelPrediction = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (predictionId: number) =>
-      predictionService.cancelPrediction(predictionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PREDICTION_KEYS.all });
     },

@@ -15,12 +15,7 @@ import { Prediction, PredictionChoice } from "@/types/prediction";
 import { cn } from "@/lib/utils";
 import { useSignalDataByNameAndDate } from "@/hooks/useSignal";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
-import {
-  useCancelPrediction,
-  usePredictionsForDay,
-  useSubmitPrediction,
-  useUpdatePrediction,
-} from "@/hooks/usePrediction";
+import { usePredictionsForDay, useSubmitPrediction, useUpdatePrediction } from "@/hooks/usePrediction";
 import { useTodaySession } from "@/hooks/useSession";
 import { useAuth } from "@/hooks/useAuth";
 import { SessionPhase } from "@/types/session";
@@ -88,7 +83,6 @@ type PredictionModalState = {
   readonly isSelectedDateToday: boolean;
   readonly formatPrice: (value: PriceValue) => string;
   readonly handlePrediction: (choice: PredictionChoice) => Promise<void>;
-  readonly handleCancel: () => Promise<void>;
   readonly close: () => void;
 };
 
@@ -139,11 +133,7 @@ function usePredictionModalState({
 
   const submitPrediction = useSubmitPrediction();
   const updatePrediction = useUpdatePrediction();
-  const cancelPrediction = useCancelPrediction();
-  const isMutating =
-    submitPrediction.isPending ||
-    updatePrediction.isPending ||
-    cancelPrediction.isPending;
+  const isMutating = submitPrediction.isPending || updatePrediction.isPending;
 
   const {
     data: currentPriceResponse,
@@ -363,53 +353,6 @@ function usePredictionModalState({
     ],
   );
 
-  const handleCancel = useCallback(async (): Promise<void> => {
-    if (!existingPrediction?.id) {
-      console.warn("No existing prediction to cancel");
-      return;
-    }
-
-    if (!isAuthenticated) {
-      showLogin();
-      return;
-    }
-
-    if (!isMarketOpen) {
-      toast.error("예측 불가", {
-        description: "현재 예측이 마감되었습니다.",
-      });
-      return;
-    }
-
-    try {
-      await cancelPrediction.mutateAsync(existingPrediction.id);
-      toast.success("예측 취소", {
-        description: `${normalizedSymbol} 예측이 취소되었습니다.`,
-      });
-      onClose();
-    } catch (error) {
-      if (isAuthenticationError(error)) {
-        showLogin();
-        toast.error("로그인이 필요합니다", {
-          description: "예측을 취소하려면 로그인이 필요합니다.",
-        });
-        return;
-      }
-      console.error("Prediction cancellation failed:", error);
-      toast.error("예측 취소 실패", {
-        description: "예측을 취소하지 못했습니다. 잠시 후 다시 시도해주세요.",
-      });
-    }
-  }, [
-    cancelPrediction,
-    existingPrediction?.id,
-    isAuthenticated,
-    isMarketOpen,
-    normalizedSymbol,
-    onClose,
-    showLogin,
-  ]);
-
   const close = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -434,7 +377,6 @@ function usePredictionModalState({
     isSelectedDateToday,
     formatPrice,
     handlePrediction,
-    handleCancel,
     close,
   } as const;
 }
@@ -459,7 +401,6 @@ function PredictionModalContent(state: PredictionModalState) {
     isSelectedDateToday,
     formatPrice,
     handlePrediction,
-    handleCancel,
   } = state;
 
   const { currentPrice, priceDiff, changePct, changeDirection } = priceData;
@@ -632,15 +573,6 @@ function PredictionModalContent(state: PredictionModalState) {
                 하락으로 수정
               </Button>
             </div>
-
-            <Button
-              variant="outline"
-              disabled={!canPredict || isMutating || isPredictionsLoading}
-              onClick={handleCancel}
-              className="h-10 w-full rounded-lg text-sm font-medium"
-            >
-              예측 취소
-            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">
