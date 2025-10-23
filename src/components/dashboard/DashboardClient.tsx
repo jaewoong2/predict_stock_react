@@ -80,24 +80,36 @@ const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
   }, [signalApiResponse?.signals]);
 
   useEffect(() => {
-    if (availableAiModels.length > 0) return;
+    if (!signalApiResponse?.signals) return;
 
-    if (signalApiResponse?.signals) {
-      const models = Array.from(
-        new Set(
-          signalApiResponse.signals
-            .map((s: any) => s.signal.ai_model)
-            .filter(Boolean) as string[],
-        ),
-      ).sort();
+    const models = Array.from(
+      new Set(
+        signalApiResponse.signals
+          .map((s: any) => s.signal.ai_model)
+          .filter(Boolean) as string[],
+      ),
+    ).sort();
 
+    const hasChanged =
+      models.length !== availableAiModels.length ||
+      models.some((model, index) => model !== availableAiModels[index]);
+
+    if (hasChanged) {
       updateAvailableAiModels(models);
     }
-  }, [
-    signalApiResponse?.signals,
-    availableAiModels.length,
-    updateAvailableAiModels,
-  ]);
+  }, [signalApiResponse?.signals, availableAiModels, updateAvailableAiModels]);
+
+  useEffect(() => {
+    if (selectedAiModels.length === 0) return;
+
+    const validModels = selectedAiModels.filter((model) =>
+      availableAiModels.includes(model),
+    );
+
+    if (validModels.length !== selectedAiModels.length) {
+      setParams({ models: validModels.length > 0 ? validModels : [] });
+    }
+  }, [availableAiModels, selectedAiModels, setParams]);
 
   useEffect(() => {
     if (selectedAiModels.length <= 1) {

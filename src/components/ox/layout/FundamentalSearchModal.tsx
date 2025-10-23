@@ -183,7 +183,7 @@ export function FundamentalSearchModal({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="티커 또는 회사명 검색..."
-              className="flex-1 bg-transparent text-base text-slate-900 placeholder-slate-400 outline-none dark:text-slate-50"
+              className="flex-1 bg-transparent text-base text-slate-900 placeholder-slate-400 outline-none dark:text-slate-50 ios-input-zoom ios-input-zoom--sm"
               autoFocus={!isLoading}
               disabled={isLoading}
             />

@@ -276,7 +276,7 @@ terraform apply
 
 ## 📞 연락처
 
-- **Website**: [https://stock.bamtoly.com](https://stock.bamtoly.com)
+- **Website**: [https://ai.bamtoly.com](https://ai.bamtoly.com)
 - **Email**: contact@bamtoly.com
 
 ---

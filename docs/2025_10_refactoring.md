@@ -458,6 +458,60 @@ export function TableSkeleton({
 </Suspense>
 ```
 
+### 1.4 레이아웃 계층 정리 & Header 중복 제거
+
+#### 현재 문제
+- `src/app/layout.tsx`의 `ConditionalLayout`이 항상 `<Header />`를 렌더링하면서 `usePathname`을 임포트만 하고 사용하지 않아 불필요하게 클라이언트 컴포넌트가 유지됨.
+- `/ox` 세그먼트의 `src/app/ox/layout.tsx`도 `<Header />`를 포함해 `/ox` 이하 페이지에서 헤더가 두 번 출력됨.
+- 루트 레이아웃 전체를 `Suspense`로 감싸 전역 Provider와 UI 레이어가 얽혀 있어 서버 컴포넌트 분리가 지연되고, 플러터링 없이 레이아웃별 데이터 프리패칭이 어려움.
+
+#### 개선 방안
+1. `ConditionalLayout`을 제거하거나 서버 컴포넌트로 단순화하고, 경로 그룹별 레이아웃에서 헤더 렌더링 책임을 분리.
+2. `app/(public)`·`app/(protected)` 라우트 그룹을 도입해 마케팅/인증 보호 화면을 명확히 구분하고, 필요한 곳에만 헤더나 `AuthGuard`를 감쌈.
+3. `AuthGuard`처럼 클라이언트 의존성이 있는 요소는 해당 그룹 레이아웃 안에서만 적용해 루트 레이아웃은 순수 서버 컴포넌트로 유지.
+4. 전역 `Suspense` 대신 Provider 레이어를 명시적으로 구성하고, 각 구간에 필요한 fallback 컴포넌트를 정의.
+
+#### 구현 아이디어
+```typescript
+// ✅ app/(public)/layout.tsx
+import Header from '@/components/header';
+
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen">{children}</main>
+    </>
+  );
+}
+
+// ✅ app/(protected)/ox/layout.tsx
+import { AuthGuard } from '@/components/auth/auth-guard';
+
+export default function OxLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AuthGuard>
+      <main className="bg-background min-h-screen">{children}</main>
+    </AuthGuard>
+  );
+}
+```
+
+#### 산출물
+- 공통 레이아웃 구조 다이어그램 및 문서 업데이트.
+- `/ox` 페이지에서 헤더 중복이 제거된 스크린샷 또는 스토리북 캡처.
+- 라우트 그룹 도입 이후 CLS/LCP 측정값 비교(전/후 1회 이상 측정).
+
+#### 실행 체크리스트
+- [ ] `src/app/layout.tsx`, `src/app/ox/layout.tsx`, `src/components/ConditionalLayout.tsx`의 헤더 렌더링 경로 분석 및 다이어그램 작성
+- [ ] 라우트 그룹 구조 초안 (`app/(public)`, `app/(protected)`) 설계 후 공유/승인
+- [ ] 루트 레이아웃에서 `Suspense` 제거 및 Provider 레이어 분리 설계
+- [ ] `app/(public)/layout.tsx` 구현 및 기존 공개 페이지 이동
+- [ ] `app/(protected)/ox/layout.tsx` 구현 후 `AuthGuard` 포함 여부 검증
+- [ ] `/ox` 이하 페이지에서 중복 헤더 제거 확인 (스토리북/로컬 스크린샷)
+- [ ] CLS/LCP 측정 (리팩토링 전/후 Lighthouse 최소 1회)
+- [ ] 문서/다이어그램 최신화 및 리뷰 반영
+
 ---
 
 ## 🚀 Phase 2: SSR/Data Fetching 최적화 (1주)
@@ -733,6 +787,78 @@ export function SignalFilters({ initialData }) {
 }
 ```
 
+### 2.5 예측 통계 파생 데이터 동기화
+
+#### 현재 문제
+```typescript
+// src/hooks/usePrediction.ts
+export const usePredictionStats = () => {
+  const { data: predictions } = usePredictionHistory({ limit: 1000 });
+
+  return useQuery<PredictionStats>({
+    queryKey: PREDICTION_KEYS.stats(),
+    queryFn: () => {
+      if (!predictions?.pages?.length) {
+        return EMPTY_STATS;
+      }
+      const allPredictions = predictions.pages.flat();
+      // 파생 데이터 계산...
+      return buildStats(allPredictions);
+    },
+    enabled: !!predictions?.pages?.length,
+  });
+};
+```
+- `useQuery`의 `queryFn`이 클로저로 `predictions`를 참조하기 때문에 history가 무효화돼도 캐시가 즉시 갱신되지 않음.
+- 동일한 정보를 두 개의 쿼리 캐시에 저장하면서 불필요한 메모리 사용 및 네트워크 재시도가 발생.
+- 서버 컴포넌트/SSR 단계에서 동일한 통계 계산을 재사용하기 어렵고, 테스트에서 순수 함수로 검증하기 힘듦.
+
+#### 개선 방안
+1. `lib/analytics/predictions/calcPredictionStats.ts`에서 순수 함수로 통계 계산 로직을 분리해 클라이언트와 서버가 공유.
+2. `usePredictionStats`는 React Query `select` 또는 `useMemo`를 활용해 history 쿼리 결과를 파생 데이터로 변환하고, 별도 `useQuery` 호출을 제거.
+3. 파생 데이터 유효성을 확보하기 위해 history 쿼리의 `queryKey`와 연결된 `queryClient.getQueryData`/`setQueryData` 전략을 도입.
+4. 통계 계산 함수에 대한 단위 테스트를 작성하고, edge case(빈 배열, 음수 포인트 등)를 검증.
+
+#### 구현 아이디어
+```typescript
+// ✅ lib/analytics/predictions/calcPredictionStats.ts
+export function calcPredictionStats(history: Prediction[]): PredictionStats {
+  // 순수 함수로 통계 산출
+}
+
+// ✅ hooks/usePrediction.ts
+export const usePredictionStats = () => {
+  const historyQuery = usePredictionHistory({ limit: 500 });
+
+  const stats = useMemo(() => {
+    if (!historyQuery.data?.pages?.length) return EMPTY_STATS;
+    const flat = historyQuery.data.pages.flat();
+    return calcPredictionStats(flat);
+  }, [historyQuery.data]);
+
+  return {
+    data: stats,
+    isLoading: historyQuery.isLoading,
+    refetch: historyQuery.fetchNextPage,
+  };
+};
+```
+
+#### 산출물
+- `calcPredictionStats` 순수 함수 및 단위 테스트 (`lib/analytics/predictions/__tests__`).
+- 기존 `usePredictionStats` 호출부 리팩토링 PR.
+- React Query Devtools를 통한 파생 데이터 갱신 확인 캡처.
+
+#### 실행 체크리스트
+- [ ] 기존 `usePredictionHistory` 반환 데이터 구조 및 내부 계산 로직 문서화
+- [ ] `lib/analytics/predictions/calcPredictionStats.ts` 초안 작성 (빈 배열, 음수 포인트 등 엣지 케이스 포함)
+- [ ] 테스트 폴더 생성 및 `calcPredictionStats` 유닛 테스트 작성/통과
+- [ ] `usePredictionStats`를 메모이제이션 기반 파생 데이터 훅으로 리팩토링
+- [ ] React Query Devtools로 history 갱신 시 stats도 즉시 갱신되는지 검증
+- [ ] SSR/서버 컴포넌트에서 통계 유틸 재사용 가능한지 PoC 작성
+- [ ] API 문서/타입 정의(`PredictionStats`)와 계산 결과 일치 여부 확인
+- [ ] 변경 PR 리뷰 및 QA 피드백 반영
+
 ---
 
 ## ⚡ Phase 3: 코드 품질 개선 (1주)
@@ -977,6 +1103,73 @@ export function TickerAvatar({ symbol }: { symbol: string }) {
   );
 }
 ```
+
+### 3.4 Command Palette UX 개선
+
+#### 현재 문제
+- `src/components/ui/command-palette.tsx`에서 단축키 이벤트가 `!open`을 참조해 컨트롤되지 않는 상태에서는 항상 `true`만 설정돼 토글이 동작하지 않음.
+- `useEffect` 의존성 배열에 `open` 값이 포함되지 않아 외부에서 `open` prop을 제어할 때 최신 상태가 반영되지 않음.
+- 라우터 이동과 상태 변경을 묶어 처리하는 로직이 분산돼 테스트하기 어렵고, 접근성 단축키(`cmd/ctrl + k`)가 페이지 마운트/언마운트 시 중복 등록될 여지가 있음.
+
+#### 개선 방안
+1. `useControllableState`(직접 구현) 패턴을 적용해 내부/외부 제어를 단일 훅으로 통합.
+2. 단축키 핸들러에서 최신 상태를 참조하도록 `useCallback` + 상태 업데이트 함수(`setOpen((prev) => !prev)`)를 사용.
+3. 단축키 바인딩을 커스텀 훅(`useCommandPaletteHotkey`)으로 추출하고, 클린업을 명시적으로 처리해 메모리 누수를 방지.
+4. Playwright 또는 RTL 테스트로 단축키 입력 시 다이얼로그가 열리고 닫히는지 검증.
+
+#### 구현 아이디어
+```typescript
+// ✅ hooks/useControllableState.ts
+export function useControllableState({ value, defaultValue, onChange }) {
+  const [internal, setInternal] = useState(defaultValue);
+  const isControlled = value !== undefined;
+  const state = isControlled ? value : internal;
+
+  const setState = useCallback(
+    (next: boolean | ((prev: boolean) => boolean)) => {
+      const resolved = typeof next === 'function' ? next(state) : next;
+      if (!isControlled) setInternal(resolved);
+      onChange?.(resolved);
+    },
+    [isControlled, onChange, state],
+  );
+
+  return [state, setState] as const;
+}
+
+// ✅ components/ui/command-palette.tsx
+const [openState, setOpenState] = useControllableState({
+  value: open,
+  defaultValue: false,
+  onChange: onOpenChange,
+});
+
+useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      setOpenState((prev) => !prev);
+    }
+  };
+  window.addEventListener('keydown', handler);
+  return () => window.removeEventListener('keydown', handler);
+}, [setOpenState]);
+```
+
+#### 산출물
+- `useControllableState`/`useCommandPaletteHotkey` 커스텀 훅 및 단위 테스트.
+- 단축키 토글 E2E 스냅샷(열림/닫힘) 기록.
+- 접근성 감사(ARIA role, focus trap) 결과 업데이트.
+
+#### 실행 체크리스트
+- [ ] 현재 `command-palette.tsx`의 상태 제어/단축키 흐름 분석 및 문제 사례 기록
+- [ ] `useControllableState` 설계 및 훅 구현 (Storybook/테스트 포함)
+- [ ] 단축키 전용 훅(`useCommandPaletteHotkey`) 작성 및 이벤트 등록/해제 검증
+- [ ] `CommandPalette` 컴포넌트에 새 훅 통합, 상태/라우터 연동 리팩토링
+- [ ] RTL 또는 Playwright 테스트로 `cmd/ctrl + k` 토글 시나리오 작성
+- [ ] ARIA role, focus trap, initial focus 등 접근성 검증 및 개선 사항 반영
+- [ ] 문서에 사용 방법/단축키 리스트 업데이트
+- [ ] QA 세션/디자인 승인 후 배포 체크
 
 ---
 
@@ -1702,28 +1895,150 @@ Weekend: 최종 QA 및 배포
 ## 📝 체크리스트
 
 ### Phase 1 완료 조건
-- [ ] DashboardPageClient → 서버/클라이언트 분리 완료
-- [ ] 비즈니스 로직 lib/filters/로 이동
-- [ ] 공통 Skeleton 컴포넌트 생성
-- [ ] 단위 테스트 80% 이상
-- [ ] Lighthouse Performance 85+ 달성
-- [ ] 코드 리뷰 완료
+
+#### DashboardPageClient → 서버/클라이언트 분리
+- [ ] `src/components/ox/dashboard/DashboardPageClient.tsx`의 데이터 의존성과 상태 훅 목록 작성
+- [ ] `app/page.tsx` 반환값을 서버 컴포넌트(`DashboardPage`)로 교체하고 필요한 데이터 fetching 함수 설계
+- [ ] 필터/상호작용 전용 클라이언트 컴포넌트(`DashboardClientShell` 등) 생성 및 props 계약 정의
+- [ ] Suspense/Streaming 경계 재구성하고 fallback 컴포넌트를 연결
+- [ ] `use client` 지시어가 남은 컴포넌트에만 존재하는지 확인 (ESLint rule 또는 검색)
+- [ ] 기존 `DashboardPageClient` 제거 후 회귀 테스트(주요 대시보드 흐름) 수행
+
+#### 라우트 그룹 기반 레이아웃 재구성 & Header 중복 제거
+- [ ] 현재 레이아웃 계층(`RootLayout`, `ConditionalLayout`, `OXLayout`) 다이어그램 작성
+- [ ] `app/(public)`·`app/(protected)` 그룹 생성 및 페이지 파일 이동 계획 수립
+- [ ] `ConditionalLayout` 제거 또는 서버 컴포넌트화 후 헤더 렌더링 책임 분리
+- [ ] `/ox` 경로 전용 레이아웃에서 `AuthGuard`/헤더를 필요한 범위로 한정
+- [ ] 전역 Provider 레이어 재정렬(ReactQueryProvider, AuthProvider 등) 및 Suspense 제거 검증
+- [ ] 중복 헤더 제거 스크린샷/Lighthouse CLS 결과 문서화
+
+#### 비즈니스 로직 lib/filters/로 이동
+- [ ] `DashboardClient.tsx`와 관련 훅에서 필터링/정렬/계산 로직 목록 추출
+- [ ] `lib/filters/` 디렉터리 구조 설계 및 파일 초안 생성
+- [ ] 각 로직을 순수 함수로 옮기고 타입 시그니처 정의
+- [ ] Jest 기반 단위 테스트 작성(OR/AND/Mixed 등 조건별 검증)
+- [ ] 모든 컴포넌트/훅이 새 유틸을 사용하도록 경로 업데이트
+- [ ] dead code / 중복 코드 제거 후 타입 체크 & 빌드 통과 확인
+
+#### 공통 Skeleton 컴포넌트 생성
+- [ ] Skeleton UI 중복 위치 인벤토리(DashboardPageClient, dashboard-stats 등)
+- [ ] `components/shared/skeletons/`에 공통 컴포넌트 추가(Stats, Table, Card, News 등)
+- [ ] Suspense fallback에서 신규 Skeleton을 사용하도록 교체
+- [ ] Skeleton에 다크 모드/반응형 속성 반영 및 디자인팀 확인
+- [ ] 스토리북 또는 샘플 페이지로 렌더링 상태 검증
+- [ ] 기존 인라인 Skeleton 함수 제거 및 불필요한 import 정리
+
+#### 단위 테스트 80% 이상
+- [ ] `pnpm test --coverage`로 현재 커버리지 수치 기록
+- [ ] `lib/filters`, `lib/analytics`, 핵심 hooks(`usePrediction`, `useDashboard`)에 대한 테스트 추가
+- [ ] 예측 서비스 mock과 API 에러 분기 테스트 케이스 작성
+- [ ] CI 커버리지 임계치(80%) 설정 및 스크립트에 반영
+- [ ] 실패 시나리오(비로그인/네트워크 오류) 테스트 추가
+- [ ] 커버리지 리포트 공유 및 QA 승인 획득
+
+#### Lighthouse Performance 85+ 달성
+- [ ] 리팩토링 전 Lighthouse/Next.js Analytics 지표 스냅샷 저장
+- [ ] 서버 컴포넌트 전환/Streaming 반영 후 반복 측정
+- [ ] FCP/LCP 지연 구간 리포트 분석 및 최적화 항목 적용
+- [ ] 이미지/폰트/스크립트 최적화 체크리스트 수행
+- [ ] 목표 수치 달성 시 리포트 아카이브 및 회고 메모 작성
+
+#### 코드 리뷰 완료
+- [ ] 주요 변경점 단위로 PR 분할 전략 수립(feature branches)
+- [ ] Lint/Type 체크/테스트 자동화 파이프라인 실행
+- [ ] PR 설명에 변경 목적, 테스트 결과, 성능 지표 포함
+- [ ] 리뷰어 피드백 수렴 및 follow-up 이슈 정리
+- [ ] Merge 후 릴리스 노트/문서 업데이트
 
 ### Phase 2 완료 조건
-- [ ] 모든 주요 페이지 SSR 적용
-- [ ] Streaming + Suspense 적용
-- [ ] 캐싱 전략 구현 및 문서화
-- [ ] Lighthouse Performance 90+ 달성
-- [ ] SEO Score 95+ 달성
-- [ ] E2E 테스트 작성
+
+#### 모든 주요 페이지 SSR 적용
+- [ ] SSR 우선 대상 페이지 목록 작성(`app/page.tsx`, `app/ox/...`, 모달 등)
+- [ ] 각 페이지별 서버 데이터 fetching 함수 및 캐싱 전략 정의
+- [ ] 클라이언트 전용 훅/컴포넌트를 최소화하고 서버 컴포넌트 전환
+- [ ] 기존 CSR fetch 제거 후 회귀 테스트
+- [ ] SSR 전환 후 성능/SEO 지표 확인
+
+#### Streaming + Suspense 적용
+- [ ] 느린 데이터 패널(통계, 트렌드, 뉴스, 테이블)별 로딩 시간 측정
+- [ ] 각 섹션에 Suspense boundary 및 fallback Skeleton 연결
+- [ ] 서버 컴포넌트 Streaming(React.lazy 또는 async) 검증
+- [ ] 사용자 체감 로딩(UX)/Lighthouse 레이턴시 비교 리포트 작성
+
+#### Prediction stats 파생 데이터 계산 유틸 공유
+- [ ] `calcPredictionStats` 순수 함수 구현 및 엣지 케이스 테스트 통과
+- [ ] `usePredictionStats` 리팩토링 및 React Query select 사용
+- [ ] 서버/클라이언트 양쪽에서 동일 유틸 사용하도록 의존성 재구성
+- [ ] React Query Devtools로 실시간 갱신 확인 및 캡처 저장
+
+#### 캐싱 전략 구현 및 문서화
+- [ ] `lib/data/` 모듈에서 `fetch` 옵션(`next.revalidate`, `tags`) 정의
+- [ ] `revalidateTag`, `revalidatePath` 사용 시나리오 확립 및 헬퍼 함수 작성
+- [ ] TanStack Query 캐시 키/TTL 정책 정리 및 config 파일화
+- [ ] `docs/caching-strategy.md` 작성 및 리뷰
+
+#### Lighthouse Performance 90+ 달성
+- [ ] Phase 1 이후 레이턴시 재측정하여 개선 여지 파악
+- [ ] 이미지 lazy-loading, 폰트 preconnect 등 세부 최적화 수행
+- [ ] Web Vitals(WebPageTest, Lighthouse CI) 자동 측정 스크립트 추가
+- [ ] 목표 달성 후 지표 공유 및 추적 시트 업데이트
+
+#### SEO Score 95+ 달성
+- [ ] 모든 페이지에 Meta/OG/Twitter 카드 필수 필드 점검
+- [ ] 구조화 데이터(JSON-LD) 추가 및 Google Rich Results Test 통과
+- [ ] `robots.txt`, `sitemap.xml` 갱신 여부 확인
+- [ ] Lighthouse SEO 스코어 캡처 및 QA 승인
+
+#### E2E 테스트 작성
+- [ ] 핵심 유저 플로우 정의(로그인, 예측 제출, 대시보드 조회 등)
+- [ ] Playwright/Cypress 선택 및 테스트 환경 구성
+- [ ] Happy path + 오류 시나리오 테스트 작성
+- [ ] CI에 E2E 파이프라인 추가 및 플레이크 모니터링
+- [ ] 테스트 리포트와 스크린샷 보관
 
 ### Phase 3 완료 조건
-- [ ] Zod 스키마 적용
-- [ ] 타입 커버리지 95% 이상
-- [ ] 성능 프로파일링 완료
-- [ ] 아키텍처 문서 작성
-- [ ] 개발 가이드 작성
-- [ ] 최종 QA 통과
+
+#### Zod 스키마 적용
+- [ ] API 응답/요청 리스트업 및 스키마 설계 초안 작성
+- [ ] `lib/validations/schemas.ts`에 공통 스키마 정의 및 타입 export
+- [ ] 서비스/훅에서 입력/출력 검증 도입
+- [ ] 런타임 validation 실패 시 에러 핸들링 UX 검토
+- [ ] 스키마 변경 시 테스트/문서 업데이트
+
+#### 타입 커버리지 95% 이상
+- [ ] `tsc --extendedDiagnostics`로 현재 타입 커버리지 파악
+- [ ] any/unknown 사용 위치 조사 및 타입 보강
+- [ ] `tsconfig` strict 옵션 점진적 활성화 계획 수립
+- [ ] `ts-prune` 등으로 사용되지 않는 타입 제거
+- [ ] 커버리지 리포트 공유 및 추적
+
+#### 성능 프로파일링 완료
+- [ ] React Profiler/Next.js profiler로 주요 인터랙션 측정
+- [ ] 병목 컴포넌트 식별 및 메모이제이션/분리 적용
+- [ ] 대량 데이터 테이블에 virtual scrolling 적용 여부 재검토
+- [ ] 프로파일링 결과 보고서 및 개선 로그 작성
+
+#### Command palette 단축키 토글 및 접근성 테스트 통과
+- [ ] 새 `useControllableState`/`useCommandPaletteHotkey` 훅 통합
+- [ ] 단축키/포커스 관련 RTL 또는 Playwright 테스트 통과 확인
+- [ ] ARIA role, focus trap, 초기 포커스 행동 점검
+- [ ] 접근성 감사 결과 문서화 및 이슈 대응
+
+#### 아키텍처 문서 작성
+- [ ] 리팩토링 후 폴더 구조/레이어 다이어그램 작성
+- [ ] 데이터 흐름/캐싱 전략/권한 흐름을 포함한 ADR 초안 배포
+- [ ] 팀 피드백 반영하여 최종 문서 확정
+
+#### 개발 가이드 작성
+- [ ] 신규 컴포넌트/훅 사용 가이드 초안 작성
+- [ ] 코드 스타일/테스트/배포 절차 포함
+- [ ] 온보딩 체크리스트 업데이트
+
+#### 최종 QA 통과
+- [ ] QA 시나리오 정의 및 테스트 일정 수립
+- [ ] 스테이징 배포 후 회귀 테스트 수행
+- [ ] 버그/리그레션 처리 및 QA 승인 획득
+- [ ] 릴리스 노트와 배포 체크리스트 마감
 
 ---
 

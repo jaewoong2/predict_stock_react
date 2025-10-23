@@ -7,6 +7,7 @@ export interface ChartPattern {
 
 export interface Signal {
   ticker: string;
+  name?: string | null;
   strategy?: string | null;
   entry_price?: number | null;
   stop_loss?: number | null;

@@ -179,7 +179,7 @@ function TrendingStockCard({
   type: "long" | "short";
 }) {
   return (
-    <Card className="group cursor-pointer rounded-2xl border-0 bg-white p-4 transition-all hover:shadow-lg dark:bg-[#0f1118] dark:hover:bg-[#151b24]">
+    <Card className="group cursor-pointer rounded-2xl border-0 bg-white p-4 transition-all hover:bg-slate-50 dark:bg-[#0f1118] dark:hover:bg-[#151b24]">
       <div className="flex items-center justify-between">
         {/* Left: Rank + Stock Info */}
         <div className="flex items-center gap-4">
@@ -221,9 +221,6 @@ function TrendingStockCard({
         <div className="flex items-center gap-6">
           {/* Prediction Count */}
           <div className="text-right">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {type === "long" ? "롱 예측" : "숏 예측"}
-            </p>
             <p
               className={cn(
                 "text-lg font-bold",
@@ -232,7 +229,7 @@ function TrendingStockCard({
                   : "text-rose-600 dark:text-rose-400",
               )}
             >
-              {stock.count.toLocaleString()}
+              {stock.count.toLocaleString()}건
             </p>
           </div>
         </div>

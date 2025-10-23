@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
+import { formatDate } from "date-fns";
 
 const AVATAR_SIZE = 32;
 const REST_OVERLAP = 14;
@@ -218,8 +219,15 @@ export function DashboardStats() {
       return dayOfWeek === 0 || dayOfWeek === 6;
     };
 
-    const options: Array<{ value: string; label: string }> = [];
-    let offset = 0;
+    const todayValue = formatDate(new Date(), "yyyy-MM-dd");
+    const options: Array<{ value: string; label: string }> = [
+      {
+        value: todayValue,
+        label: `오늘 (${formatDate(todayValue, "M월 d일")})`,
+      },
+    ];
+
+    let offset = 1;
     const maxLookback = 21;
 
     while (options.length < 7 && offset <= maxLookback) {
@@ -248,12 +256,12 @@ export function DashboardStats() {
       if (!Number.isNaN(target.getTime())) {
         const month = String(target.getUTCMonth() + 1).padStart(2, "0");
         const day = String(target.getUTCDate()).padStart(2, "0");
-        options.unshift({
+        options.splice(1, 0, {
           value: selectedDay,
           label: `${month}월 ${day}일`,
         });
       } else {
-        options.unshift({ value: selectedDay, label: selectedDay });
+        options.splice(1, 0, { value: selectedDay, label: selectedDay });
       }
     }
     return options;

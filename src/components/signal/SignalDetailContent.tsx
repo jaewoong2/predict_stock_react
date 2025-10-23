@@ -34,11 +34,13 @@ import { MahaneyAnalysisCard } from "./MahaneyAnalysisCard";
 import { useDashboardFilters } from "@/hooks/useDashboard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SignalAPIResponse } from "@/types/signal";
 
 interface SignalDetailContentProps {
   symbol: string;
   aiModel: string;
   date: string;
+  initialData?: SignalAPIResponse | null;
 }
 
 const formatDate = (
@@ -108,6 +110,7 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
   symbol,
   aiModel,
   date,
+  initialData,
 }) => {
   const router = useRouter();
   const { strategy_type, setParams } = useDashboardFilters();
@@ -115,7 +118,9 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 
   const dateOptions = useMemo(() => generateDateOptions(), []);
 
-  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type);
+  const signals = useSignalDataByNameAndDate([symbol], date, strategy_type, {
+    initialData: initialData || undefined,
+  });
 
   const data = useMemo(() => {
     try {
@@ -192,10 +197,11 @@ export const SignalDetailContent: React.FC<SignalDetailContentProps> = ({
 
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div className="space-y-1">
-          <div className="flex items-center justify-center gap-4">
-            <h1 className="text-3xl font-bold tracking-tight">
-              {data.signal.ticker}
+          <div className="flex items-center justify-center">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {data.signal.name}
             </h1>
+            <span className="px-2">•</span>
             <div className="flex flex-col space-y-2">
               <AiModelSelect
                 options={[

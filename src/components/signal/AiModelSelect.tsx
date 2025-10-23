@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronDown, MoveDownIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,10 +42,10 @@ export function AiModelSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between shadow-none"
+          className="w-[200px] justify-between border-0 !p-0 shadow-none"
         >
           {value}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">

@@ -202,9 +202,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <DialogTitle className="text-xl font-semibold text-slate-900 dark:text-slate-50">
             이메일로 로그인
           </DialogTitle>
-          <DialogDescription className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
-            아직 계정이 없으신가요? 무료로 시작하세요
-          </DialogDescription>
         </div>
 
         {/* Form */}
@@ -214,12 +211,17 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <div className="relative">
               <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
-                type="email"
-                placeholder="이메일"
+                placeholder="youremail@example.com"
+                autoFocus={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={sendMagicLink.isPending || isLoading || isVerifying || isPolling}
-                className="h-11 border-slate-200 bg-slate-50 pl-10 text-base dark:border-slate-800 dark:bg-slate-900"
+                disabled={
+                  sendMagicLink.isPending ||
+                  isLoading ||
+                  isVerifying ||
+                  isPolling
+                }
+                className="ios-input-zoom--sm h-11 border-slate-200 bg-slate-50 pl-10 text-base dark:border-slate-800 dark:bg-slate-900"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !isPolling) handleEmailLogin();
                 }}
@@ -230,7 +232,9 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           {/* Submit Button */}
           <Button
             className="h-12 w-full bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
-            disabled={sendMagicLink.isPending || isLoading || isVerifying || isPolling}
+            disabled={
+              sendMagicLink.isPending || isLoading || isVerifying || isPolling
+            }
             onClick={handleEmailLogin}
           >
             {sendMagicLink.isPending || isVerifying ? (

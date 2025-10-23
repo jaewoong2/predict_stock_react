@@ -95,6 +95,29 @@
   body {
     font-family: Arial, Helvetica, sans-serif;
   }
+
+  .ios-input-zoom {
+    font-size: 16px;
+    --ios-input-scale: 1;
+  }
+
+  .ios-input-zoom--sm {
+    --ios-input-scale: 0.875;
+  }
+
+  .ios-input-zoom--xs {
+    --ios-input-scale: 0.8125;
+  }
+
+  @supports (-webkit-touch-callout: none) {
+    @media (max-width: 640px) {
+      .ios-input-zoom {
+        transform-origin: left center;
+        width: calc(100% / var(--ios-input-scale));
+        transform: scale(var(--ios-input-scale));
+      }
+    }
+  }
 }
 
 @layer base {
