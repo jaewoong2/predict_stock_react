@@ -27,14 +27,12 @@ export default function PredictSymbolPageClient({
         대시보드로 돌아가기
       </Button>
 
-      <div className="rounded-lg border bg-background p-6 shadow-sm">
-        <PredictionModalOverlay
-          symbol={symbol}
-          aiProbability={probability}
-          aiModel={model}
-          onClose={() => router.back()}
-        />
-      </div>
+      <PredictionModalOverlay
+        symbol={symbol}
+        aiProbability={probability}
+        aiModel={model}
+        onClose={() => router.back()}
+      />
     </div>
   );
 }

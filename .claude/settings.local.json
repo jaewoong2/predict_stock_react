@@ -13,7 +13,9 @@
       "Bash(command:*)",
       "Bash(npx tsc:*)",
       "Bash(git restore:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Read(//Users/jaeung2/Desktop/**)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
