@@ -14,4 +14,4 @@ public_subnet_ids = [
 security_group_id = "sg-xxxxxxxxx"
 
 # 도메인 설정
-domain_name = "stock.bamtoly.com"
+domain_name = "stock.biizbiiz.com"

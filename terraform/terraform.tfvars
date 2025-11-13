@@ -12,4 +12,4 @@ public_subnet_ids = [
 security_group_id = "sg-0f45e0b0868c2ea7c"
 
 # 도메인 설정
-domain_name = "ai.bamtoly.com"
+domain_name = "biizbiiz.com"

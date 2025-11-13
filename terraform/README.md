@@ -42,7 +42,7 @@ public_subnet_ids = [
 ]
 security_group_id = "sg-실제보안그룹_ID"
 
-domain_name = "stock.bamtoly.com"
+domain_name = "stock.biizbiiz.com"
 ```
 
 ### 2. Terraform 초기화 및 계획
@@ -124,12 +124,12 @@ ALB DNS를 도메인에 연결하려면:
 
 1. Route 53에서 A 레코드 생성:
    ```
-   stock.bamtoly.com -> ALB DNS (Alias)
+   stock.biizbiiz.com -> ALB DNS (Alias)
    ```
 
 2. 또는 CNAME 레코드:
    ```
-   stock.bamtoly.com -> [ALB DNS 이름]
+   stock.biizbiiz.com -> [ALB DNS 이름]
    ```
 
 ## 📝 주의사항

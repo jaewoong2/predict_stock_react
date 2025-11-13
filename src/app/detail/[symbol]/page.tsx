@@ -47,18 +47,18 @@ export async function generateMetadata({
     publisher: "Spam Finance",
     robots: "index, follow",
     alternates: {
-      canonical: `https://ai.bamtoly.com/detail/${symbol}?model=${model}&date=${date}${strategy_type ? `&strategy_type=${strategy_type}` : ""}`,
+      canonical: `https://biizbiiz.com/detail/${symbol}?model=${model}&date=${date}${strategy_type ? `&strategy_type=${strategy_type}` : ""}`,
     },
     openGraph: {
       title: `${symbol} 주식 예측 | ${model} AI 모델`,
       description: "AI 모델과 시장 시그널을 활용한 미국 주식 가격 예측 및 분석",
-      url: `https://ai.bamtoly.com/detail/${symbol}?model=${model}&date=${date}`,
+      url: `https://biizbiiz.com/detail/${symbol}?model=${model}&date=${date}`,
       siteName: "Spam Finance",
       locale: "ko_KR",
       type: "website",
       images: [
         {
-          url: "https://ai.bamtoly.com/og-image.jpg",
+          url: "https://biizbiiz.com/og-image.jpg",
           width: 1200,
           height: 630,
           alt: "Spam Finance Dashboard Preview",
@@ -69,7 +69,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${symbol} 주식 예측 | ${model} AI 모델`,
       description: "AI 모델과 시장 시그널을 활용한 미국 주식 가격 예측 및 분석",
-      images: ["https://ai.bamtoly.com/twitter-image.jpg"],
+      images: ["https://biizbiiz.com/twitter-image.jpg"],
       creator: "@spamfinance",
     },
   };

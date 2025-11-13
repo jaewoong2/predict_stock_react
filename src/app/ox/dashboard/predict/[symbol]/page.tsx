@@ -29,18 +29,18 @@ export async function generateMetadata({
     publisher: "Spam Finance",
     robots: "index, follow",
     alternates: {
-      canonical: `https://ai.bamtoly.com/ox/dashboard/predict/${symbol}`,
+      canonical: `https://biizbiiz.com/ox/dashboard/predict/${symbol}`,
     },
     openGraph: {
       title: `Predict ${symbol} O/X | ${model} Model`,
       description: `Make your O/X prediction for ${symbol} stock price using ${model} AI forecast.`,
-      url: `https://ai.bamtoly.com/ox/dashboard/predict/${symbol}`,
+      url: `https://biizbiiz.com/ox/dashboard/predict/${symbol}`,
       siteName: "Spam Finance",
       locale: "ko_KR",
       type: "website",
       images: [
         {
-          url: "https://ai.bamtoly.com/og-image.jpg",
+          url: "https://biizbiiz.com/og-image.jpg",
           width: 1200,
           height: 630,
           alt: `${symbol} O/X Prediction Game Preview`,
@@ -51,7 +51,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `Predict ${symbol} O/X | ${model} Model`,
       description: `Make your O/X prediction for ${symbol} stock price using ${model} AI forecast.`,
-      images: ["https://ai.bamtoly.com/twitter-image.jpg"],
+      images: ["https://biizbiiz.com/twitter-image.jpg"],
       creator: "@spamfinance",
     },
   };

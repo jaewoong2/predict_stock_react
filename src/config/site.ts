@@ -3,13 +3,13 @@ import { Metadata } from "next";
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-  logo: "https://images.bamtoly.com/images/bamtoly_logo.png",
+  logo: "https://images.biizbiiz.com/images/biizbiiz_logo.png",
   name: "MEMOO",
   description: "이벤트",
   url:
     process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : "https://habbits.bamtoly.com",
+      : "https://habbits.biizbiiz.com",
 };
 
 export const siteMetadata: Metadata = {
@@ -23,12 +23,12 @@ export const siteMetadata: Metadata = {
   openGraph: {
     title: "Habbits | Record Your Habbit With Real Life",
     description: "Record Your Habbit With Real Life",
-    url: "https://habbits.bamtoly.com",
+    url: "https://habbits.biizbiiz.com",
     type: "website",
     siteName: "Habbits | Record Your Habbit With Real Life",
     images: [
       {
-        url: "https://images.bamtoly.com/ramram.png",
+        url: "https://images.biizbiiz.com/ramram.png",
         width: 1200,
         height: 630,
         alt: "Habbits | Record Your Habbit With Real Life",
@@ -38,11 +38,11 @@ export const siteMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@Bamtoly",
+    site: "@biizbiiz",
     creator: "@Jaewoong2",
     title: "Habbits | Record Your Habbit With Real Life",
     description: "Record Your Habbit With Real Life",
-    images: ["https://images.bamtoly.com/ramram.png"],
+    images: ["https://images.biizbiiz.com/ramram.png"],
   },
   robots: {
     index: true,

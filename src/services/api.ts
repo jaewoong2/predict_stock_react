@@ -23,7 +23,7 @@ const getBaseUrl = () => {
     );
   }
   // 프로덕션에서는 직접 요청
-  return process.env.NEXT_PUBLIC_LOCAL_URL || "https://ai-api.bamtoly.com/";
+  return process.env.NEXT_PUBLIC_LOCAL_URL || "https://ai-api.biizbiiz.com/";
 };
 
 // O/X 예측 서비스 API 기본 URL 설정
@@ -36,7 +36,7 @@ const getOxBaseUrl = () => {
   }
   return (
     process.env.NEXT_PUBLIC_OX_API_BASE_URL ||
-    "https://ox-universe.bamtoly.com/api/v1/"
+    "https://ox-universe.biizbiiz.com/api/v1/"
   );
 };
 

@@ -1,4 +1,4 @@
-# 밤톨이 (Bamtoly) 🌰
+# 밤톨이 (biizbiiz) 🌰
 
 > AI 기반 미국 주식 예측 및 분석 플랫폼
 
@@ -167,11 +167,11 @@ npm run dev
 
 ```env
 # API Endpoints
-NEXT_PUBLIC_API_BASE_URL=https://ai-api.bamtoly.com/
-NEXT_PUBLIC_OX_API_BASE_URL=https://ox-universe.bamtoly.com/
+NEXT_PUBLIC_API_BASE_URL=https://ai-api.biizbiiz.com/
+NEXT_PUBLIC_OX_API_BASE_URL=https://ox-universe.biizbiiz.com/
 
 # Image CDN
-NEXT_PUBLIC_IMAGE_URL=https://ai.bamtoly.com/static
+NEXT_PUBLIC_IMAGE_URL=https://biizbiiz.com/static
 
 # AWS (배포 시)
 AWS_ACCESS_KEY_ID=your_access_key
@@ -276,8 +276,8 @@ terraform apply
 
 ## 📞 연락처
 
-- **Website**: [https://ai.bamtoly.com](https://ai.bamtoly.com)
-- **Email**: contact@bamtoly.com
+- **Website**: [https://biizbiiz.com](https://biizbiiz.com)
+- **Email**: contact@biizbiiz.com
 
 ---
 
@@ -308,4 +308,4 @@ terraform apply
 
 ---
 
-**Made with ❤️ by Bamtoly Team**
+**Made with ❤️ by biizbiiz Team**

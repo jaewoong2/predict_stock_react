@@ -55,7 +55,7 @@ variable "security_group_id" {
 variable "domain_name" {
   description = "Domain name for the application"
   type        = string
-  default     = "ai.bamtoly.com"
+  default     = "biizbiiz.com"
 }
 
 # 로컬 변수

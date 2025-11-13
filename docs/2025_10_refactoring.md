@@ -1091,7 +1091,7 @@ import Image from 'next/image';
 export function TickerAvatar({ symbol }: { symbol: string }) {
   return (
     <Image
-      src={`https://images.bamtoly.com/tickers/${symbol}.png`}
+      src={`https://images.biizbiiz.com/tickers/${symbol}.png`}
       alt={symbol}
       width={32}
       height={32}
