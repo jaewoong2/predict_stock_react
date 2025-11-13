@@ -31,3 +31,11 @@ export const getKoreanYYYYMMDD = (date: string | number | Date): string => {
   const formattedDate = dayjs(date).format("YYYY년 MM월 DD일");
   return formattedDate;
 };
+
+export const getTodayKST = (): string => {
+  const kstOffset = 9 * 60; // KST is UTC+9
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const kstDate = new Date(utc + (kstOffset * 60000));
+  return dayjs(kstDate).format("YYYY-MM-DD");
+};

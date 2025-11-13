@@ -311,13 +311,16 @@ const DashboardClient = memo(({ initialData, onDateReset }: Props) => {
       if (aiModel) {
         params.set("model", aiModel);
       }
+      if (date) {
+        params.set("date", date);
+      }
       const query = params.toString();
       router.push(
-        `/ox/dashboard/predict/${symbol}${query ? `?${query}` : ""}`,
+        `/predict/${symbol}${query ? `?${query}` : ""}`,
         { scroll: false },
       );
     },
-    [router, isAuthenticated, showLogin],
+    [router, isAuthenticated, showLogin, date],
   );
 
   const columns = useMemo(

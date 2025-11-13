@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { useSignalSearchParams } from "@/hooks/useSignalSearchParams";
 import { formatDate } from "date-fns";
+import { getTodayKST } from "@/lib/time";
 
 const AVATAR_SIZE = 32;
 const REST_OVERLAP = 14;
@@ -219,7 +220,7 @@ export function DashboardStats() {
       return dayOfWeek === 0 || dayOfWeek === 6;
     };
 
-    const todayValue = formatDate(new Date(), "yyyy-MM-dd");
+    const todayValue = getTodayKST();
     const options: Array<{ value: string; label: string }> = [
       {
         value: todayValue,

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { format as formatDate, parseISO } from "date-fns";
+import { getTodayKST } from "@/lib/time";
 
 const getParam = (
   searchParams: URLSearchParams,
@@ -18,7 +19,7 @@ const getArrayParam = (searchParams: URLSearchParams, key: string) => {
 export function useDashboardFilters() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const todayString = formatDate(new Date(), "yyyy-MM-dd");
+  const todayString = getTodayKST();
 
   const initialDate = useMemo(() => {
     const dateFromUrl = searchParams.get("date");

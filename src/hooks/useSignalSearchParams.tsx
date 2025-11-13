@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useLocalPagination } from "./useLocalPagination";
 import { format } from "date-fns";
+import { getTodayKST } from "@/lib/time";
 
 // setParams의 업데이트 타입
 export interface SignalURLSearchParamsUpdate {
@@ -109,8 +110,8 @@ function SignalSearchParamsProviderInner({
     
     // date가 없으면 즉시 오늘 날짜로 설정
     const dateParam = searchParams.get("date");
-    const date = dateParam || format(new Date(), "yyyy-MM-dd");
-    
+    const date = dateParam || getTodayKST();
+
     return {
       date,
       q: searchParams.get("q"),
@@ -141,8 +142,7 @@ function SignalSearchParamsProviderInner({
     let needsUpdate = false;
 
     if (!urlParams.date) {
-      const today = new Date();
-      const formattedDate = format(today, "yyyy-MM-dd");
+      const formattedDate = getTodayKST();
       initialUpdates.date = formattedDate;
       needsUpdate = true;
     }
@@ -206,14 +206,14 @@ function SignalSearchParamsProviderInner({
 }
 
 // Default fallback values for when Suspense is loading
-const defaultSearchParams: SignalURLSearchParams = {
-  date: format(new Date(), "yyyy-MM-dd"),
+const getDefaultSearchParams = (): SignalURLSearchParams => ({
+  date: getTodayKST(),
   q: null,
   models: [],
   conditions: [],
   strategy_type: null,
   setParams: () => {},
-};
+});
 
 // Outer provider that wraps with Suspense
 export function SignalSearchParamsProvider({
@@ -224,7 +224,7 @@ export function SignalSearchParamsProvider({
   return (
     <Suspense
       fallback={
-        <SignalSearchParamsContext.Provider value={defaultSearchParams}>
+        <SignalSearchParamsContext.Provider value={getDefaultSearchParams()}>
           {children}
         </SignalSearchParamsContext.Provider>
       }

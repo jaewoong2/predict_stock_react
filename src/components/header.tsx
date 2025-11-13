@@ -118,7 +118,7 @@ const Header = () => {
                 B
               </div>
               <span className="hidden text-xl font-bold sm:inline-block">
-                밤토리
+                밤톨이
               </span>
             </Link>
           </div>

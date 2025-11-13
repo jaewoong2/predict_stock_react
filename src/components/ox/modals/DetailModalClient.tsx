@@ -38,13 +38,15 @@ export function DetailModalClient({
 
         <div className="bg-background relative z-10 h-full max-h-[90%] w-full max-w-[70%] overflow-y-auto rounded-lg max-lg:max-w-[calc(100%-1rem)]">
           <div className="p-4">
-            <button
-              onClick={handleClose}
-              className="text-muted-foreground hover:bg-muted absolute top-3 right-3 z-20 rounded-full p-1 transition-colors"
-            >
-              <X className="h-5 w-5" />
-              <span className="sr-only">Close</span>
-            </button>
+            <div className="sticky top-4 flex w-full justify-end">
+              <button
+                onClick={handleClose}
+                className="text-muted-foreground hover:bg-muted z-20 rounded-full p-1 transition-colors"
+              >
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close</span>
+              </button>
+            </div>
             <SignalDetailPage symbol={symbol} aiModel={model} date={date} />
           </div>
         </div>
